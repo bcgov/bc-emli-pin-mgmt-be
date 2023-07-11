@@ -1,0 +1,22 @@
+{
+  "name": "bc-emli-pin-mgmt-be",
+  "version": "1.0.0",
+  "description": "BC Virtual Home Energy Rating PIN Management System Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcgov/bc-emli-pin-mgmt-be.git"
+  },
+  "keywords": [
+    "TypeScript"
+  ],
+  "author": "Government of British Columbia",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bcgov/bc-emli-pin-mgmt-be/issues"
+  },
+  "homepage": "https://github.com/bcgov/bc-emli-pin-mgmt-be#readme"
+}
