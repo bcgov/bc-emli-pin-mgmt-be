@@ -2,11 +2,21 @@
   "name": "bc-emli-pin-mgmt-be",
   "version": "1.0.0",
   "description": "BC Virtual Home Energy Rating PIN Management System Backend",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
-    "start": "node dist/<insert main file name here>"
+    "start": "nodemon --watch \"src/**\" --ext \"ts,tsx,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/index.ts\"",
+    "prepare": "husky install",
+    "test": "jest"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{html,css,less,ejs}": [
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
@@ -22,9 +32,25 @@
   },
   "homepage": "https://github.com/bcgov/bc-emli-pin-mgmt-be#readme",
   "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
     "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.3",
     "@types/node": "^20.4.1",
-    "express": "^4.18.2",
+    "@types/supertest": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.44.0",
+    "eslint-config-prettier": "^8.8.0",
+    "husky": "^8.0.3",
+    "jest-fetch-mock": "^3.0.3",
+    "lint-staged": "^13.2.3",
+    "nodemon": "^3.0.1",
+    "prettier": "3.0.0",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
 }
