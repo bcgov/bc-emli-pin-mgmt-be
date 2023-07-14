@@ -10,3 +10,7 @@ Thumbs.db
 
 # Compilied TypeScript
 dist
+
+# Log files
+logs
+coverage
