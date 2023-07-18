@@ -36,7 +36,7 @@ name: Test + Build Pipeline
 on:
   push:
     branches:
-      - "main"
+      - "dev" # Switch this to environment variable ${{ vars.environemnt }}
 
 jobs:
   build:
@@ -65,10 +65,16 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Login Openshift
+      - name: Login to Openshift
         shell: bash
         run: |
-          oc login --server=${{secrets.OPENSHIFT_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT_SA_TOKEN}}
+          oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN }}
+
+      # Switch namespace to environment variable ${{ vars.OPENSHIFT_NAMESPACE }}
+      - name: Switch to correct project environment in Openshift
+        shell: bash
+        run: |
+          oc project c82b4c-dev
 
       - name: Build image on OpenShift
         shell: bash
