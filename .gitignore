@@ -1,6 +1,5 @@
 # Dependencies
 node_modules
-package-lock.json
 
 # Environment variables
 .env
@@ -8,3 +7,14 @@ package-lock.json
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Compilied TypeScript
+dist
+
+# Log files
+logs
+coverage
+
+# Temporary files
+tmp
+temp
