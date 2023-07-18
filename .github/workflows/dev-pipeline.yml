@@ -1,38 +1,5 @@
 name: Test + Build Pipeline
 
-# on:
-#   pull_request:
-#     # branches: ["dev", "qa", "main"]
-#     branches:
-#       - "main"
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-
-#     strategy:
-#       matrix:
-#         node-version: [16.x]
-#         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-#     steps:
-#       - uses: actions/checkout@v3
-
-#       - name: Use Node.js ${{ matrix.node-version }}
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: ${{ matrix.node-version }}
-#           cache: "npm"
-
-#       - name: Install dependencies
-#         run: npm install
-
-#       - name: Run linter
-#         run: npm run lint
-
-#       - name: Run tests
-#         run: npm test
-
 on:
   push:
     branches:
@@ -70,11 +37,11 @@ jobs:
         run: |
           oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN_DEV }}
 
-      # Switch namespace to environment variable ${{ vars.OPENSHIFT_NAMESPACE }}
+      # Switch namespace to environment variable ${{ secrets.OPENSHIFT_NAMESPACE_DEV }}
       - name: Switch to correct project environment in Openshift
         shell: bash
         run: |
-          oc project c82b4c-dev
+          oc project ${{ secrets.OPENSHIFT_NAMESPACE_DEV }}
 
       - name: Build image on OpenShift
         shell: bash
