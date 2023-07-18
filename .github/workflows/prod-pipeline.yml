@@ -39,7 +39,6 @@ jobs:
       #   run: |
       #     oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN_PROD }}
 
-      # # Switch namespace to environment variable ${{ secrets.OPENSHIFT_NAMESPACE_DEV }}
       # - name: Switch to correct project environment in Openshift
       #   shell: bash
       #   run: |
