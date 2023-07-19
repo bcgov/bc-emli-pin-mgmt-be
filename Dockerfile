@@ -2,7 +2,7 @@
 FROM registry.access.redhat.com/ubi8/nodejs-16 AS deps
 
 #Make app directory in container
-RUN mkdir /app
+# RUN mkdir /app
 
 #Identify working directory
 WORKDIR /app
