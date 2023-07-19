@@ -7,11 +7,9 @@ FROM registry.access.redhat.com/ubi8/nodejs-16 AS deps
 #Identify working directory
 WORKDIR /app
 
-#Copy package
-COPY package.json /app
-
-#Install rpm packages from package.json
-RUN npm install
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN npm ci
 
 #Copy over app to app folder
 COPY . /app 
