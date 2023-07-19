@@ -53,7 +53,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # COPY --from=builder /app/public ./public
 
-COPY --from=builder /app/package.json /app/server.js /app
+COPY --from=builder /app/package.json /app
 COPY --from=builder /app/node_modules /app/node_modules
 
 USER 1001
