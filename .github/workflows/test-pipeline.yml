@@ -32,6 +32,8 @@ jobs:
       - name: Run tests
         run: npm test
 
+      ####### Need to set up test namespace on openshift
+
       # - name: Login to Openshift
       #   shell: bash
       #   run: |
