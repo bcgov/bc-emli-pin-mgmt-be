@@ -1,20 +1,20 @@
 # Install dependencies only when needed
 FROM registry.access.redhat.com/ubi8/nodejs-16 AS deps
-
-#Identify working directory
+USER 0
 WORKDIR /app
 
-#Copy package
-COPY package.json /app
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* ./
+RUN npm ci
 
-#Install rpm packages from package.json
-RUN npm install
+COPY . .
 
-#Copy over app to app folder
-COPY . /app 
+RUN npm run build
 
-#Expose server at port ( accessible outside of container)
+USER 1001
+
 EXPOSE 3000
 
-#Start app 
+ENV PORT 3000
+
 CMD ["node", "dist/index.js"]
