@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
 
 CREATE TABLE IF NOT EXISTS "permission" (
     permission_id UUID PRIMARY KEY NOT NULL,
-    permission VARCHAR(50),
-    role VARCHAR(12)
+    permission VARCHAR(50) NOT NULL,
+    role VARCHAR(12) NOT NULL
 );
 
 -- LOG -------------------------------------------
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS "log" (
     from_land_title_district VARCHAR(2),
     title_status title_status NOT NULL,
     key DATE NOT NULL, 
-    expired_at DATE NOT NULL, 
+    expired_at DATE, 
     expiration_reason expiration_reason_type, 
     sent_to_email VARCHAR(100), 
     sent_to_phone VARCHAR(12)
