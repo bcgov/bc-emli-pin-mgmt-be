@@ -48,3 +48,43 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     created_at DATE NOT NULL,
     updated_at DATE
 );
+
+
+-- PERMISSION -------------------------------------------
+-- Table Definition ----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS "permission" (
+    permission_id UUID PRIMARY KEY NOT NULL,
+    permission VARCHAR(50),
+    role VARCHAR(12)
+);
+
+-- LOG -------------------------------------------
+-- Table Definition ----------------------------------------------
+
+CREATE TYPE expiration_reason_type AS ENUM ('OP', 'CC', 'OR', 'CO', 'OT');
+
+CREATE TABLE IF NOT EXISTS "log" (
+    log_id UUID PRIMARY KEY NOT NULL,
+    pin VARCHAR(8) NOT NULL,
+    pid INT NOT NULL,
+    parcel_status parcel_status_type NOT NULL,
+    title_number VARCHAR(11) NOT NULL, 
+    land_title_district VARCHAR(2) NOT NULL,
+    fron_title_number VARCHAR(11),
+    from_land_title_district VARCHAR(2),
+    title_status title_status NOT NULL,
+    key DATE NOT NULL, 
+    expired_at DATE NOT NULL, 
+    expiration_reason expiration_reason_type, 
+    sent_to_email VARCHAR(100), 
+    sent_to_phone VARCHAR(12)
+);
+
+-- TOKEN -------------------------------------------
+-- Table Definition ----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS "token" (
+    token_id UUID PRIMARY KEY NOT NULL,
+    token JSON NOT NULL
+);
