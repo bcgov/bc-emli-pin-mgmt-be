@@ -26,7 +26,7 @@ CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 CREATE TABLE IF NOT EXISTS "active_pin" (
     live_pin_id UUID PRIMARY KEY NOT NULL,
-    pin VARCHAR(8) NOT NULL,
+    pin VARCHAR(8),
     pid INT NOT NULL,
     parcel_status parcel_status_type NOT NULL,
     title_number VARCHAR(11) NOT NULL,
@@ -56,11 +56,18 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
 CREATE TABLE IF NOT EXISTS "permission" (
     permission_id UUID PRIMARY KEY NOT NULL,
     permission VARCHAR(50) NOT NULL,
-    role VARCHAR(12) NOT NULL
+    role role_type NOT NULL
 );
 
 -- LOG -------------------------------------------
 -- Table Definition ----------------------------------------------
+
+-- PIN EXPIRATION REASONS: 
+    -- OP - Opt-out
+    -- CC - call center pin reset (i.e., forgotten PIN)
+    -- OR- online pin reset
+    -- CO - change of ownership (title cancelled or parcel inactive)
+    -- OT - other
 
 CREATE TYPE expiration_reason_type AS ENUM ('OP', 'CC', 'OR', 'CO', 'OT');
 
