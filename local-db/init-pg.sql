@@ -4,7 +4,6 @@
 -- Table Definition ----------------------------------------------
 
 CREATE EXTENSION citext;
-
 CREATE TYPE role_type AS ENUM ('Standard', 'Admin', 'SuperAdmin');
 
 CREATE TABLE IF NOT EXISTS "user" (
@@ -15,11 +14,12 @@ CREATE TABLE IF NOT EXISTS "user" (
     email CITEXT,
     first_name VARCHAR(50),
     last_name VARCHAR(75),
-    display_name VARCHAR(125)
+    display_name VARCHAR(125),
+    CHECK (bceid_user_guid IS NOT NULL OR idir_user_guid IS NOT NULL)
 );
 
 CREATE TYPE parcel_status_type AS ENUM ('Active', 'Inactive');
-CREATE TYPE title_status AS ENUM ('R', 'C');
+CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 -- ACTIVE PIN -------------------------------------------
 -- Table Definition ----------------------------------------------
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     parcel_status parcel_status_type NOT NULL,
     title_number VARCHAR(11) NOT NULL,
     land_title_district VARCHAR(2) NOT NULL,
-    title_status title_status NOT NULL,
-    fron_title_number VARCHAR(11),
+    title_status title_status_type NOT NULL,
+    from_title_number VARCHAR(11),
     from_land_title_district VARCHAR(2),
     given_name VARCHAR(50),
     last_name_1 VARCHAR(75),
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     city VARCHAR(30) NOT NULL,
     province CHAR(2),
     other_geographic_division VARCHAR(24),
-    country VARCHAR(30) NOT NULL,
+    country VARCHAR(38) NOT NULL,
     postal_code VARCHAR(12),
     created_at DATE NOT NULL,
     updated_at DATE
