@@ -18,11 +18,11 @@ CREATE TABLE IF NOT EXISTS "user" (
     CHECK (bceid_user_guid IS NOT NULL OR idir_user_guid IS NOT NULL)
 );
 
-CREATE TYPE parcel_status_type AS ENUM ('Active', 'Inactive');
-CREATE TYPE title_status_type AS ENUM ('R', 'C');
-
 -- ACTIVE PIN -------------------------------------------
 -- Table Definition ----------------------------------------------
+
+CREATE TYPE parcel_status_type AS ENUM ('Active', 'Inactive');
+CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 CREATE TABLE IF NOT EXISTS "active_pin" (
     live_pin_id UUID PRIMARY KEY NOT NULL,
