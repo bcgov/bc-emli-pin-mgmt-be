@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "user" (
 -- ACTIVE PIN -------------------------------------------
 -- Table Definition ----------------------------------------------
 
-CREATE TYPE parcel_status_type AS ENUM ('Active', 'Inactive');
+CREATE TYPE parcel_status_type AS ENUM ('A', 'I');
 CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 CREATE TABLE IF NOT EXISTS "active_pin" (
