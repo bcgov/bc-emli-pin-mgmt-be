@@ -29,26 +29,26 @@ describe('PIN Generation Tests', () => {
     });
 
     test('Batch create 0 pins', async () => {
-        expect(gen.initialCreate(0)).rejects.toThrow(
+        await expect(gen.initialCreate(0)).rejects.toThrow(
             'The number of PINS created must be greater than 0.',
         );
     });
 
     test('Batch create force repeated PIN', async () => {
-        expect(gen.initialCreate(9, 3, 'AB')).rejects.toThrow(
+        await expect(gen.initialCreate(9, 3, 'AB')).rejects.toThrow(
             'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
         );
     });
 
     test('Batch create too short PIN (length < 1)', async () => {
         // const gen = new PINGenerator();
-        expect(gen.initialCreate(1, 0)).rejects.toThrow(
+        await expect(gen.initialCreate(1, 0)).rejects.toThrow(
             'PIN must be of length 1 or greater',
         );
     });
 
     test('Batch create PIN with no characters in set', async () => {
-        expect(gen.initialCreate(1, 2, '')).rejects.toThrow(
+        await expect(gen.initialCreate(1, 2, '')).rejects.toThrow(
             'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
         );
     });
