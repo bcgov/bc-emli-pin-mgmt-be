@@ -9,6 +9,7 @@ CREATE TYPE role_type AS ENUM ('Standard', 'Admin', 'SuperAdmin');
 CREATE TABLE IF NOT EXISTS "user" (
     user_id UUID PRIMARY KEY NOT NULL,
     user_guid VARCHAR(36) NOT NULL,
+    identity_type VARCHAR(10) NOT NULL,
     role role_type NOT NULL, 
     organization VARCHAR(50) NOT NULL,
     email CITEXT NOT NULL,
