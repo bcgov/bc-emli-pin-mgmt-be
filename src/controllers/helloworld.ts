@@ -5,7 +5,7 @@ interface HelloWorldResponse {
 }
 
 @Route('helloworld')
-export default class HelloWorldController {
+export class HelloWorldController {
     @Get('/')
     public async getMessage(): Promise<HelloWorldResponse> {
         return {

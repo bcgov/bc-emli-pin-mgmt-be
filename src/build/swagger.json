@@ -17,6 +17,65 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"PIN": {
+				"type": "string",
+				"example": "abcdefgh",
+				"description": "A PIN generated for a homeowner. Defaults to 8 character length and \nall numbers + lowercase letters as the character set."
+			},
+			"PINObject": {
+				"description": "An object containing an array of unique, generated PINS",
+				"properties": {
+					"pins": {
+						"items": {
+							"$ref": "#/components/schemas/PIN"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"pins"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pins": [
+						"abcdefgh",
+						"12345678"
+					]
+				}
+			},
+			"rangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "The number of PINS created must be greater than 0."
+				}
+			},
+			"serverErrorType": {
+				"description": "Generic unknown server error",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Internal Server Error"
+				}
 			}
 		},
 		"securitySchemes": {}
@@ -51,6 +110,76 @@
 				},
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/pins/initial-create": {
+			"get": {
+				"operationId": "GetInitialPins",
+				"responses": {
+					"200": {
+						"description": "An object containing an array of the created, unique PINs",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PINObject"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/rangeErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The quantity of PINs you wish to create.",
+						"in": "query",
+						"name": "quantity",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "The length of each PIN. Defaults to 8 characters.",
+						"in": "query",
+						"name": "pinLength",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "A string (not regex) of the characters to be used to \ngenerate the pin. Defaults to all lowercase letters and numbers.",
+						"in": "query",
+						"name": "allowedChars",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		}
 	},
