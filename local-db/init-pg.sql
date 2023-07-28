@@ -8,14 +8,14 @@ CREATE TYPE role_type AS ENUM ('Standard', 'Admin', 'SuperAdmin');
 
 CREATE TABLE IF NOT EXISTS "user" (
     user_id UUID PRIMARY KEY NOT NULL,
-    bceid_user_guid VARCHAR(36),
-    idir_user_guid VARCHAR(36),
+    user_guid VARCHAR(36) NOT NULL,
     role role_type NOT NULL, 
-    email CITEXT,
-    first_name VARCHAR(50),
-    last_name VARCHAR(75),
-    display_name VARCHAR(125),
-    CHECK (bceid_user_guid IS NOT NULL OR idir_user_guid IS NOT NULL)
+    organization VARCHAR(50) NOT NULL,
+    email CITEXT NOT NULL,
+    user_name VARCHAR(50) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(75) NOT NULL,
+    is_active BOOLEAN NOT NULL,
 );
 
 -- ACTIVE PIN -------------------------------------------
