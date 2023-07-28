@@ -93,6 +93,6 @@ CREATE TABLE IF NOT EXISTS "pin_audit_log" (
     key DATE NOT NULL, 
     expired_at DATE, 
     expiration_reason expiration_reason_type, 
-    sent_to_email VARCHAR(100), 
+    sent_to_email CITEXT, 
     sent_to_phone VARCHAR(12)
 );
