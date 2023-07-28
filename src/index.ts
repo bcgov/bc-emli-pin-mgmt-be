@@ -1,5 +1,3 @@
-// Basic test file for Express
-
 import express, { Express, Response, Request, NextFunction } from 'express';
 import { ValidateError } from 'tsoa';
 import { RegisterRoutes } from './build/routes';
@@ -8,6 +6,7 @@ import swaggerUI from 'swagger-ui-express';
 import swagger from './build/swagger.json';
 import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
+import 'dotenv/config';
 
 const app: Express = express();
 const port: number = 3000;
@@ -39,13 +38,21 @@ app.use(function errorHandler(
     next: NextFunction,
 ): Response | void {
     if (err instanceof ValidateError) {
-        console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
+        logger.warn(
+            `Caught Validation Error for ${req.path}: ${JSON.stringify(
+                err?.fields,
+            )}`,
+        );
         return res.status(422).json({
             message: 'Validation Failed',
             details: err?.fields,
         });
     }
     if (err instanceof Error) {
+        logger.warn(
+            `Encountered unknown Internal Server Error for ${req.path}:`,
+            err.message,
+        );
         return res.status(500).json({
             message: 'Internal Server Error',
         });
@@ -53,7 +60,10 @@ app.use(function errorHandler(
 
     next();
 });
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        logger.debug(`[Server]: I am running at port:${port}`);
+    });
+}
 
-app.listen(port, () => {
-    logger.debug(`[Server]: I am running at port:${port}`);
-});
+export { app };

@@ -1,11 +1,20 @@
-// Basic file to check if tests are working as expected
+import { app } from '../index';
+import request from 'supertest';
 
-describe('Sample tests', () => {
-    test('Sample test', () => {
-        const a: number = 2,
-            b: number = 3
-        expect(a).toBe(2)
-        expect(b).toBe(3)
-        expect(a).not.toEqual(b)
-    })
-})
+describe('Index tests', () => {
+    test('/docs/swagger-ui-int.js should return 200', async () => {
+        const res = await request(app).get('/docs/swagger-ui-int.js');
+        expect(res.statusCode).toBe(200);
+    });
+
+    test('/helloworld should return 200', async () => {
+        const res = await request(app).get('/helloworld');
+        expect(res.statusCode).toBe(200);
+        expect(res.body.message).toEqual('Goodbye, moon!');
+    });
+
+    test('non-existent url should return 404', async () => {
+        const res = await request(app).get('/thisdoesnotexist');
+        expect(res.statusCode).toBe(404);
+    });
+});

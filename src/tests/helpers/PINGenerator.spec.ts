@@ -41,7 +41,6 @@ describe('PIN Generation Tests', () => {
     });
 
     test('Batch create too short PIN (length < 1)', async () => {
-        // const gen = new PINGenerator();
         await expect(gen.initialCreate(1, 0)).rejects.toThrow(
             'PIN must be of length 1 or greater',
         );

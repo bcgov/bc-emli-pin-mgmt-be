@@ -10,8 +10,11 @@ const jestConfig: JestConfigWithTsJest = {
     collectCoverageFrom: [
         'src/**/([a-zA-Z_]*).{js,ts}',
         '!**/*.spec.{js,ts}',
+        '!dist/**/*.spec.{js,ts}',
         '!src/build/**/*.{js,ts}',
+        '!src/routes/**/*.{js,ts}',
     ],
+    testPathIgnorePatterns: ['dist/tests/*'],
 };
 
 export default jestConfig;

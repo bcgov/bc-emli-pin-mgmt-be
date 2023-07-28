@@ -6,6 +6,7 @@ import {
     serverErrorType,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
+import logger from '../middleware/logger';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -36,10 +37,16 @@ export class PINController extends Controller {
             PINObject.pins = Object.keys(generatedPINS);
         } catch (err) {
             if (err instanceof RangeError) {
+                logger.warn(
+                    `Encountered Range Error in getInitialPins: ${err.message}`,
+                );
                 return rangeErrorResponse(422, {
                     message: err.message,
                 } as rangeErrorType);
             } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in getInitialPins: ${err.message}`,
+                );
                 return serverErrorResponse(500, { message: err.message });
             }
         }
