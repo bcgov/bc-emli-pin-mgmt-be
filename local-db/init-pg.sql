@@ -21,7 +21,16 @@ CREATE TABLE IF NOT EXISTS "user" (
 -- ACTIVE PIN -------------------------------------------
 -- Table Definition ----------------------------------------------
 
+-- PARCEL STATUS TYPES: 
+    -- A - Active
+    -- I - Inactive (i.e., cancelled)
+
 CREATE TYPE parcel_status_type AS ENUM ('A', 'I');
+
+-- TITLE STATUS TYPES:
+    -- R - Registered
+    -- C - Cancelled
+
 CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 CREATE TABLE IF NOT EXISTS "active_pin" (
@@ -65,13 +74,12 @@ CREATE TABLE IF NOT EXISTS "permission" (
 -- PIN EXPIRATION REASONS: 
     -- OP - Opt-out
     -- CC - call center pin reset (i.e., forgotten PIN)
-    -- OR- online pin reset
+    -- OR - online pin reset
     -- CO - change of ownership (title cancelled or parcel inactive)
-    -- OT - other
 
-CREATE TYPE expiration_reason_type AS ENUM ('OP', 'CC', 'OR', 'CO', 'OT');
+CREATE TYPE expiration_reason_type AS ENUM ('OP', 'CC', 'OR', 'CO');
 
-CREATE TABLE IF NOT EXISTS "log" (
+CREATE TABLE IF NOT EXISTS "pin_audit_log" (
     log_id UUID PRIMARY KEY NOT NULL,
     pin VARCHAR(8) NOT NULL,
     pid INT NOT NULL,
@@ -86,12 +94,4 @@ CREATE TABLE IF NOT EXISTS "log" (
     expiration_reason expiration_reason_type, 
     sent_to_email VARCHAR(100), 
     sent_to_phone VARCHAR(12)
-);
-
--- TOKEN -------------------------------------------
--- Table Definition ----------------------------------------------
-
-CREATE TABLE IF NOT EXISTS "token" (
-    token_id UUID PRIMARY KEY NOT NULL,
-    token JSON NOT NULL
 );
