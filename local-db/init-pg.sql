@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS "log" (
     land_title_district VARCHAR(2) NOT NULL,
     fron_title_number VARCHAR(11),
     from_land_title_district VARCHAR(2),
-    title_status title_status NOT NULL,
+    title_status title_status_type NOT NULL,
     key DATE NOT NULL, 
     expired_at DATE, 
     expiration_reason expiration_reason_type, 
