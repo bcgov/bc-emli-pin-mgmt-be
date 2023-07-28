@@ -21,7 +21,7 @@
 			"PIN": {
 				"type": "string",
 				"example": "abcdefgh",
-				"description": "A PIN generated for a homeowner. Defaults to 8 character length and \nall numbers + lowercase letters as the character set."
+				"description": "A PIN generated for a homeowner. Defaults to 8 character length and\nall numbers + lowercase letters as the character set."
 			},
 			"PINObject": {
 				"description": "An object containing an array of unique, generated PINS",
@@ -171,7 +171,7 @@
 						}
 					},
 					{
-						"description": "A string (not regex) of the characters to be used to \ngenerate the pin. Defaults to all lowercase letters and numbers.",
+						"description": "A string (not regex) of the characters to be used to\ngenerate the pin. Defaults to all lowercase letters and numbers.",
 						"in": "query",
 						"name": "allowedChars",
 						"required": false,
