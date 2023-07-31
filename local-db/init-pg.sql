@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     other_geographic_division VARCHAR(24),
     country VARCHAR(38) NOT NULL,
     postal_code VARCHAR(12),
-    created_at DATE NOT NULL,
-    updated_at DATE
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME
 );
 
 
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS "pin_audit_log" (
     from_title_number VARCHAR(11),
     from_land_title_district VARCHAR(2),
     title_status title_status_type NOT NULL,
-    expired_at DATE, 
+    expired_at DATETIME, 
     expiration_reason expiration_reason_type, 
     sent_to_email CITEXT, 
     sent_to_phone VARCHAR(12)
