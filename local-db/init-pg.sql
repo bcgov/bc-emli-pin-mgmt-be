@@ -4,10 +4,11 @@
 -- Table Definition ----------------------------------------------
 
 CREATE EXTENSION citext;
+CREATE EXTENSION "uuid-ossp";
 CREATE TYPE role_type AS ENUM ('Standard', 'Admin', 'SuperAdmin');
 
-CREATE TABLE IF NOT EXISTS "user" (
-    user_id UUID PRIMARY KEY NOT NULL,
+CREATE TABLE IF NOT EXISTS "users" (
+    user_id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     user_guid VARCHAR(36) NOT NULL,
     identity_type VARCHAR(10) NOT NULL,
     role role_type NOT NULL, 
@@ -35,7 +36,7 @@ CREATE TYPE parcel_status_type AS ENUM ('A', 'I');
 CREATE TYPE title_status_type AS ENUM ('R', 'C');
 
 CREATE TABLE IF NOT EXISTS "active_pin" (
-    live_pin_id UUID PRIMARY KEY NOT NULL,
+    live_pin_id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     pin VARCHAR(8),
     pid INT NOT NULL,
     parcel_status parcel_status_type NOT NULL,
@@ -55,8 +56,8 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     other_geographic_division VARCHAR(24),
     country VARCHAR(38) NOT NULL,
     postal_code VARCHAR(12),
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
 );
 
 
@@ -64,7 +65,7 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
 -- Table Definition ----------------------------------------------
 
 CREATE TABLE IF NOT EXISTS "permission" (
-    permission_id UUID PRIMARY KEY NOT NULL,
+    permission_id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     permission VARCHAR(50) NOT NULL,
     role role_type NOT NULL
 );
@@ -81,7 +82,7 @@ CREATE TABLE IF NOT EXISTS "permission" (
 CREATE TYPE expiration_reason_type AS ENUM ('OP', 'CC', 'OR', 'CO');
 
 CREATE TABLE IF NOT EXISTS "pin_audit_log" (
-    log_id UUID PRIMARY KEY NOT NULL,
+    log_id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     pin VARCHAR(8) NOT NULL,
     pid INT NOT NULL,
     parcel_status parcel_status_type NOT NULL,
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS "pin_audit_log" (
     from_title_number VARCHAR(11),
     from_land_title_district VARCHAR(2),
     title_status title_status_type NOT NULL,
-    expired_at DATETIME, 
+    expired_at TIMESTAMP, 
     expiration_reason expiration_reason_type, 
     sent_to_email CITEXT, 
     sent_to_phone VARCHAR(12)
