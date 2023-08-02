@@ -2,8 +2,8 @@ import { app } from '../index';
 import request from 'supertest';
 
 describe('Index tests', () => {
-    test('/docs/swagger-ui-int.js should return 200', async () => {
-        const res = await request(app).get('/docs/swagger-ui-int.js');
+    test('/api-specs/swagger-ui-int.js should return 200', async () => {
+        const res = await request(app).get('/api-specs/swagger-ui-int.js');
         expect(res.statusCode).toBe(200);
     });
 

@@ -7,9 +7,12 @@ import swagger from './build/swagger.json';
 import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
+import { AppDataSource } from './data-source';
 
 const app: Express = express();
-const port: number = 3000;
+const port: number = process.env.SERVER_PORT
+    ? parseInt(process.env.SERVER_PORT as string)
+    : 3000;
 
 // Middleware configuration
 app.use(express.json());
@@ -18,7 +21,7 @@ app.use(express.static('public'));
 
 // Route configuration
 app.use(Router);
-app.use('/docs', swaggerUI.serve, async (req: Request, res: Response) => {
+app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
     return res.send(swaggerUI.generateHTML(swagger));
 });
 
@@ -60,10 +63,12 @@ app.use(function errorHandler(
 
     next();
 });
+
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(port, () => {
+    app.listen(port, async () => {
+        await AppDataSource.initialize();
         logger.debug(`[Server]: I am running at port:${port}`);
     });
 }
 
-export { app };
+export { app, AppDataSource };

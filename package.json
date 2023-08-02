@@ -9,8 +9,13 @@
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
-    "test": "jest",
-    "start": "node dist/index.js"
+    "test": "npm run db:migrate:test && jest",
+    "start": "node dist/index.js",
+	"db:migrate": "typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+	"db:migrate:down": "typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
+	"db:migrate:test": "NODE_ENV=test typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+	"db:migrate:test:down": "NODE_ENV=test typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
+    "model:generate": "typeorm-model-generator -d $DB_NAME -s db -u $DB_USERNAME -e postgres -h $DB_HOST && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''db'\\'' }//g' ./src/entity/*.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -70,6 +75,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
+    "typeorm-model-generator": "^0.4.6",
     "typescript": "^5.1.6"
   }
 }

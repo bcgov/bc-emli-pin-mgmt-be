@@ -1,19 +1,27 @@
-// Template (no real data). To be fixed and hidden in gitignore
-// Cannot add in db startup code at this time to src/index.ts as it will obviously error out
 import 'reflect-metadata';
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { User } from './entity/User';
+import { ActivePin } from './entity/ActivePin';
+import { Permission } from './entity/Permission';
+import { PinAuditLog } from './entity/PinAuditLog';
+import { Users } from './entity/Users';
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'test',
-    password: 'test',
-    database: 'test',
-    synchronize: true,
-    logging: false,
-    entities: [User],
-    migrations: [],
-    subscribers: [],
+    schema: process.env.NODE_ENV === 'test' ? 'test' : 'db',
+    host: process.env.DB_HOST ? process.env.DB_HOST : '127.0.0.1',
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT as string) : 5432,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    entities: [ActivePin, Permission, PinAuditLog, Users],
+    migrations: ['./src/migration/**/*.ts'],
+    synchronize:
+        process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true' &&
+        process.env.NODE_ENV !== 'test'
+            ? true
+            : false,
+    logging:
+        process.env.TYPEORM_LOGGING?.toLowerCase() === 'true' ? true : false,
+    // dropSchema: process.env.NODE_ENV==='test' ? true: false
 });
