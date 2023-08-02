@@ -13,7 +13,6 @@ pinsRouter.get('/initial-create', async (req: Request, res: Response) => {
         parseInt(req.params.pinLength),
         req.params.allowedChars,
     );
-    console.log('DB Username~~~~~~~~~~', process.env.DB_USERNAME);
     return res.send(response);
 });
 

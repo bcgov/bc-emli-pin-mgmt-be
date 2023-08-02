@@ -28,6 +28,7 @@ export class PINController extends Controller {
     ): Promise<PINObject> {
         const gen: PINGenerator = new PINGenerator();
         const PINObject: PINObject = { pins: [] };
+
         try {
             const generatedPINS: PINDictionary = await gen.initialCreate(
                 quantity,

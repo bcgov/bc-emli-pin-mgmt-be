@@ -16,8 +16,6 @@ app.use(express.json());
 app.use(morganConfig);
 app.use(express.static('public'));
 
-console.log('DB INFO~~~~~~~~~~', process.env.DB_NAME);
-
 // Route configuration
 app.use(Router);
 app.use('/docs', swaggerUI.serve, async (req: Request, res: Response) => {
