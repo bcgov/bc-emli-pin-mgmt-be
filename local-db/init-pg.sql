@@ -3,8 +3,8 @@
 -- USER -------------------------------------------
 -- Table Definition ----------------------------------------------
 
-CREATE EXTENSION citext;
-CREATE EXTENSION "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TYPE role_type AS ENUM ('Standard', 'Admin', 'SuperAdmin');
 
 CREATE TABLE IF NOT EXISTS "users" (
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS "active_pin" (
     other_geographic_division VARCHAR(24),
     country VARCHAR(38) NOT NULL,
     postal_code VARCHAR(12),
-    created_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP
 );
 

@@ -1,17 +1,58 @@
-import { PIN, PINDictionary } from './types.js';
+import { PIN, PINDictionary, createdPIN } from './types';
 import cryptoRandomString from 'crypto-random-string';
+import { AppDataSource } from '../data-source';
+import { ActivePin } from '../entity/ActivePin';
 
 export default class PINGenerator {
     allowedChars: string = '0123456789abcdefghijklmnopqrstuvwxyz';
     pinLength: number = 8;
 
     /**
-     * Creates a single PIN, checking against the database to ensure it is unique
-     * This requires DB approval, so it cannot be finalized at the moment
+     * Creates a single PIN, checking against the database to ensure it is unique.
+     * @param pinLength is the length of the pin. Defaults to 8
+     * @param allowedChars is a string containing the allowed character set (not a regex). Default is a-z and 0-9
      */
-    /* public create(): PIN {
-
-    } */
+    public async create(
+        pinLength?: number,
+        allowedChars?: string,
+    ): Promise<createdPIN> {
+        const length: number =
+            pinLength || pinLength === 0 ? pinLength : this.pinLength;
+        const characters: string =
+            allowedChars || allowedChars === ''
+                ? allowedChars
+                : this.allowedChars;
+        if (length <= 0) {
+            throw new RangeError('PIN must be of length 1 or greater');
+        }
+        let newPIN: PIN = '';
+        const PINRepo = AppDataSource.getRepository(ActivePin);
+        let retry: number = 0;
+        for (; retry < 20; retry++) {
+            newPIN = cryptoRandomString({
+                length: length,
+                characters: characters,
+            });
+            const DBResult = await PINRepo.find({
+                select: { pin: true },
+                where: { pin: newPIN },
+            });
+            // Check against DB here
+            if (DBResult.length >= 1) {
+                continue;
+            } else {
+                break;
+            }
+        }
+        if (retry >= 20) {
+            // we couldn't make a unique pin after 20 attempts, likely would continue into an infinite loop
+            throw new RangeError(
+                'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.',
+            );
+        }
+        // Else, return new PIN for later insertion into the database
+        return { pin: newPIN };
+    }
 
     /**
      * Creates a batch of PINS on first use, checking amongst themselves and not a database for uniqueness

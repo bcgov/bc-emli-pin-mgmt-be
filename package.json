@@ -9,9 +9,13 @@
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
-    "test": "jest",
+    "test": "npm run db:migrate:test && jest",
     "start": "node dist/index.js",
-	"model:generate": "typeorm-model-generator -d $TYPEORM_DATABASE  -u $TYPEORM_USER -e postgres -h $TYPEORM_HOST && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts"
+	"db:migrate": "typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+	"db:migrate:down": "typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
+	"db:migrate:test": "NODE_ENV=test typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
+	"db:migrate:test:down": "NODE_ENV=test typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
+    "model:generate": "typeorm-model-generator -d $TYPEORM_DATABASE  -u $TYPEORM_USER -e postgres -h $TYPEORM_HOST && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''public'\\'' }//g' ./src/entity/*.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

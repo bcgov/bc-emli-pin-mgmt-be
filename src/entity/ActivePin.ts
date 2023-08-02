@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 
 @Index('active_pin_pkey', ['livePinId'], { unique: true })
-@Entity('active_pin', { schema: 'public' })
+@Entity('active_pin')
 export class ActivePin {
     @Column('uuid', {
         primary: true,
@@ -103,7 +103,10 @@ export class ActivePin {
     })
     postalCode: string | null;
 
-    @Column('timestamp without time zone', { name: 'created_at' })
+    @Column('timestamp without time zone', {
+        name: 'created_at',
+        default: () => 'now()',
+    })
     createdAt: Date;
 
     @Column('timestamp without time zone', {

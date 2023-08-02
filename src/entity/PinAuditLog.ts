@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 
 @Index('pin_audit_log_pkey', ['logId'], { unique: true })
-@Entity('pin_audit_log', { schema: 'public' })
+@Entity('pin_audit_log')
 export class PinAuditLog {
     @Column('uuid', {
         primary: true,

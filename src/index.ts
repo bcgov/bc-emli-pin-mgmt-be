@@ -7,26 +7,12 @@ import swagger from './build/swagger.json';
 import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+import { AppDataSource } from './data-source';
 
 const app: Express = express();
-const port: number = 3000;
-
-const AppDataSource = new DataSource({
-    type: 'postgres',
-    host: process.env.TYPEORM_HOST,
-    port: parseInt(process.env.TYPEORM_PORT as string),
-    username: process.env.TYPEORM_USERNAME,
-    password: process.env.TYPEORM_PASSWORD,
-    database: process.env.TYPEORM_DATABASE,
-    entities: ['./src/entity/**/*.ts'],
-    synchronize:
-        process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true'
-            ? true
-            : false,
-    logging: false,
-});
+const port: number = process.env.PORT_NUMBER
+    ? parseInt(process.env.PORT_NUMBER as string)
+    : 3000;
 
 // Middleware configuration
 app.use(express.json());
@@ -35,7 +21,7 @@ app.use(express.static('public'));
 
 // Route configuration
 app.use(Router);
-app.use('/docs', swaggerUI.serve, async (req: Request, res: Response) => {
+app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
     return res.send(swaggerUI.generateHTML(swagger));
 });
 

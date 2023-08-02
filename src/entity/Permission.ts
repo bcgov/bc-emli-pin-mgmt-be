@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 
 @Index('permission_pkey', ['permissionId'], { unique: true })
-@Entity('permission', { schema: 'public' })
+@Entity('permission')
 export class Permission {
     @Column('uuid', {
         primary: true,
