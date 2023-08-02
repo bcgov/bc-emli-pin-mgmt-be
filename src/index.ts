@@ -10,8 +10,8 @@ import 'dotenv/config';
 import { AppDataSource } from './data-source';
 
 const app: Express = express();
-const port: number = process.env.PORT_NUMBER
-    ? parseInt(process.env.PORT_NUMBER as string)
+const port: number = process.env.SERVER_PORT
+    ? parseInt(process.env.SERVER_PORT as string)
     : 3000;
 
 // Middleware configuration
