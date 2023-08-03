@@ -27,7 +27,7 @@ describe('test new function', () => {
     /*
 		Singular create tests
 	*/
-    it('Initial create 1 pin (empty database)', async () => {
+    test('Initial create 1 pin (empty database)', async () => {
         const newPIN = await gen.create();
         expect(newPIN.pin.length).toEqual(8);
         const dbPINs = await ActivePIN.findPin(undefined, { pin: newPIN.pin });
@@ -102,8 +102,8 @@ describe('test new function', () => {
     });
 
     test('Batch create PIN with no characters in set', async () => {
-        await expect(gen.initialCreate(1, 2, '')).rejects.toThrow(
-            'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
-        );
+        const output: PINDictionary = await gen.initialCreate(1, 2, '');
+        expect(Object.keys(output).length).toBe(1);
+        expect(Object.keys(output)[0].length).toBe(2);
     });
 });

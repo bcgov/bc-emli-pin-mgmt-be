@@ -3,13 +3,15 @@ import { findPin } from '../db/ActivePIN.db';
 import cryptoRandomString from 'crypto-random-string';
 
 export default class PINGenerator {
-    allowedChars: string = '0123456789abcdefghijklmnopqrstuvwxyz';
+    allowedCharsUpper: string = '123456789ABCDEFGHIJKLMNPQRSTUVWXYZ';
+    allowedCharsLower: string = '0123456789abcdefghijklmnopqrstuvwxyz';
+    allowedChars: string = this.allowedCharsUpper;
     pinLength: number = 8;
 
     /**
      * Creates a single PIN, checking against the database to ensure it is unique.
      * @param pinLength is the length of the pin. Defaults to 8
-     * @param allowedChars is a string containing the allowed character set (not a regex). Default is a-z and 0-9
+     * @param allowedChars is a string containing the allowed character set (not a regex). Default is A-Z excluding O, and 1-9
      */
     public async create(
         pinLength?: number,
@@ -17,10 +19,9 @@ export default class PINGenerator {
     ): Promise<createdPIN> {
         const length: number =
             pinLength || pinLength === 0 ? pinLength : this.pinLength;
-        const characters: string =
-            allowedChars || allowedChars === ''
-                ? allowedChars
-                : this.allowedChars;
+        const characters: string = allowedChars
+            ? allowedChars
+            : this.allowedChars;
         if (length <= 0) {
             throw new RangeError('PIN must be of length 1 or greater');
         }
@@ -53,7 +54,7 @@ export default class PINGenerator {
      * Creates a batch of PINS on first use, checking amongst themselves and not a database for uniqueness
      * @param quantity (required) is the number of PINS to create
      * @param pinLength is the length of the pin. Defaults to 8
-     * @param allowedChars is a string containing the allowed character set (not a regex). Default is a-z and 0-9
+     * @param allowedChars is a string containing the allowed character set (not a regex). Default is A-Z excluding O, and 1-9
      */
     public async initialCreate(
         quantity: number,
@@ -67,10 +68,9 @@ export default class PINGenerator {
         }
         const length: number =
             pinLength || pinLength === 0 ? pinLength : this.pinLength;
-        const characters: string =
-            allowedChars || allowedChars === ''
-                ? allowedChars
-                : this.allowedChars;
+        const characters: string = allowedChars
+            ? allowedChars
+            : this.allowedChars;
         if (length <= 0) {
             throw new RangeError('PIN must be of length 1 or greater');
         }

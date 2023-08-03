@@ -18,6 +18,52 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"createdPIN": {
+				"description": "A PIN generated for a homeowner, checked for uniqueness against the database. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
+				"properties": {
+					"pin": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pin"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": "abcdefgh"
+			},
+			"pinRangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "PIN must be of length 1 or greater"
+				}
+			},
+			"serverErrorType": {
+				"description": "Generic unknown server error",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Internal Server Error"
+				}
+			},
 			"PIN": {
 				"type": "string",
 				"example": "abcdefgh",
@@ -43,38 +89,6 @@
 						"abcdefgh",
 						"12345678"
 					]
-				}
-			},
-			"rangeErrorType": {
-				"description": "Generic range error that may occur when you give a value out of bounds",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "The number of PINS created must be greater than 0."
-				}
-			},
-			"serverErrorType": {
-				"description": "Generic unknown server error",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Internal Server Error"
 				}
 			}
 		},
@@ -112,6 +126,66 @@
 				"parameters": []
 			}
 		},
+		"/pins/create": {
+			"get": {
+				"operationId": "GetPin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/createdPIN"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/pinRangeErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'\n- 500\n-- 'Internal Server Error'",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The length of each PIN. Defaults to 8 characters.",
+						"in": "query",
+						"name": "pinLength",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "A string (not regex) of the characters to be used to\ngenerate the pin. Default is A-Z excluding O, and 1-9",
+						"in": "query",
+						"name": "allowedChars",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/pins/initial-create": {
 			"get": {
 				"operationId": "GetInitialPins",
@@ -131,7 +205,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/rangeErrorType"
+									"$ref": "#/components/schemas/pinRangeErrorType"
 								}
 							}
 						}
@@ -147,7 +221,7 @@
 						}
 					}
 				},
-				"description": "Used for the initial creation of PINs, when none exist in the database yet.",
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'\n-- 'The number of PINS created must be greater than 0.'\n- 500\n-- 'Internal Server Error'",
 				"security": [],
 				"parameters": [
 					{
@@ -171,7 +245,7 @@
 						}
 					},
 					{
-						"description": "A string (not regex) of the characters to be used to\ngenerate the pin. Defaults to all lowercase letters and numbers.",
+						"description": "A string (not regex) of the characters to be used to\ngenerate the pin. Default is A-Z excluding O, and 1-9",
 						"in": "query",
 						"name": "allowedChars",
 						"required": false,
