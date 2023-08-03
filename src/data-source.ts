@@ -5,6 +5,7 @@ import { ActivePin } from './entity/ActivePin';
 import { Permission } from './entity/Permission';
 import { PinAuditLog } from './entity/PinAuditLog';
 import { Users } from './entity/Users';
+import { Migrations } from './entity/Migrations';
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [ActivePin, Permission, PinAuditLog, Users],
+    entities: [ActivePin, Permission, PinAuditLog, Users, Migrations],
     migrations: ['./src/migration/**/*.ts'],
     synchronize:
         process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true' &&
@@ -23,5 +24,5 @@ export const AppDataSource = new DataSource({
             : false,
     logging:
         process.env.TYPEORM_LOGGING?.toLowerCase() === 'true' ? true : false,
-    // dropSchema: process.env.NODE_ENV==='test' ? true: false
+    dropSchema: false,
 });

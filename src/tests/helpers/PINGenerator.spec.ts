@@ -1,28 +1,37 @@
-import { PINDictionary } from '../../helpers/types';
+import * as ActivePIN from '../../db/ActivePIN.db';
 import PINGenerator from '../../helpers/PINGenerator';
-import { AppDataSource } from '../../data-source';
+import { DataSource, EntityMetadata } from 'typeorm';
+
+// mock out db
 import { ActivePin } from '../../entity/ActivePin';
-import { Repository } from 'typeorm';
+import { PINDictionary } from '../../helpers/types';
 
-describe('PIN Generation Tests', () => {
+jest.spyOn(ActivePIN, 'findPin').mockImplementation(
+    async (select?: object | undefined, where?: object | undefined) => {
+        const result = [{ pin: 'A' }];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((where as any).pin === 'A') return result as ActivePin[];
+        return [];
+    },
+);
+
+jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
+    () => ({}) as EntityMetadata,
+);
+
+describe('test new function', () => {
     let gen: PINGenerator;
-    let PINRepo: Repository<ActivePin>;
-    beforeAll(async () => {
+    beforeAll(() => {
         gen = new PINGenerator();
-        await AppDataSource.initialize();
-        PINRepo = AppDataSource.getRepository(ActivePin);
     });
-
     /*
 		Singular create tests
 	*/
-    test('Initial create 1 pin (empty database)', async () => {
+    it('Initial create 1 pin (empty database)', async () => {
         const newPIN = await gen.create();
         expect(newPIN.pin.length).toEqual(8);
-        const dbPINs = await PINRepo.findAndCount({
-            where: { pin: newPIN.pin },
-        });
-        expect(dbPINs[1]).toEqual(0); // count of matching pins should be 0
+        const dbPINs = await ActivePIN.findPin(undefined, { pin: newPIN.pin });
+        expect(dbPINs.length).toEqual(0); // count of matching pins should be 0
     });
 
     test('Initial create 1 pin of different length', async () => {
@@ -31,9 +40,9 @@ describe('PIN Generation Tests', () => {
     });
 
     test('Initial create 1 pin of different character set', async () => {
-        const newPIN = await gen.create(2, 'A');
+        const newPIN = await gen.create(2, 'B');
         expect(newPIN.pin.length).toEqual(2);
-        expect(newPIN.pin).toEqual('AA');
+        expect(newPIN.pin).toEqual('BB');
     });
 
     test('Initial create too short pin (length < 1)', async () => {
@@ -43,24 +52,11 @@ describe('PIN Generation Tests', () => {
     });
 
     test('Initial create guaranteed repeat PIN', async () => {
-        const insertPIN = new ActivePin();
-        insertPIN.pin = 'A';
-        insertPIN.addressLine_1 = '123 main st';
-        insertPIN.pid = 1234;
-        insertPIN.parcelStatus = 'A';
-        insertPIN.titleNumber = 'abcd123';
-        insertPIN.landTitleDistrict = 'bc';
-        insertPIN.titleStatus = 'R';
-        insertPIN.city = 'Vancouver';
-        insertPIN.country = 'Canada';
-        await AppDataSource.manager.save(insertPIN);
-        const dbPINs = await PINRepo.find({ where: { pin: 'A' } });
-        expect(dbPINs.length).toBe(1); // the pin should be saved
+        const dbPINs = await ActivePIN.findPin(undefined, { pin: 'A' });
+        expect(dbPINs.length).toBe(1); // the pin should be saved as part of the mock
         await expect(gen.create(1, 'A')).rejects.toThrow(
             'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.',
         );
-        // Cleanup: remove added pin from db
-        await PINRepo.remove(dbPINs[0]);
     });
 
     /*
@@ -109,10 +105,5 @@ describe('PIN Generation Tests', () => {
         await expect(gen.initialCreate(1, 2, '')).rejects.toThrow(
             'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
         );
-    });
-
-    afterAll(async () => {
-        await PINRepo.clear(); // delete any remaining data
-        await AppDataSource.destroy();
     });
 });
