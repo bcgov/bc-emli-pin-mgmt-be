@@ -161,7 +161,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'\n- 500\n-- 'Internal Server Error'",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'\n- 500\n-- 'Internal Server Error'",
 				"security": [],
 				"parameters": [
 					{
@@ -221,7 +221,7 @@
 						}
 					}
 				},
-				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'\n-- 'The number of PINS created must be greater than 0.'\n- 500\n-- 'Internal Server Error'",
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- 422\n\t-- 'PIN must be of length 1 or greater'\n\t-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'\n\t-- 'The number of PINS created must be greater than 0.'\n- 500\n\t-- 'Internal Server Error'",
 				"security": [],
 				"parameters": [
 					{

@@ -1,3 +1,4 @@
+// eslint-disable spaced-comment
 import { Get, Route, Controller, Query, TsoaResponse, Res } from 'tsoa';
 import {
     PINDictionary,
@@ -12,13 +13,13 @@ import logger from '../middleware/logger';
 @Route('pins')
 export class PINController extends Controller {
     /**
-     * Used to create a single, unique PIN, checking against the DB to do so
+     * Used to create a single, unique PIN, checking against the DB to do so.
      * Expected error codes and messages:
-     * 		- 422
-     * 		-- 'PIN must be of length 1 or greater'
-     * 		-- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'
-     *  	- 500
-     * 		-- 'Internal Server Error'
+     * - 422
+     * -- 'PIN must be of length 1 or greater'
+     * -- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'
+     * - 500
+     *  -- 'Internal Server Error'
      * @param pinLength The length of each PIN. Defaults to 8 characters.
      * @param allowedChars A string (not regex) of the characters to be used to
      * generate the pin. Default is A-Z excluding O, and 1-9
@@ -56,12 +57,12 @@ export class PINController extends Controller {
     /**
      * Used for the initial creation of PINs, when none exist in the database yet.
      * Expected error codes and messages:
-     * 		- 422
-     * 		-- 'PIN must be of length 1 or greater'
-     * 		-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'
-     * 		-- 'The number of PINS created must be greater than 0.'
-     *  	- 500
-     * 		-- 'Internal Server Error'
+     * - 422
+     * 	-- 'PIN must be of length 1 or greater'
+     * 	-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'
+     * 	-- 'The number of PINS created must be greater than 0.'
+     * - 500
+     * 	-- 'Internal Server Error'
      * @param quantity The quantity of PINs you wish to create.
      * @param pinLength The length of each PIN. Defaults to 8 characters.
      * @param allowedChars A string (not regex) of the characters to be used to
