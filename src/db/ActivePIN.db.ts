@@ -7,7 +7,6 @@ export async function findPin(
     where?: object,
 ): Promise<ActivePin[] | any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
-    console.log(select, where);
     const query = {
         select: select ? select : undefined,
         where: where ? where : undefined,
