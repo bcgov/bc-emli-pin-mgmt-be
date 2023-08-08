@@ -1,7 +1,6 @@
 import { PIN, PINDictionary, createdPIN } from './types';
+import { findPin } from '../db/ActivePIN.db';
 import cryptoRandomString from 'crypto-random-string';
-import { AppDataSource } from '../data-source';
-import { ActivePin } from '../entity/ActivePin';
 
 export default class PINGenerator {
     allowedChars: string = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -26,17 +25,13 @@ export default class PINGenerator {
             throw new RangeError('PIN must be of length 1 or greater');
         }
         let newPIN: PIN = '';
-        const PINRepo = AppDataSource.getRepository(ActivePin);
         let retry: number = 0;
         for (; retry < 20; retry++) {
             newPIN = cryptoRandomString({
                 length: length,
                 characters: characters,
             });
-            const DBResult = await PINRepo.find({
-                select: { pin: true },
-                where: { pin: newPIN },
-            });
+            const DBResult = await findPin({ pin: true }, { pin: newPIN });
             // Check against DB here
             if (DBResult.length >= 1) {
                 continue;
