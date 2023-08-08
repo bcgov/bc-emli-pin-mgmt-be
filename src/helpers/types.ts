@@ -1,10 +1,10 @@
 /**
- * Generic range error that may occur when you give a value out of bounds
+ * Generic range error that may occur when you give a value out of bounds to a pin function
  * @example {
- * 	"message": "The number of PINS created must be greater than 0."
+ * 	"message": "PIN must be of length 1 or greater"
  * }
  */
-export interface rangeErrorType {
+export interface pinRangeErrorType {
     message: string;
 }
 

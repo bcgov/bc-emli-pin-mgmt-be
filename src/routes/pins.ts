@@ -16,4 +16,14 @@ pinsRouter.get('/initial-create', async (req: Request, res: Response) => {
     return res.send(response);
 });
 
+pinsRouter.get('/create', async (req: Request, res: Response) => {
+    const response = await controller.getPin(
+        () => {},
+        () => {},
+        parseInt(req.params.pinLength),
+        req.params.allowedChars,
+    );
+    return res.send(response);
+});
+
 export default pinsRouter;

@@ -8,6 +8,7 @@ winston.addColors({
     info: 'white',
     http: 'magenta',
     debug: 'cyan',
+    silly: 'grey',
 });
 
 const level = () => {
