@@ -3,7 +3,7 @@ import 'dotenv/config';
 
 export class Create1690919775722 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'db';
+        const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'public';
         await queryRunner.query(`
 		CREATE EXTENSION IF NOT EXISTS citext;`);
         await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
