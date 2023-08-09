@@ -90,6 +90,18 @@
 						"12345678"
 					]
 				}
+			},
+			"PropertyDetailsResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -251,6 +263,35 @@
 						"required": false,
 						"schema": {
 							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/propertyDetails/getDetails": {
+			"get": {
+				"operationId": "GetPropertyDetails",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PropertyDetailsResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "pid",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]

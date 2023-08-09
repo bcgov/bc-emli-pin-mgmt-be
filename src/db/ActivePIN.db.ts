@@ -19,3 +19,14 @@ export async function findPin(
     }
     return result;
 }
+
+export async function findPropertyDetails(pid: number): Promise<any> {
+    const PINRepo = await AppDataSource.getRepository(ActivePin);
+    const query = {
+        where: { pid: pid },
+    };
+
+    const result = await PINRepo.find(query);
+
+    return result;
+}

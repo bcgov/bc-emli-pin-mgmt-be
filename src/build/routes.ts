@@ -6,6 +6,8 @@ import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, H
 import { HelloWorldController } from './../controllers/helloworld';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PINController } from './../controllers/pinController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { PropertyDetailsController } from './../controllers/propertyDetailsController';
 import type { RequestHandler, Router } from 'express';
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -52,6 +54,14 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "pins": {"dataType":"array","array":{"dataType":"refAlias","ref":"PIN"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PropertyDetailsResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -141,6 +151,31 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getInitialPins.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/propertyDetails/getDetails',
+            ...(fetchMiddlewares<RequestHandler>(PropertyDetailsController)),
+            ...(fetchMiddlewares<RequestHandler>(PropertyDetailsController.prototype.getPropertyDetails)),
+
+            function PropertyDetailsController_getPropertyDetails(request: any, response: any, next: any) {
+            const args = {
+                    pid: {"in":"query","name":"pid","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PropertyDetailsController();
+
+
+              const promise = controller.getPropertyDetails.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

@@ -57,3 +57,17 @@ export interface PINObject {
 export interface PINDictionary {
     [key: PIN]: number;
 }
+
+/**
+ * An object containing property details
+ *
+ * @example {
+ *  "owners_first_name": "firstname",
+ *  "owners_last_name": "lastname",
+ *  "owners_mailing_address": "101 Main Street"
+ * }
+ *
+ */
+export interface propertyDetailsResponse {
+    result: object;
+}
