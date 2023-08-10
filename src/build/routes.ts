@@ -8,8 +8,6 @@ import { HelloWorldController } from './../controllers/helloworld';
 import { PINController } from './../controllers/pinController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PropertiesController } from './../controllers/PropertiesController';
-// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { PropertyDetailsController } from './../controllers/propertyDetailsController';
 import type { RequestHandler, Router } from 'express';
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -221,10 +219,10 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/properties/details',
-            ...(fetchMiddlewares<RequestHandler>(PropertyDetailsController)),
-            ...(fetchMiddlewares<RequestHandler>(PropertyDetailsController.prototype.getPropertyDetails)),
+            ...(fetchMiddlewares<RequestHandler>(PropertiesController)),
+            ...(fetchMiddlewares<RequestHandler>(PropertiesController.prototype.getPropertyDetails)),
 
-            function PropertyDetailsController_getPropertyDetails(request: any, response: any, next: any) {
+            function PropertiesController_getPropertyDetails(request: any, response: any, next: any) {
             const args = {
                     siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
             };
@@ -235,7 +233,7 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new PropertyDetailsController();
+                const controller = new PropertiesController();
 
 
               const promise = controller.getPropertyDetails.apply(controller, validatedArgs as any);

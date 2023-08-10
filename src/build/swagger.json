@@ -392,7 +392,6 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "The address you wish to find the siteID for",
 						"in": "path",
 						"name": "address",
 						"required": true,
@@ -408,7 +407,7 @@
 				"operationId": "GetPropertyDetails",
 				"responses": {
 					"200": {
-						"description": "An object containing the property owner details",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -418,11 +417,9 @@
 						}
 					}
 				},
-				"description": "Used to get property owner details from a given a site ID\n- Step 1: Call bc geocoder parcel API to get PIDs from site ID\n- Step 2: Check database and return property details for properties with a matching PID\nExpected error codes and messages:\n- 200\n-- 'OK'\n- 204\n -- 'No Content\n- 400\n -- 'Bad Request'\n- 401\n-- 'Unauthorized'\n- 403\n-- 'Forbidden'\n- 404\n-- 'Not Found'",
 				"security": [],
 				"parameters": [
 					{
-						"description": "The siteID of a site",
 						"in": "query",
 						"name": "siteID",
 						"required": true,
