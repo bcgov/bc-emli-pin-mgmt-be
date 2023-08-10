@@ -1,5 +1,5 @@
 import axios from 'axios';
-import GeocodeAPICaller from '../../helpers/GeocodeAPICaller';
+import GeocodeAPICaller from '../../helpers/geocodeAPICaller';
 import { AxiosError } from 'axios';
 import {
     emptyAddressAPIResponse,

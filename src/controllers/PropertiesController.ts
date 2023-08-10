@@ -1,7 +1,7 @@
 // eslint-disable spaced-comment
 import { Get, Route, Controller, TsoaResponse, Res, Path } from 'tsoa';
 import logger from '../middleware/logger';
-import GeocodeAPICaller from '../helpers/GeocodeAPICaller';
+import GeocodeAPICaller from '../helpers/geocodeAPICaller';
 import {
     geocoderReferenceErrorType,
     getAddressResults,
