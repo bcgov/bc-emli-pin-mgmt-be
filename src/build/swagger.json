@@ -90,6 +90,90 @@
 						"12345678"
 					]
 				}
+			},
+			"GeocoderAddress": {
+				"description": "BC Geocoder address search result, including score, full address and site ID",
+				"properties": {
+					"score": {
+						"type": "number",
+						"format": "double"
+					},
+					"fullAddress": {
+						"type": "string"
+					},
+					"siteID": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"score",
+					"fullAddress",
+					"siteID"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"score": 100,
+					"fullAddress": "123 Example Street, City, BC",
+					"siteID": "dc1111ba-1f11-111-1eda-111ca1f111c1"
+				}
+			},
+			"getAddressResults": {
+				"description": "An object containing an array of the BC Geocoder address search results.",
+				"properties": {
+					"results": {
+						"items": {
+							"$ref": "#/components/schemas/GeocoderAddress"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"results"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"results": [
+						{
+							"score": 100,
+							"fullAddress": "123 Example Street, City, BC",
+							"siteID": "dc1111ba-1f11-111-1eda-111ca1f111c1"
+						}
+					]
+				}
+			},
+			"searchRangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds to a search function",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Search string must be of length 3 or greater"
+				}
+			},
+			"geocoderReferenceErrorType": {
+				"description": "Reference error that may occur when you have not defined the API environment variables for the geocoder functions",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Geocoder API base URL or 'addresses' endpoint URL is undefined."
+				}
 			}
 		},
 		"securitySchemes": {}
@@ -161,7 +245,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- 422\n-- 'PIN must be of length 1 or greater'\n-- 'Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.'\n- 500\n -- 'Internal Server Error'",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [
 					{
@@ -221,7 +305,7 @@
 						}
 					}
 				},
-				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- 422\n\t-- 'PIN must be of length 1 or greater'\n\t-- 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.'\n\t-- 'The number of PINS created must be greater than 0.'\n- 500\n\t-- 'Internal Server Error'",
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- `422`\n\t-- `PIN must be of length 1 or greater`\n\t-- `Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.`\n\t-- `The number of PINS created must be greater than 0.`\n- `500`\n\t-- `Internal Server Error`",
 				"security": [],
 				"parameters": [
 					{
@@ -249,6 +333,56 @@
 						"in": "query",
 						"name": "allowedChars",
 						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/properties/geocode/{address}": {
+			"get": {
+				"operationId": "GetSiteID",
+				"responses": {
+					"200": {
+						"description": "An object with an array of search results. \nEach result contains the match score (from 50-100, 100 being a perfect match) of the result,\nthe full address of the property, and the siteID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/getAddressResults"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/geocoderReferenceErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to search for a siteID for a property, giving potentially multiple results.\nExpected error codes and messages:\n- `404`\n-- `Not Found` (when not passing in a path parameter as required)\n- `422`\n-- `Geocoder API base URL or 'addresses' endpoint URL is undefined.`\n-- `Search string must be of length 3 or greater`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The address you wish to find the siteID for",
+						"in": "path",
+						"name": "address",
+						"required": true,
 						"schema": {
 							"type": "string"
 						}
