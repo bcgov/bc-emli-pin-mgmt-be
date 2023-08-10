@@ -1,5 +1,5 @@
 import express from 'express';
-import { PINController } from '../controllers/pinController';
+import { PINController } from '../controllers/PINController';
 import { Request, Response } from 'express';
 
 const pinsRouter = express.Router();

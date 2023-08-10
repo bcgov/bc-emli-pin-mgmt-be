@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [ActivePin, Permission, PinAuditLog, Users, Migrations],
-    migrations: [join(__dirname, 'src', 'migration', '**', '*.{ts,js}')],
+    migrations: [join(__dirname, 'migration', '**.ts')],
     synchronize:
         process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true' &&
         process.env.NODE_ENV !== 'test'
