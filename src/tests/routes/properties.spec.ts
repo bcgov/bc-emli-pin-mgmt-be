@@ -1,8 +1,15 @@
 import axios from 'axios';
 import { app } from '../../index';
 import request from 'supertest';
-import { geocodeAddressAPIResponse } from '../commonResponses';
+import {
+    geocodeAddressAPIResponse,
+    geocodeParcelAPIResponse,
+    ActivePINResponse,
+} from '../commonResponses';
 import { AxiosError } from 'axios';
+import { ActivePin } from '../../entity/ActivePin';
+import * as ActivePIN from '../../db/ActivePIN.db';
+import { DataSource, EntityMetadata } from 'typeorm';
 
 describe('Properties endpoints', () => {
     test('/address should return results with valid input', async () => {
@@ -57,6 +64,53 @@ describe('Properties endpoints', () => {
         const res = await request(app).get('/properties/address');
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toBe('Not Found');
+    });
+
+    afterEach(() => {
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
+    });
+});
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+jest.spyOn(ActivePIN, 'findPin').mockImplementation(
+    async (select?: object | undefined, where?: object | undefined) => {
+        const result = [ActivePINResponse];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((where as any).pid === '030317304')
+            return result as unknown as ActivePin[];
+        return [];
+    },
+);
+
+jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
+    () => ({}) as EntityMetadata,
+);
+
+describe('Properties endpoints', () => {
+    test('/address should return results with valid input', async () => {
+        // First mock call to geocoder parcel API
+
+        const res: any = mockedAxios.get.mockResolvedValue({
+            statusCode: 200,
+            data: geocodeParcelAPIResponse,
+        });
+        const response = await res();
+        expect(response.statusCode).toBe(200);
+        expect(response.data.siteID).toBe(
+            '785d65a0-3562-4ba7-a078-e088a7aada7c',
+        );
+        expect(response.data.pids).toBe('030317304');
+
+        // Now mock call to database
+
+        const dbPIDs = await ActivePIN.findPin(undefined, {
+            pid: response.data.pids,
+        });
+        expect(dbPIDs.length).toEqual(1);
+        expect(dbPIDs[0].addressLine_1 === '123 Main Street');
     });
 
     afterEach(() => {

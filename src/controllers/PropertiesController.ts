@@ -90,7 +90,7 @@ export class PropertiesController extends Controller {
     @Get('details')
     public async getPropertyDetails(
         @Query() siteID: string,
-    ): Promise<propertyDetailsResponse> {
+    ): Promise<Array<propertyDetailsResponse>> {
         const parcelsApiUrl = `${process.env.BCGEOCODER_TEST_API_URL_PID}`;
         const jsonFormat = '.json';
 
@@ -111,7 +111,18 @@ export class PropertiesController extends Controller {
         };
 
         const pidsData: any = await pid();
-        const result = await findPropertyDetails(parseInt(pidsData.data.pids));
-        return result;
+        console.log(pidsData.data);
+
+        const pidsArray = pidsData.data.pids.split('|');
+
+        const results: Array<propertyDetailsResponse> = [];
+
+        for (const pid of pidsArray) {
+            const result = await findPropertyDetails(parseInt(pid));
+            results.push(await result);
+        }
+
+        console.log(results);
+        return results;
     }
 }
