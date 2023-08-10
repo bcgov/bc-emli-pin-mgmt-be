@@ -345,7 +345,7 @@
 				"operationId": "GetSiteID",
 				"responses": {
 					"200": {
-						"description": "An object with an array of search results. \nEach result contains the match score (from 50-100, 100 being a perfect match) of the result,\nthe full address of the property, and the siteID",
+						"description": "An object with an array of search results.\nEach result contains the match score (from 50-100, 100 being a perfect match) of the result,\nthe full address of the property, and the siteID",
 						"content": {
 							"application/json": {
 								"schema": {
