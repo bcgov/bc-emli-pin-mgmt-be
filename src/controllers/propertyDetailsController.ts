@@ -50,8 +50,6 @@ export class PropertyDetailsController extends Controller {
         };
 
         const pidsData: any = await pid();
-        console.log(pidsData.data.pids);
-
         const result = await findPropertyDetails(parseInt(pidsData.data.pids));
         return result;
     }

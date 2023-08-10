@@ -1,7 +1,6 @@
 import express, { Express, Response, Request, NextFunction } from 'express';
 import { ValidateError } from 'tsoa';
 import { RegisterRoutes } from './build/routes';
-import Router from './routes';
 import swaggerUI from 'swagger-ui-express';
 import swagger from './build/swagger.json';
 import logger from './middleware/logger';
@@ -20,7 +19,6 @@ app.use(morganConfig);
 app.use(express.static('public'));
 
 // Route configuration
-app.use(Router);
 app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
     return res.send(swaggerUI.generateHTML(swagger));
 });
