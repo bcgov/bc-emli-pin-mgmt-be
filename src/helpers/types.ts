@@ -50,10 +50,34 @@ export interface PINObject {
  * Note that the value should always be one.
  *
  * @example {
- * 	 "abcdefgh": 1
+ * 	 "abcdefgh": 1,
  * 	 "12345678": 1
  * }
  */
 export interface PINDictionary {
     [key: PIN]: number;
+}
+
+/**
+ * An object containing an array of the BC Geocoder address search results.
+ * @example {
+ * 	 "results": [{}]
+ * }
+ */
+export interface getAddressResults {
+    results: GeocoderAddress[];
+}
+
+/**
+ * BC Geocoder address search result, including score, full address and site ID
+ * @example {
+ * 	 "score": 100,
+ *   "fullAddress": "525 Superior St, Victoria, BC",
+ * 	 "siteID": "dc9357ba-7f40-4395-9eda-219ca5f475c0";
+ * }
+ */
+export interface GeocoderAddress {
+    score: number;
+    fullAddress: string;
+    siteID: string;
 }

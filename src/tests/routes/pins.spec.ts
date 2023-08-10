@@ -1,6 +1,7 @@
 import { app } from '../../index';
 import request from 'supertest';
 import * as ActivePIN from '../../db/ActivePIN.db';
+import PINGenerator from '../../helpers/PINGenerator';
 // mock out db
 import { ActivePin } from '../../entity/ActivePin';
 import { DataSource, EntityMetadata } from 'typeorm';
@@ -52,6 +53,17 @@ describe('Pin endpoints', () => {
             .query({ allowedChars: '' });
         expect(res.statusCode).toBe(200);
         expect(res.body.pin.length).toBe(8);
+    });
+
+    test('create pin with unknown error returns 500', async () => {
+        jest.spyOn(PINGenerator.prototype, 'create').mockImplementationOnce(
+            () => {
+                throw new Error('An unknown error occurred');
+            },
+        );
+        const res = await request(app).get('/pins/create');
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe('An unknown error occurred');
     });
 
     /*
@@ -107,5 +119,19 @@ describe('Pin endpoints', () => {
         const res = await request(app).get('/pins/initial-create');
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Validation Failed');
+    });
+
+    test('initial create pin with unknown error returns 500', async () => {
+        jest.spyOn(
+            PINGenerator.prototype,
+            'initialCreate',
+        ).mockImplementationOnce(() => {
+            throw new Error('An unknown error occurred');
+        });
+        const res = await request(app)
+            .get('/pins/initial-create')
+            .query({ quantity: 1 });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe('An unknown error occurred');
     });
 });
