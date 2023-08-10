@@ -91,17 +91,18 @@
 					]
 				}
 			},
-			"PropertyDetailsResponse": {
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
+			"propertyDetailsResponse": {
+				"description": "An object containing property details",
+				"properties": {},
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": {
+					"type": "string"
+				},
+				"example": {
+					"owners_first_name": "firstname",
+					"owners_last_name": "lastname",
+					"owners_mailing_address": "101 Main Street"
+				}
 			}
 		},
 		"securitySchemes": {}
@@ -277,7 +278,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PropertyDetailsResponse"
+									"$ref": "#/components/schemas/propertyDetailsResponse"
 								}
 							}
 						}
@@ -287,11 +288,10 @@
 				"parameters": [
 					{
 						"in": "query",
-						"name": "pid",
+						"name": "siteID",
 						"required": true,
 						"schema": {
-							"format": "double",
-							"type": "number"
+							"type": "string"
 						}
 					}
 				]

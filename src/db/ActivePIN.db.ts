@@ -25,8 +25,6 @@ export async function findPropertyDetails(pid: number): Promise<any> {
     const query = {
         where: { pid: pid },
     };
-
     const result = await PINRepo.find(query);
-
     return result;
 }

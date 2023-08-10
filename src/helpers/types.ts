@@ -69,5 +69,5 @@ export interface PINDictionary {
  *
  */
 export interface propertyDetailsResponse {
-    result: object;
+    [key: string]: string;
 }

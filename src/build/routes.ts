@@ -58,12 +58,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "PropertyDetailsResponse": {
+    "propertyDetailsResponse": {
         "dataType": "refObject",
         "properties": {
-            "message": {"dataType":"string","required":true},
         },
-        "additionalProperties": false,
+        "additionalProperties": {"dataType":"string"},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -163,7 +162,7 @@ export function RegisterRoutes(app: Router) {
 
             function PropertyDetailsController_getPropertyDetails(request: any, response: any, next: any) {
             const args = {
-                    pid: {"in":"query","name":"pid","required":true,"dataType":"double"},
+                    siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
