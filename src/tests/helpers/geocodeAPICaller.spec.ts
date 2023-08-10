@@ -1,5 +1,5 @@
 import axios from 'axios';
-import GeocodeAPICaller from '../../helpers/geocodeAPICaller';
+import GeocodeAPICaller from '../../helpers/GeocodeAPICaller';
 import { AxiosError } from 'axios';
 
 // API Responses to mock (sorry, this is a real response and it's long)
@@ -471,9 +471,6 @@ const unsortedResponse = {
 };
 
 describe('Geocode API Caller tests', () => {
-    /*
-	  
-	*/
     test('geocode api caller should return one result', async () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(geocodeResponse);
         const caller = new GeocodeAPICaller();
