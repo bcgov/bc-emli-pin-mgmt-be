@@ -6,7 +6,7 @@ const propertiesRouter = express.Router();
 const controller = new PropertiesController();
 
 propertiesRouter.get(
-    '/geocode/:address',
+    '/address/:address',
     async (req: Request, res: Response) => {
         const response = await controller.getSiteID(
             () => {},

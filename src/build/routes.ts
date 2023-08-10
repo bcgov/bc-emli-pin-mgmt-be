@@ -183,7 +183,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/properties/geocode/:address',
+        app.get('/properties/address/:address',
             ...(fetchMiddlewares<RequestHandler>(PropertiesController)),
             ...(fetchMiddlewares<RequestHandler>(PropertiesController.prototype.getSiteID)),
 

@@ -87,8 +87,7 @@ describe('Geocode API Caller tests', () => {
     });
     afterEach(() => {
         jest.clearAllMocks();
-        process.env.GEOCODER_API_ADDRESSES_ENDPOINT =
-            'https://geocoder.api.gov.bc.ca/';
-        process.env.GEOCODER_API_BASE_URL = 'addresses.json';
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
     });
 });

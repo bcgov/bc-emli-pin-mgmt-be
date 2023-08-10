@@ -27,7 +27,7 @@ export class PropertiesController extends Controller {
      *  Each result contains the match score (from 50-100, 100 being a perfect match) of the result,
      *  the full address of the property, and the siteID
      */
-    @Get('geocode/{address}')
+    @Get('address/{address}')
     public async getSiteID(
         @Res() rangeErrorResponse: TsoaResponse<422, searchRangeErrorType>,
         @Res()

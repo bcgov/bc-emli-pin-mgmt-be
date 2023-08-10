@@ -340,7 +340,7 @@
 				]
 			}
 		},
-		"/properties/geocode/{address}": {
+		"/properties/address/{address}": {
 			"get": {
 				"operationId": "GetSiteID",
 				"responses": {

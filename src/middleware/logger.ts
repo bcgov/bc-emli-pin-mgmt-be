@@ -18,7 +18,7 @@ const level = () => {
 };
 
 const consoleFormat = winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss' }),
+    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss UTCZZ' }),
     winston.format.colorize({ all: true }),
     winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: ${info.message}`,
@@ -27,7 +27,7 @@ const consoleFormat = winston.format.combine(
 
 const outputFormat = winston.format.combine(
     winston.format.label({ label: 'pin-mgmt-be' }),
-    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss' }),
+    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss UTCZZ' }),
     winston.format.printf(
         (info) =>
             `[${info.label}] ${info.timestamp} ${info.level}: ${info.message}`,
