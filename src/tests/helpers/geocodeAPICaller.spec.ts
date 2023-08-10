@@ -8,6 +8,10 @@ import {
 } from '../commonResponses';
 
 describe('Geocode API Caller tests', () => {
+    beforeEach(() => {
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
+    });
     test('geocode api caller should return one result', async () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(
             geocodeAddressAPIResponse,
