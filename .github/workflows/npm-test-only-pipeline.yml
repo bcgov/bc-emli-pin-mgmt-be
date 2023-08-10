@@ -3,7 +3,10 @@ name: Test only Pipeline
 on:
   push:
     branches:
-      - "BVPS-176" # Switch this to environment variable ${{ vars.environemnt }}
+      - "**"
+      - '!main'
+      - '!dev'
+      - '!qa'
 
 jobs:
   build:
