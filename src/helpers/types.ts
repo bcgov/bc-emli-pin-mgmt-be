@@ -106,3 +106,13 @@ export interface GeocoderAddress {
     fullAddress: string;
     siteID: string;
 }
+
+/**
+ * The reason for expiring a PIN
+ */
+export enum expirationReason {
+    OptOut = 'OP',
+    CallCenterPinReset = 'CC',
+    OnlineReset = 'OR',
+    ChangeOfOwnership = 'CO',
+}

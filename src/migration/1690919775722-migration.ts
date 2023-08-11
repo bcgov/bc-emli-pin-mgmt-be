@@ -126,7 +126,7 @@ export class Create1690919775722 implements MigrationInterface {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public async down(queryRunner: QueryRunner): Promise<void> {
-        const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'db';
+        const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'public';
         await queryRunner.query(`DROP TABLE IF EXISTS ${schemaName}."users"`);
         await queryRunner.query(
             `DROP TABLE IF EXISTS ${schemaName}."pin_audit_log"`,
