@@ -14,7 +14,6 @@ const jestConfig: JestConfigWithTsJest = {
         '!src/build/**/*.{js,ts}',
         '!src/routes/**/*.{js,ts}',
         '!src/entity/**/*.{js,ts}',
-        '!src/db/**/*.{js,ts}',
     ],
     testPathIgnorePatterns: ['dist/tests/*'],
 };

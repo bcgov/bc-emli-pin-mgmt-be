@@ -29,26 +29,31 @@ export async function deletePin(
     reason: expirationReason,
     expiredByName: string,
     expiredByUsername: string,
-) {
-    let PINToDelete: ActivePin | undefined;
-    let logInfo: UpdateResult | undefined;
-    await AppDataSource.transaction(async (manager) => {
-        PINToDelete = await manager.findOneOrFail(ActivePin, {
-            where: { livePinId: id },
-        });
-        await manager.remove(ActivePin, PINToDelete); // deletes and creates an entry in the audit log via trigger
-        // Update deletion info with expiration reason
-        logInfo = await manager.update(
-            PinAuditLog,
-            { livePinId: id },
-            { expirationReason: reason, expiredByName, expiredByUsername },
-        );
-    });
-    if (typeof logInfo != 'undefined') {
-        if (logInfo.affected && logInfo.affected === 1) {
+): Promise<ActivePin | undefined> {
+    const transactionReturn = (await AppDataSource.transaction(
+        async (manager) => {
+            const PINToDelete = await manager.findOneOrFail(ActivePin, {
+                where: { livePinId: id },
+            });
+            await manager.remove(ActivePin, PINToDelete); // deletes and creates an entry in the audit log via trigger
+            // Update deletion info with expiration reason
+            const logInfo = await manager.update(
+                PinAuditLog,
+                { livePinId: id },
+                { expirationReason: reason, expiredByName, expiredByUsername },
+            );
+            return { PINToDelete, logInfo };
+        },
+    )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
+    if (typeof transactionReturn.logInfo != 'undefined') {
+        if (
+            transactionReturn.logInfo.affected &&
+            transactionReturn.logInfo.affected === 1
+        ) {
             logger.debug(
                 `Successfully deleted ActivePIN with live_pin_id '${id}'`,
             );
+            return transactionReturn.PINToDelete;
         }
     }
 }
