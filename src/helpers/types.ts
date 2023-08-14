@@ -82,15 +82,27 @@ export interface PINDictionary {
  * An object containing property details
  *
  * @example {
- *  "owners_first_name": "firstname",
- *  "owners_last_name": "lastname",
- *  "owners_mailing_address": "101 Main Street"
+ *     "pid": 1234567,
+ *     "titleNumber": "12345",
+ *     "landTitleDistrict": "AB",
+ *     "givenName": "firstname",
+ *     "lastName_1": "lastname",
+ *     "lastName_2": null,
+ *     "incorporationNumber": null,
+ *     "addressLine_1": "123 Main Street",
+ *     "addressLine_2": "",
+ *     "city": "Vancouver",
+ *     "province": "BC",
+ *     "otherGeographicDivision": null,
+ *     "country": "Canada",
+ *     "postalCode": "A1B2C3"
  * }
  *
  */
 export interface propertyDetailsResponse {
     [key: string]: string;
 }
+
 /**
  * An object containing an array of the BC Geocoder address search results.
  * @example {
@@ -118,4 +130,64 @@ export interface GeocoderAddress {
     score: number;
     fullAddress: string;
     siteID: string;
+}
+
+/**
+ * Unauthorized Error
+ * @example {
+ * 	 "message": "Unauthorized error",
+ *   "code": 401
+ * }
+ */
+export interface unauthorizedError {
+    message: string;
+    code: number;
+}
+
+/**
+ * Bad Request Error
+ * @example {
+ * 	 "message": "Bad request error",
+ *   "code": 400
+ * }
+ */
+export interface badRequestError {
+    message: string;
+    code: number;
+}
+
+/**
+ * Forbidden Error
+ * @example {
+ * 	 "message": "Forbidden error",
+ *   "code": 403
+ * }
+ */
+export interface forbiddenError {
+    message: string;
+    code: number;
+}
+
+/**
+ * Not Found Error
+ * @example {
+ * 	 "message": "Not found error",
+ *   "code": 404
+ * }
+ */
+export interface notFoundError {
+    message: string;
+    code: number;
+}
+
+/**
+ * PID Not Found
+ * @example {
+ * 	 "message": "PID not found in database",
+ *   "code": 204
+ * }
+ */
+export interface pidNotFound {
+    message: string;
+    code: number;
 }
