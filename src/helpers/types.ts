@@ -78,7 +78,9 @@ export type PIN = string;
 /**
  * A PIN generated for a homeowner, checked for uniqueness against the database. Defaults to 8 character length and
  * all numbers + lowercase letters as the character set.
- * @example "abcdefgh"
+ * @example {
+ * "pin": "abcdefgh"
+ * }
  */
 export interface createdPIN {
     pin: string;
