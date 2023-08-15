@@ -105,7 +105,7 @@ export class PropertiesController extends Controller {
     ): Promise<Array<propertyDetailsResponse>> {
         const results: Array<propertyDetailsResponse> = [];
         try {
-            const parcelsApiUrl = `${process.env.BCGEOCODER_TEST_API_URL_PID}`;
+            const parcelsApiUrl = `${process.env.GEOCODER_API_BASE_URL}${process.env.GEOCODER_API_PARCELS_ENDPOINT}`;
             const jsonFormat = '.json';
             const getPIDs = async () => {
                 try {
