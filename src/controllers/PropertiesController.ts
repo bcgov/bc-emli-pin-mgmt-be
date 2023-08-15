@@ -94,14 +94,14 @@ export class PropertiesController extends Controller {
 
     @Get('details')
     public async getPropertyDetails(
-        @Query() siteID: string,
-        @Query() role: string,
         @Res() unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
         @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res() pidNotFoundResponse: TsoaResponse<204, pidNotFound>,
+        @Query() siteID: string,
+        @Query() role: string,
     ): Promise<Array<propertyDetailsResponse>> {
         const results: Array<propertyDetailsResponse> = [];
         try {
