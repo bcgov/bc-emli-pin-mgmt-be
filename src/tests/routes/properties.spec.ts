@@ -3,13 +3,13 @@ import { app } from '../../index';
 import request from 'supertest';
 import {
     geocodeAddressAPIResponse,
-    geocodeParcelAPIResponse,
+    geocodeParcelAPIResponse_1,
+    geocodeParcelAPIResponse_2,
     ActivePINResponse,
 } from '../commonResponses';
 import { AxiosError } from 'axios';
 import { ActivePin } from '../../entity/ActivePin';
 import * as ActivePIN from '../../db/ActivePIN.db';
-import { DataSource, EntityMetadata } from 'typeorm';
 
 describe('Properties endpoints', () => {
     test('/address should return results with valid input', async () => {
@@ -72,49 +72,74 @@ describe('Properties endpoints', () => {
     });
 });
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-jest.spyOn(ActivePIN, 'findPin').mockImplementation(
-    async (select?: object | undefined, where?: object | undefined) => {
+jest.spyOn(ActivePIN, 'findPropertyDetails').mockImplementation(
+    async (pid: number): Promise<any> => {
         const result = [ActivePINResponse];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((where as any).pid === '030317304')
+        if (pid === parseInt('030317304'))
             return result as unknown as ActivePin[];
         return [];
     },
 );
 
-jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
-    () => ({}) as EntityMetadata,
-);
-
 describe('Properties endpoints', () => {
-    test('/address should return results with valid input', async () => {
-        // First mock call to geocoder parcel API
-
-        const res: any = mockedAxios.get.mockResolvedValue({
-            statusCode: 200,
-            data: geocodeParcelAPIResponse,
-        });
-        const response = await res();
-        expect(response.statusCode).toBe(200);
-        expect(response.data.siteID).toBe(
-            '785d65a0-3562-4ba7-a078-e088a7aada7c',
+    test('/details should return results with valid input', async () => {
+        jest.spyOn(axios, 'get').mockResolvedValueOnce(
+            geocodeParcelAPIResponse_1,
         );
-        expect(response.data.pids).toBe('030317304');
+        const res = await request(app).get(
+            '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c',
+        );
 
-        // Now mock call to database
+        const body = await res.body[0][0];
 
-        const dbPIDs = await ActivePIN.findPin(undefined, {
-            pid: response.data.pids,
-        });
-        expect(dbPIDs.length).toEqual(1);
-        expect(dbPIDs[0].addressLine_1 === '123 Main Street');
+        expect(res.statusCode).toBe(200);
+        expect(body.titleNumber).toBe('123');
+        expect(body.pid).toBe(9765107);
     });
 
-    afterEach(() => {
-        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
-        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
+    test('/details should return 204 for pid that is not in database', async () => {
+        jest.spyOn(axios, 'get').mockResolvedValueOnce(
+            geocodeParcelAPIResponse_2,
+        );
+        const res = await request(app).get('/properties/details?siteID=123');
+
+        expect(res.statusCode).toBe(204);
+    });
+
+    test('/details Throw 401 unauthorized error', async () => {
+        jest.spyOn(axios, 'get').mockRejectedValueOnce({
+            response: {
+                status: 401,
+            },
+        });
+        const res = await request(app).get('/properties/details?siteID=123');
+        expect(res.statusCode).toBe(401);
+    });
+
+    test('/details Throw 400 bad request error', async () => {
+        jest.spyOn(axios, 'get').mockRejectedValueOnce({
+            response: {
+                status: 400,
+            },
+        });
+        const res = await request(app).get('/properties/details?siteID=123');
+        expect(res.statusCode).toBe(400);
+    });
+
+    test('/details Throw 403 forbidden error', async () => {
+        jest.spyOn(axios, 'get').mockRejectedValueOnce({
+            response: {
+                status: 403,
+            },
+        });
+        const res = await request(app).get('/properties/details?siteID=123');
+        expect(res.statusCode).toBe(403);
+    });
+
+    test('/details Throw 500 error', async () => {
+        jest.spyOn(axios, 'get').mockRejectedValueOnce(new Error());
+        const res = await request(app).get('/properties/details?siteID=123');
+        expect(res.statusCode).toBe(500);
     });
 });

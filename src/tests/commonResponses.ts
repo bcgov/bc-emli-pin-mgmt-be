@@ -466,9 +466,12 @@ export const unsortedAddressAPIResponse = {
     },
 };
 
-export const geocodeParcelAPIResponse = {
-    siteID: '785d65a0-3562-4ba7-a078-e088a7aada7c',
-    pids: '030317304',
+export const geocodeParcelAPIResponse_1 = {
+    data: { siteID: '785d65a0-3562-4ba7-a078-e088a7aada7c', pids: '030317304' },
+};
+
+export const geocodeParcelAPIResponse_2 = {
+    data: { siteID: '785d65a0-3562-4ba7-a078-e088a7aada7c', pids: '123456789' },
 };
 
 export const ActivePINResponse = {

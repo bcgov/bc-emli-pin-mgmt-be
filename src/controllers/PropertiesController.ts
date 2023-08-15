@@ -144,8 +144,8 @@ export class PropertiesController extends Controller {
                     }
                 }
             };
-            const pidsData: any = await getPIDs();
 
+            const pidsData: any = await getPIDs();
             const pidsArray = pidsData.data.pids.split('|');
 
             for (const pid of pidsArray) {
