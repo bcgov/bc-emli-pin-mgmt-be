@@ -29,6 +29,40 @@ export interface geocoderReferenceErrorType {
 }
 
 /**
+ * Error that occurs when an entity cannot be found in the database meeting your search criteria
+ * @example {
+ * 	"message": "Could not find any entity of type \"ActivePin\" matching: {
+ *  	\"where\": {
+        	\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"
+     	}
+ 	}"
+ * }
+ */
+export interface EntityNotFoundErrorType {
+    message: string;
+}
+
+/**
+ * A generic error given by TypeORM. Often related to invalid syntax for input parameters
+ * @example {
+ * 	"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+ * }
+ */
+export interface GenericTypeORMErrorType {
+    message: string;
+}
+
+/**
+ * A error that can occur when you don't give a required input parameter in the body of a request
+ * @example {
+ * 	"message": "Must provide an expiration name when expiring a PIN"
+ * }
+ */
+export interface requiredFieldErrorType {
+    message: string;
+}
+
+/**
  * Generic unknown server error
  * @example {
  * 	"message": "Internal Server Error"
@@ -108,11 +142,33 @@ export interface GeocoderAddress {
 }
 
 /**
- * The reason for expiring a PIN
+ * The reason for expiring a PIN.
+ * - OptOut = 'OP'
+ * - CallCenterPinReset = 'CC'
+ * - OnlineReset = 'OR'
+ * - ChangeOfOwnership = 'CO'
  */
 export enum expirationReason {
     OptOut = 'OP',
     CallCenterPinReset = 'CC',
     OnlineReset = 'OR',
     ChangeOfOwnership = 'CO',
+}
+
+/**
+ * The request body for a pin expiration request.
+ * Note that expiredByName and username are only required for reasons other
+ * than "CO" (change of ownership).
+ * @example {
+ * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
+ * 	"expirationReason": "OP",
+ *  "expiredByName": "John Smith",
+ *  "expiredByUsername": "jsmith"
+ * }
+ */
+export interface expireRequestBody {
+    livePinId: string;
+    expirationReason: expirationReason;
+    expiredByName?: string;
+    expiredByUsername?: string;
 }
