@@ -88,7 +88,7 @@ describe('Properties endpoints', () => {
             geocodeParcelAPIResponse_1,
         );
         const res = await request(app).get(
-            '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c',
+            '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c&role=Admin',
         );
 
         const body = await res.body[0][0];
@@ -102,7 +102,9 @@ describe('Properties endpoints', () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(
             geocodeParcelAPIResponse_2,
         );
-        const res = await request(app).get('/properties/details?siteID=123');
+        const res = await request(app).get(
+            '/properties/details?siteID=123&role=Admin',
+        );
 
         expect(res.statusCode).toBe(204);
     });
@@ -113,7 +115,9 @@ describe('Properties endpoints', () => {
                 status: 401,
             },
         });
-        const res = await request(app).get('/properties/details?siteID=123');
+        const res = await request(app).get(
+            '/properties/details?siteID=12&role=Admin',
+        );
         expect(res.statusCode).toBe(401);
     });
 
@@ -123,7 +127,9 @@ describe('Properties endpoints', () => {
                 status: 400,
             },
         });
-        const res = await request(app).get('/properties/details?siteID=123');
+        const res = await request(app).get(
+            '/properties/details?siteID=123&role=Admin',
+        );
         expect(res.statusCode).toBe(400);
     });
 
@@ -133,13 +139,17 @@ describe('Properties endpoints', () => {
                 status: 403,
             },
         });
-        const res = await request(app).get('/properties/details?siteID=123');
+        const res = await request(app).get(
+            '/properties/details?siteID=123&role=Admin',
+        );
         expect(res.statusCode).toBe(403);
     });
 
     test('/details Throw 500 error', async () => {
         jest.spyOn(axios, 'get').mockRejectedValueOnce(new Error());
-        const res = await request(app).get('/properties/details?siteID=123');
+        const res = await request(app).get(
+            '/properties/details?siteID=123&role=Admin',
+        );
         expect(res.statusCode).toBe(500);
     });
 });
