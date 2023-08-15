@@ -583,7 +583,7 @@
 						}
 					}
 				},
-				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n  - `422`\n  \t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n  \t-- `Must provide an expiration name when expiring a PIN`\n  \t-- `Must provide an expiration username when expiring a PIN`\n  - `500`\n  \t-- `Internal Server Error`",
+				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n- `422`\n\t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n\t-- `Must provide an expiration name when expiring a PIN`\n\t-- `Must provide an expiration username when expiring a PIN`\n- `500`\n\t-- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
