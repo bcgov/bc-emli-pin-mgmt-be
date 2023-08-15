@@ -613,6 +613,14 @@
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"in": "query",
+						"name": "role",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
 					}
 				]
 			}
