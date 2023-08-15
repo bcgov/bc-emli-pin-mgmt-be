@@ -95,6 +95,7 @@ export class PropertiesController extends Controller {
     @Get('details')
     public async getPropertyDetails(
         @Query() siteID: string,
+        @Query() role: string,
         @Res() unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
         @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
@@ -149,7 +150,7 @@ export class PropertiesController extends Controller {
             const pidsArray = pidsData.data.pids.split('|');
 
             for (const pid of pidsArray) {
-                const result = await findPropertyDetails(parseInt(pid));
+                const result = await findPropertyDetails(parseInt(pid), role);
                 if (result[0] === undefined) {
                     logger.warn(
                         `Encountered a 204 message in getPropertyDetails. The retrieved pid does not exist in the database.`,

@@ -24,6 +24,7 @@ propertiesRouter.get(
         const controller = new PropertiesController();
         const response = await controller.getPropertyDetails(
             req.params.siteID,
+            req.params.role,
             () => {},
             () => {},
             () => {},
