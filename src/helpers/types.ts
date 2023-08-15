@@ -31,11 +31,7 @@ export interface geocoderReferenceErrorType {
 /**
  * Error that occurs when an entity cannot be found in the database meeting your search criteria
  * @example {
- * 	"message": "Could not find any entity of type \"ActivePin\" matching: {
- *  	\"where\": {
-        	\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"
-     	}
- 	}"
+ * 	"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
  * }
  */
 export interface EntityNotFoundErrorType {

@@ -221,7 +221,10 @@
 					"message"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
+				}
 			},
 			"GenericTypeORMErrorType": {
 				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
@@ -266,7 +269,7 @@
 				"type": "string"
 			},
 			"expireRequestBody": {
-				"description": "The request body for a pin expiration request. \nNote that expiredByName and username are only required for reasons other \nthan \"CO\" (change of ownership).",
+				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
 				"properties": {
 					"livePinId": {
 						"type": "string"
@@ -578,7 +581,7 @@
 						}
 					}
 				},
-				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n  - `422`\n  \t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n  \t-- `Must provide an expiration name when expiring a PIN`\n  \t-- `Must provide an expiration username when expiring a PIN`\n  - `500`\n  \t-- `Internal Server Error`",
+				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n- `422`\n\t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n\t-- `Must provide an expiration name when expiring a PIN`\n\t-- `Must provide an expiration username when expiring a PIN`\n- `500`\n\t-- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
