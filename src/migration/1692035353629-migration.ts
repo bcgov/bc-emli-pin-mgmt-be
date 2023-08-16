@@ -9,8 +9,8 @@ export class Migration1692035353629 implements MigrationInterface {
 	   AS $function$ 
 	   BEGIN 
 		   INSERT INTO ${schemaName}.pin_audit_log 
-		   (pin,pid,parcel_status,title_number,land_title_district,from_title_number,from_land_title_district,title_status,live_pin_id) 
-		   VALUES (OLD.pin,OLD.pid,OLD.parcel_status,OLD.title_number,OLD.land_title_district,OLD.from_title_number,OLD.from_land_title_district,OLD.title_status,OLD.live_pin_id);
+		   (pin,pid,parcel_status,title_number,land_title_district,from_title_number,from_land_title_district,title_status,live_pin_id,pin_created_at,action,expired_at) 
+		   VALUES (OLD.pin,OLD.pid,OLD.parcel_status,OLD.title_number,OLD.land_title_district,OLD.from_title_number,OLD.from_land_title_district,OLD.title_status,OLD.live_pin_id,OLD.created_at,'D',now());
 		   RETURN OLD;
 	   END
 	   $function$

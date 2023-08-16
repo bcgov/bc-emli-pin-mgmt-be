@@ -20,11 +20,15 @@ export class Migration1691766267989 implements MigrationInterface {
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at TYPE timestamp WITH TIME ZONE;`,
         );
+        // await queryRunner.query(
+        //     `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET DEFAULT now();`,
+        // );
+        // await queryRunner.query(
+        //     `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET NOT NULL;`,
+        // );
+
         await queryRunner.query(
-            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET DEFAULT now();`,
-        );
-        await queryRunner.query(
-            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET NOT NULL;`,
+            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS pin_created_at timestamp WITH time ZONE NOT NULL;`,
         );
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS updated_at timestamp WITH time zone;`,
@@ -37,6 +41,21 @@ export class Migration1691766267989 implements MigrationInterface {
         );
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS live_pin_id UUID NOT NULL;`,
+        );
+        /* Action type column
+         * The reason for adding an entry to the pin audit log.
+         * - Deleted PIN  = 'D',
+         * - (Initially) Created PIN = 'C',
+         * - Recreated (expire and create) PIN = 'R'
+         */
+        await queryRunner.query(
+            `DROP TYPE IF EXISTS ${schemaName}.pin_audit_action_type`,
+        );
+        await queryRunner.query(
+            `CREATE TYPE ${schemaName}.pin_audit_action_type AS ENUM ('D', 'C', 'R');`,
+        );
+        await queryRunner.query(
+            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS action ${schemaName}.pin_audit_action_type NOT NULL;`,
         );
 
         await queryRunner.query(

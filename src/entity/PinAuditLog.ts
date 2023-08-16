@@ -42,11 +42,8 @@ export class PinAuditLog {
     @Column('enum', { name: 'title_status', enum: ['R', 'C'] })
     titleStatus: 'R' | 'C';
 
-    @Column('timestamp with time zone', {
-        name: 'expired_at',
-        default: () => 'now()',
-    })
-    expiredAt: Date;
+    @Column('timestamp with time zone', { name: 'expired_at', nullable: true })
+    expiredAt: Date | null;
 
     @Column('enum', {
         name: 'expiration_reason',
@@ -64,6 +61,9 @@ export class PinAuditLog {
         length: 12,
     })
     sentToPhone: string | null;
+
+    @Column('timestamp with time zone', { name: 'pin_created_at' })
+    pinCreatedAt: Date;
 
     @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
     updatedAt: Date | null;
@@ -84,4 +84,7 @@ export class PinAuditLog {
 
     @Column('uuid', { name: 'live_pin_id' })
     livePinId: string;
+
+    @Column('enum', { name: 'action', enum: ['D', 'C', 'R'] })
+    action: 'D' | 'C' | 'R';
 }

@@ -170,3 +170,15 @@ export interface expireRequestBody {
     expiredByName?: string;
     expiredByUsername?: string;
 }
+
+/**
+ * The reason for adding an entry to the pin audit log.
+ * - Deleted PIN  = 'D',
+ * - (Initially) Created PIN = 'C',
+ * - Recreated (expire and create) PIN = 'R'
+ */
+export enum pinAuditAction {
+    deleted = 'D',
+    created = 'C',
+    recreated = 'R',
+}
