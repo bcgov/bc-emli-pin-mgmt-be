@@ -20,13 +20,6 @@ export class Migration1691766267989 implements MigrationInterface {
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at TYPE timestamp WITH TIME ZONE;`,
         );
-        // await queryRunner.query(
-        //     `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET DEFAULT now();`,
-        // );
-        // await queryRunner.query(
-        //     `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ALTER COLUMN expired_at SET NOT NULL;`,
-        // );
-
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS pin_created_at timestamp WITH time ZONE NOT NULL;`,
         );
