@@ -30,7 +30,9 @@
 				],
 				"type": "object",
 				"additionalProperties": false,
-				"example": "abcdefgh"
+				"example": {
+					"pin": "abcdefgh"
+				}
 			},
 			"pinRangeErrorType": {
 				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
@@ -89,6 +91,212 @@
 						"abcdefgh",
 						"12345678"
 					]
+				}
+			},
+			"ActivePin": {
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "string",
+						"nullable": true
+					},
+					"pid": {
+						"type": "number",
+						"format": "double"
+					},
+					"parcelStatus": {
+						"type": "string",
+						"enum": [
+							"A",
+							"I"
+						]
+					},
+					"titleNumber": {
+						"type": "string"
+					},
+					"landTitleDistrict": {
+						"type": "string"
+					},
+					"titleStatus": {
+						"type": "string",
+						"enum": [
+							"R",
+							"C"
+						]
+					},
+					"fromTitleNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"fromLandTitleDistrict": {
+						"type": "string",
+						"nullable": true
+					},
+					"givenName": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastName_1": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastName_2": {
+						"type": "string",
+						"nullable": true
+					},
+					"incorporationNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"addressLine_1": {
+						"type": "string"
+					},
+					"addressLine_2": {
+						"type": "string",
+						"nullable": true
+					},
+					"city": {
+						"type": "string"
+					},
+					"province": {
+						"type": "string",
+						"nullable": true
+					},
+					"otherGeographicDivision": {
+						"type": "string",
+						"nullable": true
+					},
+					"country": {
+						"type": "string"
+					},
+					"postalCode": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					}
+				},
+				"required": [
+					"livePinId",
+					"pin",
+					"pid",
+					"parcelStatus",
+					"titleNumber",
+					"landTitleDistrict",
+					"titleStatus",
+					"fromTitleNumber",
+					"fromLandTitleDistrict",
+					"givenName",
+					"lastName_1",
+					"lastName_2",
+					"incorporationNumber",
+					"addressLine_1",
+					"addressLine_2",
+					"city",
+					"province",
+					"otherGeographicDivision",
+					"country",
+					"postalCode",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"EntityNotFoundErrorType": {
+				"description": "Error that occurs when an entity cannot be found in the database meeting your search criteria",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
+				}
+			},
+			"GenericTypeORMErrorType": {
+				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+				}
+			},
+			"requiredFieldErrorType": {
+				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Must provide an expiration name when expiring a PIN"
+				}
+			},
+			"expirationReason": {
+				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
+				"enum": [
+					"OP",
+					"CC",
+					"OR",
+					"CO"
+				],
+				"type": "string"
+			},
+			"expireRequestBody": {
+				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"expirationReason": {
+						"$ref": "#/components/schemas/expirationReason"
+					},
+					"expiredByName": {
+						"type": "string"
+					},
+					"expiredByUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"livePinId",
+					"expirationReason"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
+					"expirationReason": "OP",
+					"expiredByName": "John Smith",
+					"expiredByUsername": "jsmith"
 				}
 			},
 			"GeocoderAddress": {
@@ -338,6 +546,58 @@
 						}
 					}
 				]
+			}
+		},
+		"/pins/expire": {
+			"post": {
+				"operationId": "ExpirePin",
+				"responses": {
+					"200": {
+						"description": "The deleted pin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ActivePin"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n- `422`\n\t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n\t-- `Must provide an expiration name when expiring a PIN`\n\t-- `Must provide an expiration username when expiring a PIN`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The body of the request. Note that expiredByName and username are only required for reasons other than \"CO\" (change of ownership).",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/expireRequestBody",
+								"description": "The body of the request. Note that expiredByName and username are only required for reasons other than \"CO\" (change of ownership)."
+							}
+						}
+					}
+				}
 			}
 		},
 		"/properties/address/{address}": {

@@ -103,15 +103,12 @@ export class ActivePin {
     })
     postalCode: string | null;
 
-    @Column('timestamp without time zone', {
+    @Column('timestamp with time zone', {
         name: 'created_at',
         default: () => 'now()',
     })
     createdAt: Date;
 
-    @Column('timestamp without time zone', {
-        name: 'updated_at',
-        nullable: true,
-    })
+    @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
     updatedAt: Date | null;
 }
