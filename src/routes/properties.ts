@@ -18,4 +18,22 @@ propertiesRouter.get(
     },
 );
 
+propertiesRouter.get(
+    '/details/:siteID&role',
+    async (req: Request, res: Response) => {
+        const controller = new PropertiesController();
+        const response = await controller.getPropertyDetails(
+            () => {},
+            () => {},
+            () => {},
+            () => {},
+            () => {},
+            () => {},
+            req.params.siteID,
+            req.params.role,
+        );
+        return res.send(response);
+    },
+);
+
 export default propertiesRouter;

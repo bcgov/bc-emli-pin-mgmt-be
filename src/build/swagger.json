@@ -382,6 +382,140 @@
 				"example": {
 					"message": "Geocoder API base URL or 'addresses' endpoint URL is undefined."
 				}
+			},
+			"propertyDetailsResponse": {
+				"description": "An object containing property details",
+				"properties": {},
+				"type": "object",
+				"additionalProperties": {
+					"type": "string"
+				},
+				"example": {
+					"pid": 1234567,
+					"titleNumber": "12345",
+					"landTitleDistrict": "AB",
+					"givenName": "firstname",
+					"lastName_1": "lastname",
+					"lastName_2": null,
+					"incorporationNumber": null,
+					"addressLine_1": "123 Main Street",
+					"addressLine_2": "",
+					"city": "Vancouver",
+					"province": "BC",
+					"otherGeographicDivision": null,
+					"country": "Canada",
+					"postalCode": "A1B2C3"
+				}
+			},
+			"unauthorizedError": {
+				"description": "Unauthorized Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Unauthorized error",
+					"code": 401
+				}
+			},
+			"badRequestError": {
+				"description": "Bad Request Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Bad request error",
+					"code": 400
+				}
+			},
+			"forbiddenError": {
+				"description": "Forbidden Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Forbidden error",
+					"code": 403
+				}
+			},
+			"notFoundError": {
+				"description": "Not Found Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Not found error",
+					"code": 404
+				}
+			},
+			"pidNotFound": {
+				"description": "PID Not Found",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "PID not found in database",
+					"code": 204
+				}
 			}
 		},
 		"securitySchemes": {}
@@ -642,6 +776,107 @@
 						"description": "The address you wish to find the siteID for",
 						"in": "path",
 						"name": "address",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/properties/details": {
+			"get": {
+				"operationId": "GetPropertyDetails",
+				"responses": {
+					"200": {
+						"description": "An object containing the property owner details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/propertyDetailsResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/pidNotFound"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/unauthorizedError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to get property owner details from a given a site ID\nStep 1: Call bc geocoder parcel API to get PIDs from site ID\nStep 2: Check database and return property details for properties with a matching PID\nExpected error codes and messages:\n- 200\n-- 'OK'\n- 204\n -- 'No Content'\n- 400\n -- 'Bad Request'\n- 401\n-- 'Unauthorized'\n- 403\n-- 'Forbidden'\n- 404\n-- 'Not Found'",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The siteID of a site",
+						"in": "query",
+						"name": "siteID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "role",
 						"required": true,
 						"schema": {
 							"type": "string"
