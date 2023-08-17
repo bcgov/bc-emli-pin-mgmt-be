@@ -12,6 +12,8 @@ RUN npm ci
 
 COPY . .
 
+RUN npm run db:migrate
+
 RUN npm run build
 
 USER 1001

@@ -29,6 +29,36 @@ export interface geocoderReferenceErrorType {
 }
 
 /**
+ * Error that occurs when an entity cannot be found in the database meeting your search criteria
+ * @example {
+ * 	"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
+ * }
+ */
+export interface EntityNotFoundErrorType {
+    message: string;
+}
+
+/**
+ * A generic error given by TypeORM. Often related to invalid syntax for input parameters
+ * @example {
+ * 	"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+ * }
+ */
+export interface GenericTypeORMErrorType {
+    message: string;
+}
+
+/**
+ * A error that can occur when you don't give a required input parameter in the body of a request
+ * @example {
+ * 	"message": "Must provide an expiration name when expiring a PIN"
+ * }
+ */
+export interface requiredFieldErrorType {
+    message: string;
+}
+
+/**
  * Generic unknown server error
  * @example {
  * 	"message": "Internal Server Error"
@@ -48,7 +78,9 @@ export type PIN = string;
 /**
  * A PIN generated for a homeowner, checked for uniqueness against the database. Defaults to 8 character length and
  * all numbers + lowercase letters as the character set.
- * @example "abcdefgh"
+ * @example {
+ * "pin": "abcdefgh"
+ * }
  */
 export interface createdPIN {
     pin: string;
@@ -190,4 +222,47 @@ export interface notFoundError {
 export interface pidNotFound {
     message: string;
     code: number;
+}
+/**
+ * The reason for expiring a PIN.
+ * - OptOut = 'OP'
+ * - CallCenterPinReset = 'CC'
+ * - OnlineReset = 'OR'
+ * - ChangeOfOwnership = 'CO'
+ */
+export enum expirationReason {
+    OptOut = 'OP',
+    CallCenterPinReset = 'CC',
+    OnlineReset = 'OR',
+    ChangeOfOwnership = 'CO',
+}
+
+/**
+ * The request body for a pin expiration request.
+ * Note that expiredByName and username are only required for reasons other
+ * than "CO" (change of ownership).
+ * @example {
+ * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
+ * 	"expirationReason": "OP",
+ *  "expiredByName": "John Smith",
+ *  "expiredByUsername": "jsmith"
+ * }
+ */
+export interface expireRequestBody {
+    livePinId: string;
+    expirationReason: expirationReason;
+    expiredByName?: string;
+    expiredByUsername?: string;
+}
+
+/**
+ * The reason for adding an entry to the pin audit log.
+ * - Deleted PIN  = 'D',
+ * - (Initially) Created PIN = 'C',
+ * - Recreated (expire and create) PIN = 'R'
+ */
+export enum pinAuditAction {
+    deleted = 'D',
+    created = 'C',
+    recreated = 'R',
 }

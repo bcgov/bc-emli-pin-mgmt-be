@@ -15,4 +15,13 @@ export class Permission {
 
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
     role: 'Standard' | 'Admin' | 'SuperAdmin';
+
+    @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
+    updatedAt: Date | null;
+
+    @Column('timestamp with time zone', {
+        name: 'created_at',
+        default: () => 'now()',
+    })
+    createdAt: Date;
 }

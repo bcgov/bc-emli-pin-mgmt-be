@@ -36,4 +36,13 @@ export class Users {
 
     @Column('boolean', { name: 'is_active' })
     isActive: boolean;
+
+    @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
+    updatedAt: Date | null;
+
+    @Column('timestamp with time zone', {
+        name: 'created_at',
+        default: () => 'now()',
+    })
+    createdAt: Date;
 }

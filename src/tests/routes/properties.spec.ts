@@ -12,6 +12,11 @@ import { ActivePin } from '../../entity/ActivePin';
 import * as ActivePIN from '../../db/ActivePIN.db';
 
 describe('Properties endpoints', () => {
+    beforeEach(() => {
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
+    });
+
     test('/address should return results with valid input', async () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(
             geocodeAddressAPIResponse,
