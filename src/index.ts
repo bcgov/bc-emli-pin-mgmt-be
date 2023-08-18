@@ -1,7 +1,7 @@
 import express, { Express, Response, Request, NextFunction } from 'express';
 import router from './routes/index';
 import { ValidateError } from 'tsoa';
-// import { RegisterRoutes } from './build/routes';
+import { RegisterRoutes } from './build/routes';
 import swaggerUI from 'swagger-ui-express';
 import swagger from './build/swagger.json';
 import logger from './middleware/logger';
@@ -34,7 +34,7 @@ app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
     return res.send(swaggerUI.generateHTML(swagger));
 });
 
-// RegisterRoutes(app);
+RegisterRoutes(app);
 
 app.use(router);
 
