@@ -70,10 +70,18 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
+const corsDomain = [process.env.FE_APP_URL];
+
 const corsOptions = {
-    origin: process.env.FE_APP_URL,
-    credentials: true, // access-control-allow-credentials:true
-    optionSuccessStatus: 200,
+    origin(origin: any, callback: any) {
+        if (!origin || corsDomain.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200,
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
