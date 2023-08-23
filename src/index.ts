@@ -7,6 +7,7 @@ import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
 import { AppDataSource } from './data-source';
+import cors from 'cors';
 
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
@@ -68,5 +69,13 @@ if (process.env.NODE_ENV !== 'test') {
         logger.debug(`[Server]: I am running at port:${port}`);
     });
 }
+
+const corsOptions = {
+    origin: process.env.FE_APP_URL,
+    credentials: true, // access-control-allow-credentials:true
+    optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 export { app, AppDataSource };
