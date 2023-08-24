@@ -1,4 +1,5 @@
 import express, { Express, Response, Request, NextFunction } from 'express';
+import router from './routes/index';
 import { ValidateError } from 'tsoa';
 import { RegisterRoutes } from './build/routes';
 import swaggerUI from 'swagger-ui-express';
@@ -7,6 +8,9 @@ import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
 import { AppDataSource } from './data-source';
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 const app: Express = express();
@@ -64,6 +68,7 @@ if (process.env.FE_APP_URL?.includes('localhost')) {
 app.use(express.json());
 app.use(morganConfig);
 app.use(express.static('public'));
+app.use(cookieParser());
 
 // Route configuration
 app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
@@ -71,6 +76,8 @@ app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
 });
 
 RegisterRoutes(app);
+
+app.use(router);
 
 // tsoa error handling
 app.use(function notFoundHandler(_req, res: Response) {
@@ -108,6 +115,38 @@ app.use(function errorHandler(
 
     next();
 });
+
+// Auth handling
+// TODO: Check if session is required for authentication
+const ONE_DAY = 24 * (60 * 60 * 1000);
+const MemoryStore = createMemoryStore(session);
+
+const store = new MemoryStore({
+    checkPeriod: ONE_DAY,
+});
+
+app.use(
+    session({
+        name: process.env.COOKIE_SESSION_NAME
+            ? process.env.COOKIE_SESSION_NAME
+            : '',
+        secret: process.env.COOKIE_SESSION_SECRET
+            ? process.env.COOKIE_SESSION_SECRET
+            : '',
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            maxAge: ONE_DAY,
+            httpOnly: true,
+            secure: false,
+        },
+        store,
+    }),
+);
+
+app.disable('x-powered-by');
+
+app.set('trust proxy', 1);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(port, async () => {

@@ -18,3 +18,4 @@ coverage
 # Temporary files
 tmp
 temp
+.vscode/settings.json
