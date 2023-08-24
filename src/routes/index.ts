@@ -48,6 +48,9 @@ router.get('/oauth', async (req, res) => {
             const { access_token } = tokens;
             res.cookie('token', access_token, {
                 maxAge: ONE_DAY,
+                httpOnly: true,
+                sameSite: 'none',
+                secure: true,
             });
             res.redirect(`${process.env.FE_APP_URL}`);
         }
