@@ -1,3 +1,5 @@
+import { createPinRequestBody } from '../helpers/types';
+
 // API Responses to mock (sorry, this is a real response and it's long)
 export const geocodeAddressAPIResponse = {
     data: {
@@ -517,3 +519,74 @@ export const ActivePINMultiResponse = [
         updatedAt: null,
     },
 ];
+
+export const validCreatePinBodyInc: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pid: '1234|5678',
+    incorporationNumber: '91011',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const validCreatePinBodyName: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pid: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyNoIncName: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pid: '1234|5678',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyBothIncName: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pid: '1234|5678',
+    incorporationNumber: '91011',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
+    pid: '1234|5678',
+    incorporationNumber: '91011',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
+    phoneNumber: '+81334335111',
+    pid: '1234|5678',
+    incorporationNumber: '91011',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    province: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
