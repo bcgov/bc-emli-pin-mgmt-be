@@ -47,10 +47,11 @@ router.get('/oauth', async (req, res) => {
             const tokens = await getAccessToken({ code });
             const { access_token } = tokens;
             res.cookie('token', access_token, {
+                path: '/',
                 maxAge: ONE_DAY,
                 httpOnly: true,
                 sameSite: 'none',
-                secure: true,
+                secure: false,
             });
             res.redirect(`${process.env.FE_APP_URL}`);
         }
