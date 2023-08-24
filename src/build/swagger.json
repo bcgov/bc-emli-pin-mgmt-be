@@ -521,14 +521,14 @@
 		"securitySchemes": {}
 	},
 	"info": {
-		"title": "TSOA",
+		"title": "bc-emli-pin-mgmt-be",
 		"version": "1.0.0",
-		"description": "Build swagger-compliant REST APIs using TypeScript and Node",
+		"description": "BC Virtual Home Energy Rating PIN Management System Backend",
 		"license": {
-			"name": "MIT"
+			"name": "Apache-2.0"
 		},
 		"contact": {
-			"name": "unknown"
+			"name": "Government of British Columbia"
 		}
 	},
 	"openapi": "3.0.0",
