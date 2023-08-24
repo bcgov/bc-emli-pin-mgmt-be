@@ -59,6 +59,18 @@ export interface requiredFieldErrorType {
 }
 
 /**
+ * A error that can occur when there are one or more validation errors for a given request
+ * @example {
+ * 	"message": "Validation Error(s) occured in createPin request body:",
+ *  "faults": ["Phone number OR email required","Given + Last Name OR Incorporation Number required"]
+ * }
+ */
+export interface aggregateValidationErrorType {
+    message: string;
+    faults: string[];
+}
+
+/**
  * Generic unknown server error
  * @example {
  * 	"message": "Internal Server Error"
@@ -84,6 +96,23 @@ export type PIN = string;
  */
 export interface createdPIN {
     pin: string;
+}
+
+/**
+ * A PIN updated for a homeowner and its corresponding title, parcel & database identifiers. Defaults to 8 character length and
+ * all numbers + lowercase letters as the character set.
+ * @example {
+ * "pin": "abcdefgh",
+ * "pid": 1234,
+ * "titleNumber": "abcdefg",
+ * "livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
+ * }
+ */
+export interface updatedPIN {
+    pin: string;
+    pid: number;
+    titleNumber: string;
+    livePinId: string;
 }
 
 /**
@@ -169,6 +198,63 @@ export interface expireRequestBody {
     expirationReason: expirationReason;
     expiredByName?: string;
     expiredByUsername?: string;
+}
+
+/**
+ * The request body for a pin creation / recreation request.
+ * The address fields given are for a mailing address, which is
+ * not necessarily the same as the property address, hence the need
+ * for the pid as well.
+ * Certain combinations of fields are required in addition to always required fields:
+ * - (givenName & lastName_1/lastName_2) OR incorporationNumber
+ * - phoneNumber AND/OR email
+ * - requesterName and requesterUsername are required if an employee is requesting the creation,
+ *  rather than self serve
+ * @example {
+ * "phoneNumber": "19021234567",
+ * "pid": "1234|5678",
+ * "givenName": "Jane",
+ * "lastName_1": "Smith",
+ * "lastName_2": "Green",
+ * "addressLine_1": "123 Main St",
+ * "addressLine_2": "Unit 12",
+ * "city": "Vancouver",
+ * "province": "BC",
+ * "country": "Canada",
+ * "postalCode": "V1V1V1"
+ * }
+ */
+export interface createPinRequestBody {
+    pinLength?: number;
+    allowedChars?: string;
+    phoneNumber?: string;
+    email?: string;
+    pid: number | string;
+    givenName?: string;
+    lastName_1?: string;
+    lastName_2?: string;
+    incorporationNumber?: string;
+    addressLine_1: string;
+    addressLine_2?: string;
+    city: string;
+    province?: string;
+    otherGeographicDivision?: string;
+    country: string;
+    postalCode?: string;
+    requesterName?: string;
+    requesterUsername?: string;
+}
+
+/**
+ * The email and/or phone number to send a new pin to
+ * @example {
+ * 	"email": "example@example.com",
+ *  "phoneNumber": "19021234567"
+ * }
+ */
+export interface emailPhone {
+    email?: string;
+    phoneNumber?: string;
 }
 
 /**
