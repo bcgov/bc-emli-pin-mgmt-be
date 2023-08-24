@@ -11,11 +11,58 @@ import { AppDataSource } from './data-source';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
     ? parseInt(process.env.SERVER_PORT as string)
     : 3000;
+
+// Add headers before the routes are defined
+app.use(function (req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', `${process.env.FE_APP_URL}`);
+
+    // Request methods you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+    );
+
+    // Request headers you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-Requested-With,content-type',
+    );
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Pass to next layer of middleware
+    next();
+});
+
+const corsDomain = [process.env.FE_APP_URL];
+
+const corsOptions = {
+    origin(origin: any, callback: any) {
+        if (!origin || corsDomain.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200,
+    credentials: true,
+};
+
+console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
+if (process.env.FE_APP_URL?.includes('localhost')) {
+    app.use(cors());
+} else {
+    app.use(cors(corsOptions));
+}
 
 // Middleware configuration
 app.use(express.json());

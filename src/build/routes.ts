@@ -161,6 +161,58 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "propertyDetailsResponse": {
+        "dataType": "refObject",
+        "properties": {
+        },
+        "additionalProperties": {"dataType":"string"},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "unauthorizedError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "badRequestError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "forbiddenError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "notFoundError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "pidNotFound": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -303,6 +355,38 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getSiteID.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/properties/details',
+            ...(fetchMiddlewares<RequestHandler>(PropertiesController)),
+            ...(fetchMiddlewares<RequestHandler>(PropertiesController.prototype.getPropertyDetails)),
+
+            function PropertiesController_getPropertyDetails(request: any, response: any, next: any) {
+            const args = {
+                    unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
+                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
+                    notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    pidNotFoundResponse: {"in":"res","name":"204","required":true,"ref":"pidNotFound"},
+                    siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
+                    role: {"in":"query","name":"role","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PropertiesController();
+
+
+              const promise = controller.getPropertyDetails.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

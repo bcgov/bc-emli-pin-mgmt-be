@@ -151,25 +151,21 @@ describe('Pin endpoints', () => {
             .mockImplementationOnce(() => {
                 return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
             });
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-                expirationReason: expirationReason.ChangeOfOwnership,
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+            expirationReason: expirationReason.ChangeOfOwnership,
+        });
         expect(res.statusCode).toBe(200);
         expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
         spy.mockClear();
     });
 
     test('expire PIN should fail without name for non-system expirations', async () => {
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-                expirationReason: expirationReason.CallCenterPinReset,
-                expiredByUsername: 'Test',
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByUsername: 'Test',
+        });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Must provide an expiration name when expiring a PIN',
@@ -177,13 +173,11 @@ describe('Pin endpoints', () => {
     });
 
     test('expire PIN should fail without username for non-system expirations', async () => {
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-                expirationReason: expirationReason.CallCenterPinReset,
-                expiredByName: 'Test',
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByName: 'Test',
+        });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Must provide an expiration username when expiring a PIN',
@@ -197,14 +191,12 @@ describe('Pin endpoints', () => {
                 livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
             });
         });
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-                expirationReason: expirationReason.CallCenterPinReset,
-                expiredByName: 'Test',
-                expiredByUsername: 'Test',
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByName: 'Test',
+            expiredByUsername: 'Test',
+        });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
@@ -217,14 +209,12 @@ describe('Pin endpoints', () => {
                 'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
             );
         });
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-                expirationReason: expirationReason.CallCenterPinReset,
-                expiredByName: 'Test',
-                expiredByUsername: 'Test',
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByName: 'Test',
+            expiredByUsername: 'Test',
+        });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
@@ -235,14 +225,12 @@ describe('Pin endpoints', () => {
         jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
             throw new Error('An unknown error occured');
         });
-        const res = await request(app)
-            .post('/pins/expire')
-            .send({
-                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-                expirationReason: expirationReason.CallCenterPinReset,
-                expiredByName: 'Test',
-                expiredByUsername: 'Test',
-            });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByName: 'Test',
+            expiredByUsername: 'Test',
+        });
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occured');
     });
