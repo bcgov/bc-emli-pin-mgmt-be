@@ -126,7 +126,7 @@
 				}
 			},
 			"createPinRequestBody": {
-				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is \nnot necessarily the same as the property address, hence the need \nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation, \n rather than self serve",
+				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address, hence the need\nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
 				"properties": {
 					"pinLength": {
 						"type": "number",
