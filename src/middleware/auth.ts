@@ -4,12 +4,12 @@ import 'dotenv/config';
 //
 import { NextFunction, Request, Response } from 'express';
 
-console.log('test', process.env.OIDC_CLIENT_ID);
-
 const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth` || '';
 const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token` || '';
 const OIDC_USER_INFO_URL = `${process.env.CSS_DOMAIN_NAME_URL}/userinfo` || '';
 const OIDC_LOGOUT_URL = `${process.env.CSS_DOMAIN_NAME_URL}/logout` || '';
+const OIDC_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth` || '';
+const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout` || '';
 
 const btoa = (input: string) => Buffer.from(input).toString('base64');
 
@@ -46,7 +46,7 @@ export const getAuthorizationUrl = async ({
             client_id: process.env.OIDC_CLIENT_ID,
             response_type: process.env.OIDC_RESPONSE_TYPE,
             scope: process.env.OIDC_SCOPE,
-            redirect_uri: process.env.OIDC_REDIRECT_URL,
+            redirect_uri: OIDC_REDIRECT_URL,
             identity_provider: identity_provider,
         };
     } else {
@@ -54,7 +54,7 @@ export const getAuthorizationUrl = async ({
             client_id: process.env.OIDC_CLIENT_ID,
             response_type: process.env.OIDC_RESPONSE_TYPE,
             scope: process.env.OIDC_SCOPE,
-            redirect_uri: process.env.OIDC_REDIRECT_URL,
+            redirect_uri: OIDC_REDIRECT_URL,
         };
     }
 
@@ -64,11 +64,10 @@ export const getAuthorizationUrl = async ({
 // see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3
 export const getAccessToken = async ({ code }: any) => {
     const url = OIDC_TOKEN_URL;
-    console.log('---------URL---------', url);
     const params = {
         grant_type: process.env.OIDC_GRANT_TYPE,
         client_id: process.env.OIDC_CLIENT_ID,
-        redirect_uri: process.env.OIDC_REDIRECT_URL,
+        redirect_uri: OIDC_REDIRECT_URL,
         code,
     };
     let config;
@@ -120,7 +119,7 @@ export const getUserInfo = async ({ accessToken }: any) => {
 export const getLogoutUrl = () => {
     const params = {
         client_id: process.env.OIDC_CLIENT_ID,
-        redirect_uri: process.env.OIDC_LOGOUT_REDIRECT_URL,
+        redirect_uri: OIDC_LOGOUT_REDIRECT_URL,
     };
 
     return `${OIDC_LOGOUT_URL}?${stringify(params, { encode: false })}`;
@@ -132,10 +131,8 @@ export async function authenticate(
     next: NextFunction,
 ) {
     const userAuthenticated = req.cookies.token === undefined ? false : true;
-    console.log(userAuthenticated);
     if (!userAuthenticated) {
-        console.log('No JWT');
-        res.redirect(`http://localhost:3000/login`);
+        res.redirect(`${process.env.BE_APP_URL}/login`);
     } else if (userAuthenticated) {
         next();
     }
