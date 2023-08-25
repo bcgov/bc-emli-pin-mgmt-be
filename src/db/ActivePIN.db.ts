@@ -139,18 +139,17 @@ export async function batchUpdatePin(
                 continue;
             }
         }
+
         if (
             typeof transactionReturn != 'undefined' &&
-            typeof transactionReturn.logInfo != 'undefined'
+            typeof transactionReturn.logInfo != 'undefined' &&
+            transactionReturn.logInfo &&
+            transactionReturn.logInfo.affected &&
+            transactionReturn.logInfo.affected !== 0
         ) {
-            if (
-                transactionReturn.logInfo &&
-                transactionReturn.logInfo.affected
-            ) {
-                logger.debug(
-                    `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}}'`,
-                );
-            }
+            logger.debug(
+                `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}}'`,
+            );
         } else {
             const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: No rows were affected by the update`;
             logger.warn(message);
