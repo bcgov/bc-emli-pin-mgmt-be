@@ -52,7 +52,7 @@ router.get('/oauth', async (req, res) => {
                 maxAge: ONE_DAY,
                 httpOnly: true,
                 sameSite: 'none',
-                secure: false,
+                secure: true,
             });
             res.redirect(`${process.env.FE_APP_URL}`);
         }
