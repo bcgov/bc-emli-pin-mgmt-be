@@ -21,10 +21,12 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "createdPIN": {
+    "updatedPIN": {
         "dataType": "refObject",
         "properties": {
             "pin": {"dataType":"string","required":true},
+            "pid": {"dataType":"double","required":true},
+            "livePinId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -41,6 +43,48 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "aggregateValidationErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "faults": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "EntityNotFoundErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "createPinRequestBody": {
+        "dataType": "refObject",
+        "properties": {
+            "pinLength": {"dataType":"double"},
+            "allowedChars": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
+            "email": {"dataType":"string"},
+            "pid": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"string"}],"required":true},
+            "givenName": {"dataType":"string"},
+            "lastName_1": {"dataType":"string"},
+            "lastName_2": {"dataType":"string"},
+            "incorporationNumber": {"dataType":"string"},
+            "addressLine_1": {"dataType":"string","required":true},
+            "addressLine_2": {"dataType":"string"},
+            "city": {"dataType":"string","required":true},
+            "province": {"dataType":"string"},
+            "otherGeographicDivision": {"dataType":"string"},
+            "country": {"dataType":"string","required":true},
+            "postalCode": {"dataType":"string"},
+            "requesterName": {"dataType":"string"},
+            "requesterUsername": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -83,14 +127,6 @@ const models: TsoaRoute.Models = {
             "postalCode": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}],"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "EntityNotFoundErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -247,16 +283,17 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/pins/create',
+        app.post('/pins/create',
             ...(fetchMiddlewares<RequestHandler>(PINController)),
-            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.getPin)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.createPin)),
 
-            function PINController_getPin(request: any, response: any, next: any) {
+            function PINController_createPin(request: any, response: any, next: any) {
             const args = {
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
-                    pinLength: {"in":"query","name":"pinLength","dataType":"double"},
-                    allowedChars: {"in":"query","name":"allowedChars","dataType":"string"},
+                    aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
+                    notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"createPinRequestBody"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -268,7 +305,7 @@ export function RegisterRoutes(app: Router) {
                 const controller = new PINController();
 
 
-              const promise = controller.getPin.apply(controller, validatedArgs as any);
+              const promise = controller.createPin.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

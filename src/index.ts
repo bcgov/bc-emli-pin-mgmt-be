@@ -13,6 +13,12 @@ import createMemoryStore from 'memorystore';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
+declare module 'express-session' {
+    export interface SessionData {
+        user: { [key: string]: any };
+    }
+}
+
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
     ? parseInt(process.env.SERVER_PORT as string)

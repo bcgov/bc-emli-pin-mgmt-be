@@ -10,7 +10,7 @@ export class PinAuditLog {
     })
     logId: string;
 
-    @Column('character varying', { name: 'pin', length: 8 })
+    @Column('character varying', { name: 'pin', nullable: true, length: 8 })
     pin: string;
 
     @Column('integer', { name: 'pid' })
@@ -87,4 +87,11 @@ export class PinAuditLog {
 
     @Column('enum', { name: 'action', enum: ['D', 'C', 'R'] })
     action: 'D' | 'C' | 'R';
+
+    @Column('timestamp with time zone', {
+        name: 'log_created_at',
+        nullable: true,
+        default: () => 'now()',
+    })
+    logCreatedAt: Date | null;
 }

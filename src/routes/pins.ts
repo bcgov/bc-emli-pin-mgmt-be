@@ -1,6 +1,7 @@
 import express from 'express';
 import { PINController } from '../controllers/pinController';
 import { Request, Response } from 'express';
+import { createPinRequestBody } from '../helpers/types';
 
 const pinsRouter = express.Router();
 const controller = new PINController();
@@ -16,12 +17,13 @@ pinsRouter.get('/initial-create', async (req: Request, res: Response) => {
     return res.send(response);
 });
 
-pinsRouter.get('/create', async (req: Request, res: Response) => {
-    const response = await controller.getPin(
+pinsRouter.post('/create', async (req: Request, res: Response) => {
+    const response = await controller.createPin(
         () => {},
         () => {},
-        parseInt(req.params.pinLength),
-        req.params.allowedChars,
+        () => {},
+        () => {},
+        req.body as createPinRequestBody,
     );
     return res.send(response);
 });
