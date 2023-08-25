@@ -1,4 +1,5 @@
 import express, { Express, Response, Request, NextFunction } from 'express';
+import router from './routes/index';
 import { ValidateError } from 'tsoa';
 import { RegisterRoutes } from './build/routes';
 import swaggerUI from 'swagger-ui-express';
@@ -7,16 +8,73 @@ import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
 import { AppDataSource } from './data-source';
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+
+declare module 'express-session' {
+    export interface SessionData {
+        user: { [key: string]: any };
+    }
+}
 
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
     ? parseInt(process.env.SERVER_PORT as string)
     : 3000;
 
+// Add headers before the routes are defined
+app.use(function (req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', `${process.env.FE_APP_URL}`);
+
+    // Request methods you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+    );
+
+    // Request headers you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-Requested-With,content-type',
+    );
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Pass to next layer of middleware
+    next();
+});
+
+const corsDomain = [process.env.FE_APP_URL];
+
+const corsOptions = {
+    origin(origin: any, callback: any) {
+        if (!origin || corsDomain.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200,
+    credentials: true,
+};
+
+console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
+if (process.env.FE_APP_URL?.includes('localhost')) {
+    app.use(cors());
+} else {
+    app.use(cors(corsOptions));
+}
+
 // Middleware configuration
 app.use(express.json());
 app.use(morganConfig);
 app.use(express.static('public'));
+app.use(cookieParser());
 
 // Route configuration
 app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
@@ -24,6 +82,8 @@ app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
 });
 
 RegisterRoutes(app);
+
+app.use(router);
 
 // tsoa error handling
 app.use(function notFoundHandler(_req, res: Response) {
@@ -61,6 +121,38 @@ app.use(function errorHandler(
 
     next();
 });
+
+// Auth handling
+// TODO: Check if session is required for authentication
+const ONE_DAY = 24 * (60 * 60 * 1000);
+const MemoryStore = createMemoryStore(session);
+
+const store = new MemoryStore({
+    checkPeriod: ONE_DAY,
+});
+
+app.use(
+    session({
+        name: process.env.COOKIE_SESSION_NAME
+            ? process.env.COOKIE_SESSION_NAME
+            : '',
+        secret: process.env.COOKIE_SESSION_SECRET
+            ? process.env.COOKIE_SESSION_SECRET
+            : '',
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            maxAge: ONE_DAY,
+            httpOnly: true,
+            secure: false,
+        },
+        store,
+    }),
+);
+
+app.disable('x-powered-by');
+
+app.set('trust proxy', 1);
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(port, async () => {

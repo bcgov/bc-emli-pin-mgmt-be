@@ -24,6 +24,58 @@ export async function findPin(
     return result;
 }
 
+export async function findPropertyDetails(
+    pid: number,
+    role: string,
+): Promise<any> {
+    const PINRepo = await AppDataSource.getRepository(ActivePin);
+    let query = {};
+    if (role === 'SuperAdmin') {
+        query = {
+            select: {
+                pid: true,
+                pin: true,
+                titleNumber: true,
+                landTitleDistrict: true,
+                givenName: true,
+                lastName_1: true,
+                lastName_2: true,
+                incorporationNumber: true,
+                addressLine_1: true,
+                addressLine_2: true,
+                city: true,
+                province: true,
+                otherGeographicDivision: true,
+                country: true,
+                postalCode: true,
+            },
+            where: { pid: pid },
+        };
+    } else {
+        query = {
+            select: {
+                pid: true,
+                titleNumber: true,
+                landTitleDistrict: true,
+                givenName: true,
+                lastName_1: true,
+                lastName_2: true,
+                incorporationNumber: true,
+                addressLine_1: true,
+                addressLine_2: true,
+                city: true,
+                province: true,
+                otherGeographicDivision: true,
+                country: true,
+                postalCode: true,
+            },
+            where: { pid: pid },
+        };
+    }
+    const result = await PINRepo.find(query);
+    return result;
+}
+
 export async function deletePin(
     id: string,
     reason: expirationReason,

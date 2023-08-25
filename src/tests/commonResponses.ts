@@ -468,6 +468,38 @@ export const unsortedAddressAPIResponse = {
     },
 };
 
+export const geocodeParcelAPIResponse_1 = {
+    data: { siteID: '785d65a0-3562-4ba7-a078-e088a7aada7c', pids: '030317304' },
+};
+
+export const geocodeParcelAPIResponse_2 = {
+    data: { siteID: '785d65a0-3562-4ba7-a078-e088a7aada7c', pids: '123456789' },
+};
+
+export const ActivePINResponse = {
+    livePinId: '92acf45b-09ce-4565-a358-895f36bb7383',
+    pin: null,
+    pid: 9765107,
+    parcelStatus: 'A',
+    titleNumber: '123',
+    landTitleDistrict: 'AB',
+    titleStatus: 'R',
+    fromTitleNumber: null,
+    fromLandTitleDistrict: null,
+    givenName: 'Name',
+    lastName_1: 'Name',
+    lastName_2: null,
+    incorporationNumber: null,
+    addressLine_1: '123 Main Street',
+    addressLine_2: null,
+    city: 'Vancouver',
+    province: 'BC',
+    otherGeographicDivision: null,
+    country: 'Canada',
+    postalCode: 'A1B2C3',
+    createdAt: '2023-08-10T20:50:46.450Z',
+    updatedAt: null,
+};
 export const ActivePINMultiResponse = [
     {
         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
