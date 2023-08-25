@@ -47,6 +47,7 @@ router.get('/oauth', async (req, res) => {
             const tokens = await getAccessToken({ code });
             const { access_token } = tokens;
             res.cookie('token', access_token, {
+                domain: process.env.DOMAIN_NAME,
                 path: '/',
                 maxAge: ONE_DAY,
                 httpOnly: true,
