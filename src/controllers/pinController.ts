@@ -150,6 +150,7 @@ export class PINController extends Controller {
                 }
                 return true;
             }
+
             if (requestBody.incorporationNumber) {
                 if (
                     pinResult.givenName ||
@@ -191,6 +192,7 @@ export class PINController extends Controller {
         let pin;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result: any[] = [];
+
         try {
             // Validate that the input request is correct
             const faults = this.pinRequestBodyValidate(requestBody);
@@ -217,6 +219,7 @@ export class PINController extends Controller {
 
             // Find Active PIN entry (or entries if more than one pid to insert or update
             const pinResults = await findPin(undefined, where);
+
             const updateResults: ActivePin[] = [];
             const updateTitleNumbers = new Set();
             for (const result of pinResults) {
@@ -233,14 +236,18 @@ export class PINController extends Controller {
                 if (requestBody.givenName && requestBody.lastName_1)
                     errMessage =
                         errMessage +
-                        `${requestBody.givenName} ${requestBody.lastName_1} ${requestBody.lastName_2}`;
+                        `${requestBody.givenName} ${requestBody.lastName_1} ${
+                            requestBody.lastName_2 ? requestBody.lastName_2 : ''
+                        }`;
                 else
                     errMessage =
                         errMessage +
                         `Inc. # ${requestBody.incorporationNumber}`;
-                errMessage =
-                    errMessage +
-                    `\n${requestBody.addressLine_1}\n${requestBody.addressLine_2}\n${requestBody.city}, `;
+                errMessage = errMessage + `\n${requestBody.addressLine_1}`;
+                if (requestBody.addressLine_2) {
+                    errMessage = errMessage + `\n${requestBody.addressLine_2}`;
+                }
+                errMessage = errMessage + `\n${requestBody.city}, `;
                 if (requestBody.province)
                     errMessage = errMessage + `${requestBody.province}, `;
                 if (requestBody.otherGeographicDivision)
@@ -287,25 +294,24 @@ export class PINController extends Controller {
                 requestBody.requesterUsername,
             );
             if (errors.length >= 1) {
-                const faults = [];
-                for (const error of errors) {
-                    faults.push(new Error(error));
-                }
                 throw new AggregateError(
-                    faults,
+                    errors,
                     `Error(s) occured in batchUpdatePin: `,
                 );
             }
+
             // Prepare and return results
             for (const res of updateResults) {
-                const toPush: updatedPIN = {
-                    pin: res.pin ? res.pin : '',
-                    pid: res.pid,
-                    titleNumber: res.titleNumber,
-                    livePinId: res.livePinId,
-                };
-                result.push(toPush);
+                if (res.pin) {
+                    const toPush: updatedPIN = {
+                        pin: res.pin,
+                        pid: res.pid,
+                        livePinId: res.livePinId,
+                    };
+                    result.push(toPush);
+                }
             }
+            // TODO: Add GCNotify to send the email / text
         } catch (err) {
             if (err instanceof AggregateError) {
                 logger.warn(`${err.message} ${err.errors}`);

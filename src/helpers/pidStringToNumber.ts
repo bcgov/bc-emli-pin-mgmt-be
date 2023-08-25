@@ -16,7 +16,7 @@ export function pidStringToNumber(pids: string | number): number[] | number {
         (stringArray.length === 1 && stringArray[0] === '')
     ) {
         const message = `Error in pidStringToNumber: No pid to parse in input '${pids}'`;
-        logger.error(message);
+        logger.warn(message);
         throw new Error(message);
     }
 
@@ -54,7 +54,7 @@ export function pidStringToNumber(pids: string | number): number[] | number {
         });
     } catch (err) {
         if (err instanceof Error) {
-            logger.error(`${err.message}`);
+            logger.warn(`${err.message}`);
             throw err;
         }
     }

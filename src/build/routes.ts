@@ -26,7 +26,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "pin": {"dataType":"string","required":true},
             "pid": {"dataType":"double","required":true},
-            "titleNumber": {"dataType":"string","required":true},
             "livePinId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,

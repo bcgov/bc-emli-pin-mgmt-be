@@ -19,7 +19,7 @@
 				"additionalProperties": false
 			},
 			"updatedPIN": {
-				"description": "A PIN updated for a homeowner and its corresponding title, parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
+				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
 				"properties": {
 					"pin": {
 						"type": "string"
@@ -28,9 +28,6 @@
 						"type": "number",
 						"format": "double"
 					},
-					"titleNumber": {
-						"type": "string"
-					},
 					"livePinId": {
 						"type": "string"
 					}
@@ -38,7 +35,6 @@
 				"required": [
 					"pin",
 					"pid",
-					"titleNumber",
 					"livePinId"
 				],
 				"type": "object",
@@ -46,7 +42,6 @@
 				"example": {
 					"pin": "abcdefgh",
 					"pid": 1234,
-					"titleNumber": "abcdefg",
 					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
 				}
 			},

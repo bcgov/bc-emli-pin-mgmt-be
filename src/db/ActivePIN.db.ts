@@ -134,7 +134,7 @@ export async function batchUpdatePin(
         } catch (err) {
             if (err instanceof Error) {
                 const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: ${err.message}`;
-                logger.error(message);
+                logger.warn(message);
                 errors.push(message);
                 continue;
             }
@@ -147,14 +147,13 @@ export async function batchUpdatePin(
                 transactionReturn.logInfo &&
                 transactionReturn.logInfo.affected
             ) {
-                console.log(transactionReturn.logInfo.affected);
                 logger.debug(
                     `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}}'`,
                 );
             }
         } else {
             const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: No rows were affected by the update`;
-            logger.error(message);
+            logger.warn(message);
             errors.push(message);
         }
     }

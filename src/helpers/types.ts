@@ -99,19 +99,17 @@ export interface createdPIN {
 }
 
 /**
- * A PIN updated for a homeowner and its corresponding title, parcel & database identifiers. Defaults to 8 character length and
+ * A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and
  * all numbers + lowercase letters as the character set.
  * @example {
  * "pin": "abcdefgh",
  * "pid": 1234,
- * "titleNumber": "abcdefg",
  * "livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
  * }
  */
 export interface updatedPIN {
     pin: string;
     pid: number;
-    titleNumber: string;
     livePinId: string;
 }
 
