@@ -18,6 +18,176 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"expirationReason": {
+				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
+				"enum": [
+					"OP",
+					"CC",
+					"OR",
+					"CO"
+				],
+				"type": "string"
+			},
+			"pinAuditAction": {
+				"description": "The reason for adding an entry to the pin audit log.\n- Deleted PIN  = 'D',\n- (Initially) Created PIN = 'C',\n- Recreated (expire and create) PIN = 'R'",
+				"enum": [
+					"D",
+					"C",
+					"R"
+				],
+				"type": "string"
+			},
+			"auditLogInfo": {
+				"description": "The info returned in an audit log",
+				"properties": {
+					"logId": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "string",
+						"nullable": true
+					},
+					"expiredAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"expirationReason": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/expirationReason"
+							}
+						],
+						"nullable": true
+					},
+					"sentToEmail": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentToPhone": {
+						"type": "string",
+						"nullable": true
+					},
+					"pinCreatedAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"expiredByName": {
+						"type": "string",
+						"nullable": true
+					},
+					"expiredByUsername": {
+						"type": "string",
+						"nullable": true
+					},
+					"livePinId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/pinAuditAction"
+					},
+					"logCreatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"logId",
+					"pin",
+					"expiredAt",
+					"expirationReason",
+					"sentToEmail",
+					"sentToPhone",
+					"pinCreatedAt",
+					"updatedAt",
+					"expiredByName",
+					"expiredByUsername",
+					"livePinId",
+					"action",
+					"logCreatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"logId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"expiredAt": null,
+					"expirationReason": null,
+					"sentToEmail": null,
+					"sentToPhone": "19021234567",
+					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
+					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"expiredByName": "Self",
+					"expiredByUsername": "self",
+					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
+					"action": "C",
+					"logCreatedAt": "2023-08-24T15:06:27.269Z"
+				}
+			},
+			"auditLogReturn": {
+				"description": "The information returned in an audit log request for a given pin, sorted descending",
+				"properties": {
+					"logs": {
+						"items": {
+							"$ref": "#/components/schemas/auditLogInfo"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"logs"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GenericTypeORMErrorType": {
+				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+				}
+			},
+			"requiredFieldErrorType": {
+				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Must provide an expiration name when expiring a PIN"
+				}
+			},
+			"serverErrorType": {
+				"description": "Generic unknown server error",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Internal Server Error"
+				}
+			},
 			"updatedPIN": {
 				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
 				"properties": {
@@ -59,22 +229,6 @@
 				"additionalProperties": false,
 				"example": {
 					"message": "PIN must be of length 1 or greater"
-				}
-			},
-			"serverErrorType": {
-				"description": "Generic unknown server error",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Internal Server Error"
 				}
 			},
 			"aggregateValidationErrorType": {
@@ -354,48 +508,6 @@
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"GenericTypeORMErrorType": {
-				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
-				}
-			},
-			"requiredFieldErrorType": {
-				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Must provide an expiration name when expiring a PIN"
-				}
-			},
-			"expirationReason": {
-				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
-				"enum": [
-					"OP",
-					"CC",
-					"OR",
-					"CO"
-				],
-				"type": "string"
 			},
 			"expireRequestBody": {
 				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
@@ -677,6 +789,56 @@
 				},
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/audit-trails": {
+			"get": {
+				"operationId": "GetAuditLogs",
+				"responses": {
+					"200": {
+						"description": "The audit logs for a particular pin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/auditLogReturn"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the audit logs for a vertical bar seperated (|) string of livePinIds. Limited to 500 logs.\nExpected error codes and messages:\n- `422`\n\t-- `invalid input syntax for type uuid: 'your query here'`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The list of ids for the pins, seperated by a vertical bar (|)",
+						"in": "query",
+						"name": "livePinIds",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/pins/create": {
