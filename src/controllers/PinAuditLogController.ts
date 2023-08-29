@@ -7,6 +7,7 @@ import {
     auditLogReturn,
     serverErrorType,
     auditLogInfo,
+    requiredFieldErrorType,
 } from '../helpers/types';
 
 @Route('audit-trails')
@@ -24,6 +25,8 @@ export class PinAuditLogController extends Controller {
     @Get('')
     public async getAuditLogs(
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
+        @Res()
+        requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Query() livePinIds: string,
     ): Promise<auditLogReturn | undefined> {
@@ -34,7 +37,7 @@ export class PinAuditLogController extends Controller {
             const parsedPinIDs = livePinIds.split('|');
             if (
                 parsedPinIDs.length === 0 ||
-                (parsedPinIDs.length === 1 && parsedPinIDs[0] === '')
+                (parsedPinIDs.length >= 1 && parsedPinIDs[0] === '')
             ) {
                 throw new Error('No pin ids were provided in the request');
             }
@@ -59,6 +62,7 @@ export class PinAuditLogController extends Controller {
                 pinCreatedAt: true,
                 expiredByName: true,
                 expiredByUsername: true,
+                livePinId: true,
             };
             res = await findAuditLog(select, where);
             // delete undefined properties
@@ -77,8 +81,16 @@ export class PinAuditLogController extends Controller {
                     message: err.message,
                 } as GenericTypeORMErrorType);
             } else if (err instanceof Error) {
+                if (err.message === 'No pin ids were provided in the request') {
+                    logger.warn(
+                        `Encountered RequiredFieldError in getAuditLogs: ${err.constructor.name} ${err.message}`,
+                    );
+                    return requiredFieldErrorResponse(422, {
+                        message: err.message,
+                    });
+                }
                 logger.warn(
-                    `Encountered unknown Internal Server Error in getSiteID: ${err.constructor.name} ${err.message}`,
+                    `Encountered unknown Internal Server Error in getAuditLogs: ${err.constructor.name} ${err.message}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }

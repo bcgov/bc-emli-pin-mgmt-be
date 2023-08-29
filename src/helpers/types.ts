@@ -364,6 +364,7 @@ export enum pinAuditAction {
     "updatedAt": "2023-08-25T15:12:59.764Z",
     "expiredByName": "Self",
     "expiredByUsername": "self",
+	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "R",
     "logCreatedAt": "2023-08-25T15:12:59.764Z"
   },
@@ -377,6 +378,7 @@ export enum pinAuditAction {
     "updatedAt": "2023-08-24T15:06:27.269Z",
     "expiredByName": "Self",
     "expiredByUsername": "self",
+	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
     "logCreatedAt": "2023-08-24T15:06:27.269Z"
   }
@@ -399,6 +401,7 @@ export interface auditLogReturn {
     "updatedAt": "2023-08-24T15:06:27.269Z",
     "expiredByName": "Self",
     "expiredByUsername": "self",
+	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
     "logCreatedAt": "2023-08-24T15:06:27.269Z"
   }

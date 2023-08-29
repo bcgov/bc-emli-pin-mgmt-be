@@ -9,6 +9,7 @@ logsRouter.get('', async (req: Request, res: Response) => {
     const response = await controller.getAuditLogs(
         () => {},
         () => {},
+        () => {},
         req.params.livePinIds,
     );
     return res.send(response);
