@@ -353,7 +353,8 @@ export enum pinAuditAction {
 
 /**
  * The information returned in an audit log request for a given pin, sorted descending
- * @example [
+ * @example { 
+ * 	logs: [
   {
     "logId": "5f926af0-f558-4b29-ace7-f4afdcdabb2d",
     "expiredAt": "2023-08-25T15:12:59.764Z",
@@ -367,22 +368,9 @@ export enum pinAuditAction {
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "R",
     "logCreatedAt": "2023-08-25T15:12:59.764Z"
-  },
-  {
-    "logId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "expiredAt": null,
-    "expirationReason": null,
-    "sentToEmail": null,
-    "sentToPhone": "19021234567",
-    "pinCreatedAt": "2023-08-24T15:01:49.628Z",
-    "updatedAt": "2023-08-24T15:06:27.269Z",
-    "expiredByName": "Self",
-    "expiredByUsername": "self",
-	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
-    "action": "C",
-    "logCreatedAt": "2023-08-24T15:06:27.269Z"
   }
-]
+ ]
+}
  */
 export interface auditLogReturn {
     logs: auditLogInfo[];
