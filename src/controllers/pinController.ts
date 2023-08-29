@@ -454,7 +454,7 @@ export class PINController extends Controller {
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {
                 logger.warn(
-                    `Encountered unknown Internal Server Error in expirePin: ${err.message}`,
+                    `Encountered unknown Internal Server Error in expirePin: ${err}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }
