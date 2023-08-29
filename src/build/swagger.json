@@ -47,13 +47,6 @@
 						"type": "string",
 						"nullable": true
 					},
-					"pid": {
-						"type": "number",
-						"enum": [
-							0
-						],
-						"nullable": false
-					},
 					"expiredAt": {
 						"type": "string",
 						"nullable": true
@@ -102,7 +95,6 @@
 				"required": [
 					"logId",
 					"pin",
-					"pid",
 					"expiredAt",
 					"expirationReason",
 					"sentToEmail",

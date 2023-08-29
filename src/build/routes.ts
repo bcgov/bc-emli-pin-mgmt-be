@@ -38,7 +38,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "logId": {"dataType":"string","required":true},
             "pin": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "pid": {"dataType":"enum","enums":[0],"required":true},
             "expiredAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "expirationReason": {"dataType":"union","subSchemas":[{"ref":"expirationReason"},{"dataType":"enum","enums":[null]}],"required":true},
             "sentToEmail": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},

@@ -397,7 +397,6 @@ export interface auditLogReturn {
 export interface auditLogInfo {
     logId: string;
     pin: string | null;
-    pid: 0;
     expiredAt: string | null;
     expirationReason: expirationReason | null;
     sentToEmail: string | null;
