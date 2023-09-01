@@ -111,8 +111,7 @@ app.use(function errorHandler(
     }
     if (err instanceof Error) {
         logger.warn(
-            `Encountered unknown Internal Server Error for ${req.path}:`,
-            err.message,
+            `Encountered unknown Internal Server Error for ${req.path}: ${err.message}`,
         );
         return res.status(500).json({
             message: 'Internal Server Error',
