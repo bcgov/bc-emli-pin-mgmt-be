@@ -559,7 +559,7 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
@@ -572,7 +572,7 @@ export const validCreatePinBodyName: createPinRequestBody = {
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
@@ -584,12 +584,12 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
 
-export const validCreatePinBodyNameAddLineGeoDiv: createPinRequestBody = {
+export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
     pid: '1234|5678',
@@ -598,23 +598,12 @@ export const validCreatePinBodyNameAddLineGeoDiv: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     city: 'Vancouver',
-    otherGeographicDivision: 'Lower Mainland',
+    provinceLong: 'Lower Mainland',
     country: 'Canada',
 };
 
-export const invalidCreatePinBodyNoIncName: createPinRequestBody = {
-    phoneNumber: '19021234567',
-    email: 'example@example.com',
-    pid: '1234|5678',
-    addressLine_1: '123 example st',
-    city: 'Vancouver',
-    province: 'BC',
-    country: 'Canada',
-    postalCode: 'V1V1V1',
-};
-
-export const invalidCreatePinBodyBothIncName: createPinRequestBody = {
-    phoneNumber: '19021234567',
+export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
+    phoneNumber: '88234',
     email: 'example@example.com',
     pid: '1234|5678',
     incorporationNumber: '91011',
@@ -622,7 +611,7 @@ export const invalidCreatePinBodyBothIncName: createPinRequestBody = {
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
@@ -632,7 +621,7 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
@@ -643,7 +632,7 @@ export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
 };
@@ -658,7 +647,29 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
     city: 'Vancouver',
-    province: 'BC',
+    provinceAbbreviation: 'BC',
     country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    lastName_1: 'None',
+    pid: '1234|5678',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+};
+
+export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pid: '1234|5678',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
     postalCode: 'V1V1V1',
 };

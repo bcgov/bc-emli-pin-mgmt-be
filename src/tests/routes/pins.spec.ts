@@ -14,10 +14,10 @@ import {
 import { emailPhone, expirationReason } from '../../helpers/types';
 import {
     ActivePINMultiResponse,
-    invalidCreatePinBodyBothIncName,
+    invalidCreatePinBodyWrongPhone,
     invalidCreatePinBodyPinLength,
     validCreatePinBodyInc,
-    validCreatePinBodyNameAddLineGeoDiv,
+    validCreatePinBodyNameAddLineProvLong,
     validCreatePinBodySinglePid,
 } from '../commonResponses';
 
@@ -147,14 +147,14 @@ describe('Pin endpoints', () => {
     });
 
     test('create on request body validation fail returns 422', async () => {
-        const reqBody = invalidCreatePinBodyBothIncName;
+        const reqBody = invalidCreatePinBodyWrongPhone;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
         );
         expect(res.body.faults[0]).toBe(
-            'Both Name and Incorporation Number CANNOT be given',
+            'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
         );
     });
 
@@ -181,7 +181,7 @@ describe('Pin endpoints', () => {
                 return [] as ActivePin[];
             },
         );
-        const reqBody = validCreatePinBodyNameAddLineGeoDiv;
+        const reqBody = validCreatePinBodyNameAddLineProvLong;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
@@ -199,7 +199,7 @@ describe('Pin endpoints', () => {
                 return [] as ActivePin[];
             },
         );
-        const reqBody = validCreatePinBodyNameAddLineGeoDiv;
+        const reqBody = validCreatePinBodyNameAddLineProvLong;
         reqBody.lastName_2 = 'Appleseed';
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(422);

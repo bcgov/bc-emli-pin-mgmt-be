@@ -301,7 +301,7 @@ export interface expireRequestBody {
  * "addressLine_1": "123 Main St",
  * "addressLine_2": "Unit 12",
  * "city": "Vancouver",
- * "province": "BC",
+ * "provinceAbbreviation": "BC",
  * "country": "Canada",
  * "postalCode": "V1V1V1"
  * }
@@ -316,12 +316,12 @@ export interface createPinRequestBody {
     lastName_1?: string;
     lastName_2?: string;
     incorporationNumber?: string;
-    addressLine_1: string;
+    addressLine_1?: string;
     addressLine_2?: string;
-    city: string;
-    province?: string;
-    otherGeographicDivision?: string;
-    country: string;
+    city?: string;
+    provinceAbbreviation?: string;
+    provinceLong?: string;
+    country?: string;
     postalCode?: string;
     requesterName?: string;
     requesterUsername?: string;
