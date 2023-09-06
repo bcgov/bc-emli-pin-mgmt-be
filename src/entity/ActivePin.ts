@@ -13,11 +13,8 @@ export class ActivePin {
     @Column('character varying', { name: 'pin', nullable: true, length: 8 })
     pin: string | null;
 
-    @Column('integer', { name: 'pid' })
-    pid: number;
-
-    @Column('enum', { name: 'parcel_status', enum: ['A', 'I'] })
-    parcelStatus: 'A' | 'I';
+    @Column('character varying', { name: 'pids', length: 500 })
+    pids: string;
 
     @Column('character varying', { name: 'title_number', length: 11 })
     titleNumber: string;
@@ -70,8 +67,12 @@ export class ActivePin {
     })
     incorporationNumber: string | null;
 
-    @Column('character varying', { name: 'address_line_1', length: 65 })
-    addressLine_1: string;
+    @Column('character varying', {
+        name: 'address_line_1',
+        nullable: true,
+        length: 65,
+    })
+    addressLine_1: string | null;
 
     @Column('character varying', {
         name: 'address_line_2',
@@ -80,21 +81,29 @@ export class ActivePin {
     })
     addressLine_2: string | null;
 
-    @Column('character varying', { name: 'city', length: 30 })
-    city: string;
+    @Column('character varying', { name: 'city', nullable: true, length: 30 })
+    city: string | null;
 
-    @Column('character', { name: 'province', nullable: true, length: 2 })
-    province: string | null;
+    @Column('character', {
+        name: 'province_abbreviation',
+        nullable: true,
+        length: 2,
+    })
+    provinceAbbreviation: string | null;
 
     @Column('character varying', {
-        name: 'other_geographic_division',
+        name: 'province_long',
         nullable: true,
         length: 24,
     })
-    otherGeographicDivision: string | null;
+    provinceLong: string | null;
 
-    @Column('character varying', { name: 'country', length: 38 })
-    country: string;
+    @Column('character varying', {
+        name: 'country',
+        nullable: true,
+        length: 38,
+    })
+    country: string | null;
 
     @Column('character varying', {
         name: 'postal_code',

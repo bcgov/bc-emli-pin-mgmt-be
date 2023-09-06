@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { ActivePin } from './entity/ActivePin';
 import { Permission } from './entity/Permission';
 import { PinAuditLog } from './entity/PinAuditLog';
-import { Users } from './entity/Users';
+import { Employee } from './entity/Employee';
 import { Migrations } from './entity/Migrations';
 import { join } from 'path';
 
@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [ActivePin, Permission, PinAuditLog, Users, Migrations],
+    entities: [ActivePin, Permission, PinAuditLog, Employee, Migrations],
     migrations: [join(__dirname, 'migration', '**.ts')],
     synchronize:
         process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true' &&

@@ -32,6 +32,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Build
+        run: npm run build
+
       ####### Need to set up test namespace on openshift
 
       # - name: Login to Openshift
