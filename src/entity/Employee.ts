@@ -1,8 +1,9 @@
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
+import { PinAuditLog } from './PinAuditLog';
 
 @Index('users_pkey', ['userId'], { unique: true })
-@Entity('users')
-export class Users {
+@Entity('employee')
+export class Employee {
     @Column('uuid', {
         primary: true,
         name: 'user_id',
@@ -19,17 +20,25 @@ export class Users {
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
     role: 'Standard' | 'Admin' | 'SuperAdmin';
 
-    @Column('character varying', { name: 'organization', length: 50 })
-    organization: string;
+    @Column('character varying', {
+        name: 'organization',
+        nullable: true,
+        length: 50,
+    })
+    organization: string | null;
 
-    @Column('citext', { name: 'email' })
-    email: string;
+    @Column('citext', { name: 'email', nullable: true })
+    email: string | null;
 
-    @Column('character varying', { name: 'user_name', length: 50 })
-    userName: string;
+    @Column('character varying', {
+        name: 'username',
+        nullable: true,
+        length: 100,
+    })
+    username: string | null;
 
-    @Column('character varying', { name: 'first_name', length: 50 })
-    firstName: string;
+    @Column('character varying', { name: 'given_name', length: 50 })
+    givenName: string;
 
     @Column('character varying', { name: 'last_name', length: 75 })
     lastName: string;
@@ -45,4 +54,10 @@ export class Users {
         default: () => 'now()',
     })
     createdAt: Date;
+
+    @Column('character varying', { name: 'display_name', length: 125 })
+    displayName: string;
+
+    @OneToMany(() => PinAuditLog, (pinAuditLog) => pinAuditLog.alteredByUser)
+    pinAuditLogs: PinAuditLog[];
 }
