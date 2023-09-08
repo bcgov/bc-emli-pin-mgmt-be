@@ -2,7 +2,7 @@ import { UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason } from '../helpers/types';
+import { expirationReason } from '../helpers/types';
 import logger from '../middleware/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,7 +79,6 @@ export async function findPropertyDetails(
 export async function deletePin(
     id: string,
     reason: expirationReason,
-    expiredByName: string,
     expiredByUsername: string,
 ): Promise<ActivePin | undefined> {
     const transactionReturn = (await AppDataSource.transaction(
@@ -98,8 +97,12 @@ export async function deletePin(
             const logInfo = await manager.update(
                 PinAuditLog,
                 { logId: log.logId },
-                { expirationReason: reason, expiredByName, expiredByUsername },
+                {
+                    expirationReason: reason,
+                    alteredByUsername: expiredByUsername,
+                },
             );
+            // TO DO: Query for User ID???
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
@@ -124,6 +127,7 @@ export async function deletePin(
  * @param requesterUsername The username of the person requesting the (re)creation. Can be blank if it's the person themselves
  * @returns An array of errors that occured / entries that were not processed, or an empty array upon total success.
  */
+/*
 export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
@@ -210,3 +214,4 @@ export async function batchUpdatePin(
     }
     return errors;
 }
+*/

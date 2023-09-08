@@ -19,17 +19,17 @@ import {
     EntityNotFoundErrorType,
     requiredFieldErrorType,
     expireRequestBody,
-    createPinRequestBody,
-    aggregateValidationErrorType,
-    emailPhone,
-    updatedPIN,
+    // createPinRequestBody,
+    // aggregateValidationErrorType,
+    // emailPhone,
+    // updatedPIN,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
-import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
+import { deletePin } from '../db/ActivePIN.db';
 import { EntityNotFoundError, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
-import { pidStringToNumber } from '../helpers/pidStringToNumber';
+// import { pidStringToNumber } from '../helpers/pidStringToNumber';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -37,6 +37,7 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
+    /*
     private pinRequestBodyValidate(
         requestBody: createPinRequestBody,
     ): string[] {
@@ -60,6 +61,7 @@ export class PINController extends Controller {
         }
         return faults;
     }
+	*/
 
     /**
      * Used to validate that the result from the db matches the create request so that a pin can be created
@@ -70,6 +72,7 @@ export class PINController extends Controller {
      * @param pinResult The individual ActivePin result to validate against
      * @returns true if valid, false otherwise
      */
+    /*
     private pinResultValidate(
         requestBody: createPinRequestBody,
         pinResult: ActivePin,
@@ -159,6 +162,7 @@ export class PINController extends Controller {
         }
         return true;
     }
+	*/
 
     /**
      * Used to create or recreate a single, unique PIN, checking against the DB to do so.
@@ -172,6 +176,7 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    /*
     @Post('create')
     public async createPin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -330,6 +335,7 @@ export class PINController extends Controller {
         }
         return result;
     }
+	*/
 
     /**
      * Used for the initial creation of PINs, when none exist in the database yet.
@@ -391,7 +397,7 @@ export class PINController extends Controller {
      * 	-- `Must provide an expiration username when expiring a PIN`
      * - `500`
      * 	-- `Internal Server Error`
-     * @param requestBody The body of the request. Note that expiredByName and username are only required for reasons other than "CO" (change of ownership).
+     * @param requestBody The body of the request. Note that expiredByUsername is only required for reasons other than "CO" (change of ownership).
      * @returns The deleted pin
      */
     @Post('expire')
@@ -404,24 +410,13 @@ export class PINController extends Controller {
         @Body() requestBody: expireRequestBody,
     ): Promise<ActivePin | undefined> {
         // If expired by LTSA data feed, username and name should be defaulted
-        const expiredName =
-            requestBody.expirationReason === expirationReason.ChangeOfOwnership
-                ? 'LTSA Data Import'
-                : requestBody.expiredByName
-                ? requestBody.expiredByName
-                : '';
         const expiredUsername =
             requestBody.expirationReason === expirationReason.ChangeOfOwnership
                 ? 'dataimportjob'
                 : requestBody.expiredByUsername
                 ? requestBody.expiredByUsername
                 : '';
-        if (expiredName === '') {
-            const message =
-                'Must provide an expiration name when expiring a PIN';
-            logger.warn(message);
-            return requiredFieldErrorResponse(422, { message });
-        } else if (expiredUsername === '') {
+        if (expiredUsername === '') {
             const message =
                 'Must provide an expiration username when expiring a PIN';
             logger.warn(message);
@@ -432,7 +427,6 @@ export class PINController extends Controller {
             deletedPin = await deletePin(
                 requestBody.livePinId,
                 requestBody.expirationReason,
-                expiredName,
                 expiredUsername,
             );
         } catch (err) {
