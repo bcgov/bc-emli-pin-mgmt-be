@@ -41,21 +41,6 @@ export class PINController extends Controller {
         requestBody: createPinRequestBody,
     ): string[] {
         const faults: string[] = [];
-        // Name / incorporation number checks
-        if (
-            !requestBody.incorporationNumber &&
-            (!requestBody.givenName || !requestBody.lastName_1)
-        ) {
-            faults.push('Given + Last Name OR Incorporation Number required');
-        }
-        if (
-            requestBody.incorporationNumber &&
-            (requestBody.givenName ||
-                requestBody.lastName_1 ||
-                requestBody.lastName_2)
-        ) {
-            faults.push('Both Name and Incorporation Number CANNOT be given');
-        }
         // Phone / email checks
         if (!requestBody.phoneNumber && !requestBody.email) {
             faults.push('Phone number OR email required');
@@ -70,7 +55,7 @@ export class PINController extends Controller {
             )
         ) {
             faults.push(
-                'Phone number must be a vaild, 10 digit North American phone number prefixed with 1 or +1',
+                'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
             );
         }
         return faults;
@@ -89,81 +74,90 @@ export class PINController extends Controller {
         requestBody: createPinRequestBody,
         pinResult: ActivePin,
     ): boolean {
+        // Optional fields
         if (
-            requestBody.addressLine_1 === pinResult.addressLine_1 &&
-            requestBody.city === pinResult.city &&
-            requestBody.country === pinResult.country
+            (requestBody.givenName &&
+                (!pinResult.givenName ||
+                    requestBody.givenName !== pinResult.givenName)) ||
+            (pinResult.givenName && !requestBody.givenName)
         ) {
-            // always required fields
-            // Optional fields
-            if (
-                (requestBody.lastName_2 &&
-                    (!pinResult.lastName_2 ||
-                        requestBody.lastName_2 !== pinResult.lastName_2)) ||
-                (pinResult.lastName_2 && !requestBody.lastName_2)
-            ) {
-                return false; // last name 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.addressLine_2 &&
-                    (!pinResult.addressLine_2 ||
-                        requestBody.addressLine_2 !==
-                            pinResult.addressLine_2)) ||
-                (pinResult.addressLine_2 && !requestBody.addressLine_2)
-            ) {
-                return false; // address line 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.province &&
-                    (!pinResult.province ||
-                        requestBody.province !== pinResult.province)) ||
-                (pinResult.province && !requestBody.province)
-            ) {
-                return false; // province provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.otherGeographicDivision &&
-                    (!pinResult.otherGeographicDivision ||
-                        requestBody.otherGeographicDivision !==
-                            pinResult.otherGeographicDivision)) ||
-                (pinResult.otherGeographicDivision &&
-                    !requestBody.otherGeographicDivision)
-            ) {
-                return false; // other geographic division provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.postalCode &&
-                    (!pinResult.postalCode ||
-                        requestBody.postalCode !== pinResult.postalCode)) ||
-                (pinResult.postalCode && !requestBody.postalCode)
-            ) {
-                return false; // postal code provided in one but not the other, or doesn't match
-            }
-            // Conditional Fields
-            if (requestBody.givenName && requestBody.lastName_1) {
-                if (
-                    pinResult.incorporationNumber ||
-                    requestBody.givenName !== pinResult.givenName ||
-                    requestBody.lastName_1 !== pinResult.lastName_1
-                ) {
-                    return false; // if they don't match or the entry has an incorporation number instead
-                }
-                return true;
-            }
-
-            if (requestBody.incorporationNumber) {
-                if (
-                    pinResult.givenName ||
-                    pinResult.lastName_1 ||
-                    requestBody.incorporationNumber !==
-                        pinResult.incorporationNumber
-                ) {
-                    return false; // if they don't match or the entry has a name instead
-                }
-                return true;
-            }
+            return false; // last name 2 provided in one but not the other, or doesn't match
         }
-        return false;
+        if (
+            (requestBody.lastName_1 &&
+                (!pinResult.lastName_1 ||
+                    requestBody.lastName_1 !== pinResult.lastName_1)) ||
+            (pinResult.lastName_1 && !requestBody.lastName_1)
+        ) {
+            return false; // last name 2 provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.lastName_2 &&
+                (!pinResult.lastName_2 ||
+                    requestBody.lastName_2 !== pinResult.lastName_2)) ||
+            (pinResult.lastName_2 && !requestBody.lastName_2)
+        ) {
+            return false; // last name 2 provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.incorporationNumber &&
+                (!pinResult.incorporationNumber ||
+                    requestBody.incorporationNumber !==
+                        pinResult.incorporationNumber)) ||
+            (pinResult.incorporationNumber && !requestBody.incorporationNumber)
+        ) {
+            return false; // last name 2 provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.addressLine_1 &&
+                (!pinResult.addressLine_1 ||
+                    requestBody.addressLine_1 !== pinResult.addressLine_1)) ||
+            (pinResult.addressLine_1 && !requestBody.addressLine_1)
+        ) {
+            return false; // address line 2 provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.addressLine_2 &&
+                (!pinResult.addressLine_2 ||
+                    requestBody.addressLine_2 !== pinResult.addressLine_2)) ||
+            (pinResult.addressLine_2 && !requestBody.addressLine_2)
+        ) {
+            return false; // address line 2 provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.provinceAbbreviation &&
+                (!pinResult.province ||
+                    requestBody.provinceAbbreviation !== pinResult.province)) ||
+            (pinResult.province && !requestBody.provinceAbbreviation)
+        ) {
+            return false; // province provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.provinceLong &&
+                (!pinResult.otherGeographicDivision ||
+                    requestBody.provinceLong !==
+                        pinResult.otherGeographicDivision)) ||
+            (pinResult.otherGeographicDivision && !requestBody.provinceLong)
+        ) {
+            return false; // other geographic division provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.country &&
+                (!pinResult.country ||
+                    requestBody.country !== pinResult.country)) ||
+            (pinResult.country && !requestBody.country)
+        ) {
+            return false; // postal code provided in one but not the other, or doesn't match
+        }
+        if (
+            (requestBody.postalCode &&
+                (!pinResult.postalCode ||
+                    requestBody.postalCode !== pinResult.postalCode)) ||
+            (pinResult.postalCode && !requestBody.postalCode)
+        ) {
+            return false; // postal code provided in one but not the other, or doesn't match
+        }
+        return true;
     }
 
     /**
@@ -248,11 +242,11 @@ export class PINController extends Controller {
                     errMessage = errMessage + `\n${requestBody.addressLine_2}`;
                 }
                 errMessage = errMessage + `\n${requestBody.city}, `;
-                if (requestBody.province)
-                    errMessage = errMessage + `${requestBody.province}, `;
-                if (requestBody.otherGeographicDivision)
+                if (requestBody.provinceAbbreviation)
                     errMessage =
-                        errMessage + `${requestBody.otherGeographicDivision}, `;
+                        errMessage + `${requestBody.provinceAbbreviation}, `;
+                if (requestBody.provinceLong)
+                    errMessage = errMessage + `${requestBody.provinceLong}, `;
                 errMessage = errMessage + `${requestBody.country} `;
                 if (requestBody.postalCode)
                     errMessage = errMessage + `${requestBody.postalCode}`;

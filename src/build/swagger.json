@@ -322,10 +322,10 @@
 					"city": {
 						"type": "string"
 					},
-					"province": {
+					"provinceAbbreviation": {
 						"type": "string"
 					},
-					"otherGeographicDivision": {
+					"provinceLong": {
 						"type": "string"
 					},
 					"country": {
@@ -342,10 +342,7 @@
 					}
 				},
 				"required": [
-					"pid",
-					"addressLine_1",
-					"city",
-					"country"
+					"pid"
 				],
 				"type": "object",
 				"additionalProperties": false,
@@ -358,7 +355,7 @@
 					"addressLine_1": "123 Main St",
 					"addressLine_2": "Unit 12",
 					"city": "Vancouver",
-					"province": "BC",
+					"provinceAbbreviation": "BC",
 					"country": "Canada",
 					"postalCode": "V1V1V1"
 				}
