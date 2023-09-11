@@ -271,16 +271,15 @@ export enum expirationReason {
  * @example {
  * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
  * 	"expirationReason": "OP",
- *  "expiredByName": "John Smith",
  *  "expiredByUsername": "jsmith"
  * }
  */
 export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
-    expiredByName?: string;
     expiredByUsername?: string;
 }
+// TODO: Change to look up by GUID??
 
 /**
  * The request body for a pin creation / recreation request.
