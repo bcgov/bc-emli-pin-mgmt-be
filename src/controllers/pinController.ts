@@ -183,7 +183,7 @@ export class PINController extends Controller {
 
         // Grab input pid(s)
         const pids: string = pidStringSort(requestBody.pids);
-        console.log(pids);
+
         const where = { pids: pids };
 
         // Find Active PIN entry (or entries if more than one pid to insert or update
