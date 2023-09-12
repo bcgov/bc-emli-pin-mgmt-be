@@ -103,13 +103,13 @@ export interface createdPIN {
  * all numbers + lowercase letters as the character set.
  * @example {
  * "pin": "abcdefgh",
- * "pid": 1234,
+ * "pids": "1234",
  * "livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
  * }
  */
 export interface updatedPIN {
     pin: string;
-    pid: number;
+    pids: string;
     livePinId: string;
 }
 
@@ -293,7 +293,7 @@ export interface expireRequestBody {
  *  rather than self serve
  * @example {
  * "phoneNumber": "19021234567",
- * "pid": "1234|5678",
+ * "pids": "1234|5678",
  * "givenName": "Jane",
  * "lastName_1": "Smith",
  * "lastName_2": "Green",
@@ -310,9 +310,9 @@ export interface createPinRequestBody {
     allowedChars?: string;
     phoneNumber?: string;
     email?: string;
-    pid: number | string;
+    pids: string;
     givenName?: string;
-    lastName_1?: string;
+    lastName_1: string;
     lastName_2?: string;
     incorporationNumber?: string;
     addressLine_1?: string;

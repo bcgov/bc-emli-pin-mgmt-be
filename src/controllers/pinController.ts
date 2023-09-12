@@ -19,17 +19,18 @@ import {
     EntityNotFoundErrorType,
     requiredFieldErrorType,
     expireRequestBody,
-    // createPinRequestBody,
-    // aggregateValidationErrorType,
-    // emailPhone,
-    // updatedPIN,
+    createPinRequestBody,
+    aggregateValidationErrorType,
+    emailPhone,
+    updatedPIN,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
-import { deletePin } from '../db/ActivePIN.db';
+import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
 import { EntityNotFoundError, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
-// import { pidStringToNumber } from '../helpers/pidStringToNumber';
+import { pidStringSort } from '../helpers/pidHelpers';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -37,7 +38,6 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
-    /*
     private pinRequestBodyValidate(
         requestBody: createPinRequestBody,
     ): string[] {
@@ -61,7 +61,6 @@ export class PINController extends Controller {
         }
         return faults;
     }
-	*/
 
     /**
      * Used to validate that the result from the db matches the create request so that a pin can be created
@@ -72,100 +71,242 @@ export class PINController extends Controller {
      * @param pinResult The individual ActivePin result to validate against
      * @returns true if valid, false otherwise
      */
-    /*
     private pinResultValidate(
         requestBody: createPinRequestBody,
         pinResult: ActivePin,
     ): boolean {
-        // Optional fields
-        if (
-            (requestBody.givenName &&
-                (!pinResult.givenName ||
-                    requestBody.givenName !== pinResult.givenName)) ||
-            (pinResult.givenName && !requestBody.givenName)
-        ) {
-            return false; // last name 2 provided in one but not the other, or doesn't match
+        // Always required field
+        if (requestBody.lastName_1 === pinResult.lastName_1) {
+            // Optional fields
+            if (
+                (requestBody.givenName &&
+                    (!pinResult.givenName ||
+                        requestBody.givenName !== pinResult.givenName)) ||
+                (pinResult.givenName && !requestBody.givenName)
+            ) {
+                return false; // last name 2 provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.lastName_2 &&
+                    (!pinResult.lastName_2 ||
+                        requestBody.lastName_2 !== pinResult.lastName_2)) ||
+                (pinResult.lastName_2 && !requestBody.lastName_2)
+            ) {
+                return false; // last name 2 provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.incorporationNumber &&
+                    (!pinResult.incorporationNumber ||
+                        requestBody.incorporationNumber !==
+                            pinResult.incorporationNumber)) ||
+                (pinResult.incorporationNumber &&
+                    !requestBody.incorporationNumber)
+            ) {
+                return false; // last name 2 provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.addressLine_1 &&
+                    (!pinResult.addressLine_1 ||
+                        requestBody.addressLine_1 !==
+                            pinResult.addressLine_1)) ||
+                (pinResult.addressLine_1 && !requestBody.addressLine_1)
+            ) {
+                return false; // address line 2 provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.addressLine_2 &&
+                    (!pinResult.addressLine_2 ||
+                        requestBody.addressLine_2 !==
+                            pinResult.addressLine_2)) ||
+                (pinResult.addressLine_2 && !requestBody.addressLine_2)
+            ) {
+                return false; // address line 2 provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.provinceAbbreviation &&
+                    (!pinResult.provinceAbbreviation ||
+                        requestBody.provinceAbbreviation !==
+                            pinResult.provinceAbbreviation)) ||
+                (pinResult.provinceAbbreviation &&
+                    !requestBody.provinceAbbreviation)
+            ) {
+                return false; // province abbreviation provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.provinceLong &&
+                    (!pinResult.provinceLong ||
+                        requestBody.provinceLong !== pinResult.provinceLong)) ||
+                (pinResult.provinceLong && !requestBody.provinceLong)
+            ) {
+                return false; // other geographic division provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.country &&
+                    (!pinResult.country ||
+                        requestBody.country !== pinResult.country)) ||
+                (pinResult.country && !requestBody.country)
+            ) {
+                return false; // postal code provided in one but not the other, or doesn't match
+            }
+            if (
+                (requestBody.postalCode &&
+                    (!pinResult.postalCode ||
+                        requestBody.postalCode !== pinResult.postalCode)) ||
+                (pinResult.postalCode && !requestBody.postalCode)
+            ) {
+                return false; // postal code provided in one but not the other, or doesn't match
+            }
+            return true;
         }
-        if (
-            (requestBody.lastName_1 &&
-                (!pinResult.lastName_1 ||
-                    requestBody.lastName_1 !== pinResult.lastName_1)) ||
-            (pinResult.lastName_1 && !requestBody.lastName_1)
-        ) {
-            return false; // last name 2 provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.lastName_2 &&
-                (!pinResult.lastName_2 ||
-                    requestBody.lastName_2 !== pinResult.lastName_2)) ||
-            (pinResult.lastName_2 && !requestBody.lastName_2)
-        ) {
-            return false; // last name 2 provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.incorporationNumber &&
-                (!pinResult.incorporationNumber ||
-                    requestBody.incorporationNumber !==
-                        pinResult.incorporationNumber)) ||
-            (pinResult.incorporationNumber && !requestBody.incorporationNumber)
-        ) {
-            return false; // last name 2 provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.addressLine_1 &&
-                (!pinResult.addressLine_1 ||
-                    requestBody.addressLine_1 !== pinResult.addressLine_1)) ||
-            (pinResult.addressLine_1 && !requestBody.addressLine_1)
-        ) {
-            return false; // address line 2 provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.addressLine_2 &&
-                (!pinResult.addressLine_2 ||
-                    requestBody.addressLine_2 !== pinResult.addressLine_2)) ||
-            (pinResult.addressLine_2 && !requestBody.addressLine_2)
-        ) {
-            return false; // address line 2 provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.provinceAbbreviation &&
-                (!pinResult.province ||
-                    requestBody.provinceAbbreviation !== pinResult.province)) ||
-            (pinResult.province && !requestBody.provinceAbbreviation)
-        ) {
-            return false; // province provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.provinceLong &&
-                (!pinResult.otherGeographicDivision ||
-                    requestBody.provinceLong !==
-                        pinResult.otherGeographicDivision)) ||
-            (pinResult.otherGeographicDivision && !requestBody.provinceLong)
-        ) {
-            return false; // other geographic division provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.country &&
-                (!pinResult.country ||
-                    requestBody.country !== pinResult.country)) ||
-            (pinResult.country && !requestBody.country)
-        ) {
-            return false; // postal code provided in one but not the other, or doesn't match
-        }
-        if (
-            (requestBody.postalCode &&
-                (!pinResult.postalCode ||
-                    requestBody.postalCode !== pinResult.postalCode)) ||
-            (pinResult.postalCode && !requestBody.postalCode)
-        ) {
-            return false; // postal code provided in one but not the other, or doesn't match
-        }
-        return true;
+        return false; // last_name_1 not included
     }
-	*/
 
     /**
-     * Used to create or recreate a single, unique PIN, checking against the DB to do so.
+     * Internal method for creating or recreating a PIN. The process is the same.
+     */
+    private async createOrRecreatePin(
+        @Body() requestBody: createPinRequestBody,
+    ): Promise<updatedPIN[]> {
+        const gen: PINGenerator = new PINGenerator();
+        let pin;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result: any[] = [];
+
+        // Validate that the input request is correct
+        const faults = this.pinRequestBodyValidate(requestBody);
+        if (faults.length > 0) {
+            throw new AggregateError(
+                faults,
+                'Validation Error(s) occured in createPin request body:',
+            );
+        }
+
+        // Grab input pid(s)
+        const pids: string = pidStringSort(requestBody.pids);
+        console.log(pids);
+        const where = { pids: pids };
+
+        // Find Active PIN entry (or entries if more than one pid to insert or update
+        const pinResults = await findPin(undefined, where);
+
+        const updateResults: ActivePin[] = [];
+        const updateTitleNumbers = new Set();
+        for (const result of pinResults) {
+            // TODO: fuzzy match rather than exact match ActivePins to update
+            const isMatch = this.pinResultValidate(requestBody, result);
+            if (isMatch) {
+                updateTitleNumbers.add(result.titleNumber); // add to set of title numbers to generate a pin for
+                updateResults.push(result);
+            }
+        }
+
+        if (updateResults.length <= 0) {
+            let errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
+            let newLineFlag = false;
+            // Line 1
+            if (requestBody.givenName)
+                errMessage += `${requestBody.givenName} `;
+            errMessage += `${requestBody.lastName_1} `;
+            if (requestBody.lastName_2)
+                errMessage += `${requestBody.lastName_2} `;
+            if (requestBody.incorporationNumber)
+                errMessage += `Inc. # ${requestBody.incorporationNumber}`;
+            // Line 2
+            if (requestBody.addressLine_1)
+                errMessage += `\n${requestBody.addressLine_1}`;
+            // Line 3
+            if (requestBody.addressLine_2)
+                errMessage += `\n${requestBody.addressLine_2}`;
+            // Line 4
+            if (requestBody.city) {
+                newLineFlag = true;
+                errMessage += `\n${requestBody.city}`;
+            }
+            if (requestBody.provinceAbbreviation) {
+                if (!newLineFlag) {
+                    newLineFlag = true;
+                    errMessage += `\n${requestBody.provinceAbbreviation}`;
+                } else {
+                    errMessage += `, ${requestBody.provinceAbbreviation}`;
+                }
+            }
+            if (requestBody.provinceLong) {
+                if (requestBody.provinceAbbreviation) {
+                    errMessage += ` (${requestBody.provinceLong})`;
+                } else if (!newLineFlag) {
+                    newLineFlag = true;
+                    errMessage += `\n${requestBody.provinceLong}`;
+                } else {
+                    errMessage += `, ${requestBody.provinceLong}`;
+                }
+            }
+            if (requestBody.country) {
+                if (!newLineFlag) {
+                    newLineFlag = true;
+                    errMessage += `\n${requestBody.country}`;
+                } else {
+                    errMessage += `, ${requestBody.country}`;
+                }
+            }
+            if (requestBody.postalCode) {
+                if (!newLineFlag) errMessage += `\n${requestBody.postalCode}`;
+                else errMessage += ` ${requestBody.postalCode}`;
+            }
+            throw new NotFoundError(errMessage);
+        }
+
+        // Generate Pin(s) and add to results
+        const pinArray = [];
+        for (const number of updateTitleNumbers) {
+            pin = await gen.create(
+                requestBody.pinLength,
+                requestBody.allowedChars,
+            ); // we only need one pin for multiple pids on the same title
+            pinArray.push({ titleNumber: number, pin: pin.pin });
+        }
+        for (const result of updateResults) {
+            for (const pin of pinArray) {
+                if (result.titleNumber === pin.titleNumber) {
+                    result.pin = pin.pin;
+                    break;
+                }
+            }
+        }
+        const emailPhone: emailPhone = {
+            email: requestBody.email,
+            phoneNumber: requestBody.phoneNumber,
+        };
+
+        // Insert into DB
+        const errors = await batchUpdatePin(
+            updateResults,
+            emailPhone,
+            requestBody.requesterUsername,
+        );
+        if (errors.length >= 1) {
+            throw new AggregateError(
+                errors,
+                `Error(s) occured in batchUpdatePin: `,
+            );
+        }
+
+        // Prepare and return results
+        for (const res of updateResults) {
+            if (res.pin) {
+                const toPush: updatedPIN = {
+                    pin: res.pin,
+                    pids: res.pids,
+                    livePinId: res.livePinId,
+                };
+                result.push(toPush);
+            }
+        }
+        // TODO: Add GCNotify to send the email / text
+        return result;
+    }
+
+    /**
+     * Used to create a single, unique PIN, checking against the DB to do so.
      * Expected error codes and messages:
      * - `422`
      * -- `PIN must be of length 1 or greater`
@@ -176,7 +317,6 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
-    /*
     @Post('create')
     public async createPin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -187,131 +327,19 @@ export class PINController extends Controller {
         notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
         @Body() requestBody: createPinRequestBody,
     ): Promise<updatedPIN[]> {
-        const gen: PINGenerator = new PINGenerator();
-        let pin;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result: any[] = [];
-
+        let res: any[] = [];
         try {
-            // Validate that the input request is correct
-            const faults = this.pinRequestBodyValidate(requestBody);
-            if (faults.length > 0) {
-                throw new AggregateError(
-                    faults,
-                    'Validation Error(s) occured in createPin request body:',
-                );
-            }
-
-            // Grab input pid(s)
-            const pids: number[] | number = pidStringToNumber(requestBody.pid);
-            let where;
-            if (typeof pids === 'number') {
-                // singular number
-                where = { pid: pids };
-            } else {
-                // an array
-                where = [];
-                for (const p of pids) {
-                    where.push({ pid: p });
-                }
-            }
-
-            // Find Active PIN entry (or entries if more than one pid to insert or update
-            const pinResults = await findPin(undefined, where);
-
-            const updateResults: ActivePin[] = [];
-            const updateTitleNumbers = new Set();
-            for (const result of pinResults) {
-                // TODO: fuzzy match rather than exact match ActivePins to update
-                const isMatch = this.pinResultValidate(requestBody, result);
-                if (isMatch) {
-                    updateTitleNumbers.add(result.titleNumber); // add to set of title numbers to generate a pin for
-                    updateResults.push(result);
-                }
-            }
-
-            if (updateResults.length <= 0) {
-                let errMessage = `Pid ${requestBody.pid} does not match the address and name / incorporation number given:\n`;
-                if (requestBody.givenName && requestBody.lastName_1)
-                    errMessage =
-                        errMessage +
-                        `${requestBody.givenName} ${requestBody.lastName_1} ${
-                            requestBody.lastName_2 ? requestBody.lastName_2 : ''
-                        }`;
-                else
-                    errMessage =
-                        errMessage +
-                        `Inc. # ${requestBody.incorporationNumber}`;
-                errMessage = errMessage + `\n${requestBody.addressLine_1}`;
-                if (requestBody.addressLine_2) {
-                    errMessage = errMessage + `\n${requestBody.addressLine_2}`;
-                }
-                errMessage = errMessage + `\n${requestBody.city}, `;
-                if (requestBody.provinceAbbreviation)
-                    errMessage =
-                        errMessage + `${requestBody.provinceAbbreviation}, `;
-                if (requestBody.provinceLong)
-                    errMessage = errMessage + `${requestBody.provinceLong}, `;
-                errMessage = errMessage + `${requestBody.country} `;
-                if (requestBody.postalCode)
-                    errMessage = errMessage + `${requestBody.postalCode}`;
+            res = await this.createOrRecreatePin(requestBody);
+        } catch (err) {
+            if (err instanceof NotFoundError) {
                 logger.warn(
-                    `Encountered not found error in createPin: ${errMessage}`,
+                    `Encountered not found error in createPin: ${err.message}`,
                 );
                 return notFoundErrorResponse(422, {
-                    message: errMessage,
+                    message: err.message,
                 } as EntityNotFoundErrorType);
             }
-
-            // Generate Pin(s) and add to results
-            const pinArray = [];
-            for (const number of updateTitleNumbers) {
-                pin = await gen.create(
-                    requestBody.pinLength,
-                    requestBody.allowedChars,
-                ); // we only need one pin for multiple pids on the same title
-                pinArray.push({ titleNumber: number, pin: pin.pin });
-            }
-            for (const result of updateResults) {
-                for (const pin of pinArray) {
-                    if (result.titleNumber === pin.titleNumber) {
-                        result.pin = pin.pin;
-                        break;
-                    }
-                }
-            }
-            const emailPhone: emailPhone = {
-                email: requestBody.email,
-                phoneNumber: requestBody.phoneNumber,
-            };
-
-            // Insert into DB
-            const errors = await batchUpdatePin(
-                updateResults,
-                emailPhone,
-                requestBody.requesterName,
-                requestBody.requesterUsername,
-            );
-            if (errors.length >= 1) {
-                throw new AggregateError(
-                    errors,
-                    `Error(s) occured in batchUpdatePin: `,
-                );
-            }
-
-            // Prepare and return results
-            for (const res of updateResults) {
-                if (res.pin) {
-                    const toPush: updatedPIN = {
-                        pin: res.pin,
-                        pid: res.pid,
-                        livePinId: res.livePinId,
-                    };
-                    result.push(toPush);
-                }
-            }
-            // TODO: Add GCNotify to send the email / text
-        } catch (err) {
             if (err instanceof AggregateError) {
                 logger.warn(`${err.message} ${err.errors}`);
                 return aggregateErrorResponse(422, {
@@ -333,9 +361,67 @@ export class PINController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-        return result;
+        return res;
     }
-	*/
+
+    /**
+     * Used to recreate a single, unique PIN, checking against the DB to do so.
+     * Expected error codes and messages:
+     * - `422`
+     * -- `PIN must be of length 1 or greater`
+     * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
+     * -- `Error(s) occured in batchUpdatePin: []`
+     * - `500`
+     *  -- `Internal Server Error`
+     * @param The request body. See 'createRequestPinBody' in schemas for more details.
+     * @returns An object containing the unique PIN
+     */
+    @Post('regenerate')
+    public async recreatePin(
+        @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res()
+        aggregateErrorResponse: TsoaResponse<422, aggregateValidationErrorType>,
+        @Res()
+        notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
+        @Body() requestBody: createPinRequestBody,
+    ): Promise<updatedPIN[]> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let res: any[] = [];
+        try {
+            res = await this.createOrRecreatePin(requestBody);
+        } catch (err) {
+            if (err instanceof NotFoundError) {
+                logger.warn(
+                    `Encountered not found error in createPin: ${err.message}`,
+                );
+                return notFoundErrorResponse(422, {
+                    message: err.message,
+                } as EntityNotFoundErrorType);
+            }
+            if (err instanceof AggregateError) {
+                logger.warn(`${err.message} ${err.errors}`);
+                return aggregateErrorResponse(422, {
+                    message: err.message,
+                    faults: err.errors,
+                });
+            }
+            if (err instanceof RangeError) {
+                logger.warn(
+                    `Encountered Range Error in createPin: ${err.message}`,
+                );
+                return rangeErrorResponse(422, {
+                    message: err.message,
+                } as pinRangeErrorType);
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in createPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
+        return res;
+    }
 
     /**
      * Used for the initial creation of PINs, when none exist in the database yet.

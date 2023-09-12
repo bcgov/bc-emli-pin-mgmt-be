@@ -2,7 +2,7 @@ import { UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { expirationReason } from '../helpers/types';
+import { emailPhone, expirationReason } from '../helpers/types';
 import logger from '../middleware/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,24 +127,17 @@ export async function deletePin(
  * @param requesterUsername The username of the person requesting the (re)creation. Can be blank if it's the person themselves
  * @returns An array of errors that occured / entries that were not processed, or an empty array upon total success.
  */
-/*
 export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
-    requesterName?: string,
     requesterUsername?: string,
 ): Promise<string[]> {
     const errors = [];
-    let expireName: string,
-        expireUsername: string,
-        reason: expirationReason,
-        logInfo;
-    if (!requesterName || !requesterUsername) {
-        expireName = 'Self';
+    let expireUsername: string, reason: expirationReason, logInfo;
+    if (!requesterUsername) {
         expireUsername = 'self';
         reason = expirationReason.OnlineReset;
     } else {
-        expireName = requesterName;
         expireUsername = requesterUsername;
         reason = expirationReason.CallCenterPinReset;
     }
@@ -166,15 +159,13 @@ export async function batchUpdatePin(
                     if (log.expiredAt != null) {
                         updateInfo = {
                             expirationReason: reason,
-                            expiredByName: expireName,
-                            expiredByUsername: expireUsername,
+                            alteredByUsername: expireUsername, // TODO: Join on user GUID
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };
                     } else {
                         updateInfo = {
-                            expiredByName: expireName,
-                            expiredByUsername: expireUsername,
+                            alteredByUsername: expireUsername,
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };
@@ -214,4 +205,3 @@ export async function batchUpdatePin(
     }
     return errors;
 }
-*/

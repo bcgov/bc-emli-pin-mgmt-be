@@ -188,6 +188,170 @@
 					"message": "Internal Server Error"
 				}
 			},
+			"updatedPIN": {
+				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
+				"properties": {
+					"pin": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					},
+					"livePinId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pin",
+					"pids",
+					"livePinId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pin": "abcdefgh",
+					"pids": "1234",
+					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
+				}
+			},
+			"pinRangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "PIN must be of length 1 or greater"
+				}
+			},
+			"aggregateValidationErrorType": {
+				"description": "A error that can occur when there are one or more validation errors for a given request",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"faults": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"message",
+					"faults"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Validation Error(s) occured in createPin request body:",
+					"faults": [
+						"Phone number OR email required",
+						"Given + Last Name OR Incorporation Number required"
+					]
+				}
+			},
+			"EntityNotFoundErrorType": {
+				"description": "Error that occurs when an entity cannot be found in the database meeting your search criteria",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
+				}
+			},
+			"createPinRequestBody": {
+				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address, hence the need\nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
+				"properties": {
+					"pinLength": {
+						"type": "number",
+						"format": "double"
+					},
+					"allowedChars": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName_1": {
+						"type": "string"
+					},
+					"lastName_2": {
+						"type": "string"
+					},
+					"incorporationNumber": {
+						"type": "string"
+					},
+					"addressLine_1": {
+						"type": "string"
+					},
+					"addressLine_2": {
+						"type": "string"
+					},
+					"city": {
+						"type": "string"
+					},
+					"provinceAbbreviation": {
+						"type": "string"
+					},
+					"provinceLong": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"postalCode": {
+						"type": "string"
+					},
+					"requesterName": {
+						"type": "string"
+					},
+					"requesterUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pids",
+					"lastName_1"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"phoneNumber": "19021234567",
+					"pids": "1234|5678",
+					"givenName": "Jane",
+					"lastName_1": "Smith",
+					"lastName_2": "Green",
+					"addressLine_1": "123 Main St",
+					"addressLine_2": "Unit 12",
+					"city": "Vancouver",
+					"provinceAbbreviation": "BC",
+					"country": "Canada",
+					"postalCode": "V1V1V1"
+				}
+			},
 			"PIN": {
 				"type": "string",
 				"example": "abcdefgh",
@@ -213,22 +377,6 @@
 						"abcdefgh",
 						"12345678"
 					]
-				}
-			},
-			"pinRangeErrorType": {
-				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "PIN must be of length 1 or greater"
 				}
 			},
 			"ActivePin": {
@@ -343,22 +491,6 @@
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"EntityNotFoundErrorType": {
-				"description": "Error that occurs when an entity cannot be found in the database meeting your search criteria",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
-				}
 			},
 			"expireRequestBody": {
 				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
@@ -688,12 +820,118 @@
 				]
 			}
 		},
+		"/pins/create": {
+			"post": {
+				"operationId": "CreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/regenerate": {
+			"post": {
+				"operationId": "RecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/pins/initial-create": {
 			"get": {
 				"operationId": "GetInitialPins",
 				"responses": {
 					"200": {
-						"description": "An array of 'faults' (validation errors), or an empty array if there are no errors",
+						"description": "An object containing an array of the created, unique PINs",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -723,7 +961,7 @@
 						}
 					}
 				},
-				"description": "Used to validate that a create pin request body has all the required fields.",
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- `422`\n\t-- `PIN must be of length 1 or greater`\n\t-- `Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.`\n\t-- `The number of PINS created must be greater than 0.`\n- `500`\n\t-- `Internal Server Error`",
 				"security": [],
 				"parameters": [
 					{
