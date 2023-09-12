@@ -28,6 +28,17 @@ pinsRouter.post('/create', async (req: Request, res: Response) => {
     return res.send(response);
 });
 
+pinsRouter.post('/regenerate', async (req: Request, res: Response) => {
+    const response = await controller.recreatePin(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body as createPinRequestBody,
+    );
+    return res.send(response);
+});
+
 pinsRouter.post('/expire', async (req: Request, res: Response) => {
     const response = await controller.expirePin(
         () => {},

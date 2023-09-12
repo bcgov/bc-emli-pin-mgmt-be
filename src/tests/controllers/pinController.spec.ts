@@ -1,16 +1,16 @@
 // Testing for only the private functions of the pin controller that will not be tested through the endpoint
 
 import { PINController } from '../../controllers/pinController';
-// import { ActivePin } from '../../entity/ActivePin';
-// import {
-//     invalidCreatePinBodyIncorrectPhone,
-//     invalidCreatePinBodyNoCountry,
-//     invalidCreatePinBodyNoPhoneEmail,
-//     invalidCreatePinBodyWrongLastName1,
-//     validCreatePinBodyInc,
-//     validCreatePinBodyName,
-//     validCreatePinBodyNameAddLineProvLong,
-// } from '../commonResponses';
+import { ActivePin } from '../../entity/ActivePin';
+import {
+    invalidCreatePinBodyIncorrectPhone,
+    invalidCreatePinBodyNoCountry,
+    invalidCreatePinBodyNoPhoneEmail,
+    invalidCreatePinBodyWrongLastName1,
+    validCreatePinBodyInc,
+    validCreatePinBodyName,
+    validCreatePinBodyNameAddLineProvLong,
+} from '../commonResponses';
 
 describe('pinController private function tests', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,12 +19,6 @@ describe('pinController private function tests', () => {
         controller = new PINController();
         proto = Object.getPrototypeOf(controller);
     });
-    test('Sample test to prevent auto fail', () => {
-        const a = 1,
-            b = 2;
-        expect(b).toBeGreaterThan(a);
-    });
-    /*
     // pinRequestBodyValidate tests
     test('pinRequestBodyValidate should accept valid request body with incorporation number', () => {
         const body = validCreatePinBodyInc;
@@ -59,11 +53,12 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return true on valid comparison with incorporation number', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyInc;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.incorporationNumber = '91011';
+        pin.lastName_1 = 'None';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -74,14 +69,14 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return true on valid comparison with name', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         body.lastName_2 = 'Appleseed';
         pin.lastName_2 = 'Appleseed';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -93,12 +88,12 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with an always required field not matching', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 main st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -109,13 +104,13 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with last name 2 in pin but not body', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.lastName_2 = 'Appleseed';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -126,13 +121,13 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with address line 2 in pin but not body', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.addressLine_2 = 'Unit 100';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -143,13 +138,13 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with address line 2 not matching', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyNameAddLineProvLong;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.addressLine_2 = 'Unit 100';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -160,12 +155,12 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with province not matching', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'ON';
+        pin.provinceAbbreviation = 'ON';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -176,13 +171,13 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with otherGeographicDivision given in pin but not body', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
-        pin.otherGeographicDivision = 'Lower Mainland';
+        pin.provinceAbbreviation = 'BC';
+        pin.provinceLong = 'Lower Mainland';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -193,13 +188,13 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with otherGeographicDivision not matching', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyNameAddLineProvLong;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.addressLine_2 = 'Unit 100A';
         pin.city = 'Vancouver';
-        pin.otherGeographicDivision = 'Okanagan';
+        pin.provinceLong = 'Okanagan';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -210,12 +205,12 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with postalCode in body but not pin', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.givenName = 'John';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
 
         const isValid: boolean = (proto as any).pinResultValidate(body, pin);
@@ -225,11 +220,11 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with name in body but not pin', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.incorporationNumber = '91011';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
 
@@ -240,11 +235,12 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with incorporation number in body but not pin', () => {
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyInc;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
+        pin.lastName_1 = 'None';
         pin.incorporationNumber = 'abcdefg';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
         const isValid: boolean = (proto as any).pinResultValidate(newbody, pin);
@@ -254,11 +250,11 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with wrong last name', () => {
         const pin: ActivePin = new ActivePin();
         const newbody = invalidCreatePinBodyWrongLastName1;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.lastName_1 = 'Smith';
         pin.addressLine_1 = '123 example st';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
         const isValid: boolean = (proto as any).pinResultValidate(newbody, pin);
@@ -268,14 +264,29 @@ describe('pinController private function tests', () => {
     test('pinResultValidate should return false with country in pin but not body', () => {
         const pin: ActivePin = new ActivePin();
         const newbody = invalidCreatePinBodyNoCountry;
-        pin.pid = 5678;
+        pin.pids = '1234|5678';
         pin.addressLine_1 = '123 example st';
+        pin.lastName_1 = 'None';
         pin.city = 'Vancouver';
-        pin.province = 'BC';
+        pin.provinceAbbreviation = 'BC';
         pin.country = 'Canada';
         pin.postalCode = 'V1V1V1';
         const isValid: boolean = (proto as any).pinResultValidate(newbody, pin);
         expect(isValid).toBe(false);
     });
-	*/
+
+    test(`pinResultValidate should return false if given name doesn't match`, () => {
+        const pin: ActivePin = new ActivePin();
+        const newbody = validCreatePinBodyName;
+        pin.pids = '1234|5678';
+        pin.givenName = 'Jane';
+        pin.lastName_1 = 'Smith';
+        pin.addressLine_1 = '123 example st';
+        pin.city = 'Vancouver';
+        pin.provinceAbbreviation = 'BC';
+        pin.country = 'Canada';
+        pin.postalCode = 'V1V1V1';
+        const isValid: boolean = (proto as any).pinResultValidate(newbody, pin);
+        expect(isValid).toBe(false);
+    });
 });

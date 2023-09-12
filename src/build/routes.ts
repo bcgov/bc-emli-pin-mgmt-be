@@ -85,6 +85,66 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "updatedPIN": {
+        "dataType": "refObject",
+        "properties": {
+            "pin": {"dataType":"string","required":true},
+            "pids": {"dataType":"string","required":true},
+            "livePinId": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "pinRangeErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "aggregateValidationErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "faults": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "EntityNotFoundErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "createPinRequestBody": {
+        "dataType": "refObject",
+        "properties": {
+            "pinLength": {"dataType":"double"},
+            "allowedChars": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
+            "email": {"dataType":"string"},
+            "pids": {"dataType":"string","required":true},
+            "givenName": {"dataType":"string"},
+            "lastName_1": {"dataType":"string","required":true},
+            "lastName_2": {"dataType":"string"},
+            "incorporationNumber": {"dataType":"string"},
+            "addressLine_1": {"dataType":"string"},
+            "addressLine_2": {"dataType":"string"},
+            "city": {"dataType":"string"},
+            "provinceAbbreviation": {"dataType":"string"},
+            "provinceLong": {"dataType":"string"},
+            "country": {"dataType":"string"},
+            "postalCode": {"dataType":"string"},
+            "requesterName": {"dataType":"string"},
+            "requesterUsername": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "PIN": {
         "dataType": "refAlias",
         "type": {"dataType":"string","validators":{}},
@@ -94,14 +154,6 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "pins": {"dataType":"array","array":{"dataType":"refAlias","ref":"PIN"},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "pinRangeErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -130,14 +182,6 @@ const models: TsoaRoute.Models = {
             "postalCode": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}],"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "EntityNotFoundErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -294,6 +338,64 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getAuditLogs.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/create',
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.createPin)),
+
+            function PINController_createPin(request: any, response: any, next: any) {
+            const args = {
+                    rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
+                    notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"createPinRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.createPin.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/regenerate',
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.recreatePin)),
+
+            function PINController_recreatePin(request: any, response: any, next: any) {
+            const args = {
+                    rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
+                    notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"createPinRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.recreatePin.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

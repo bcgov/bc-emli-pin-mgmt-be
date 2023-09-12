@@ -553,7 +553,8 @@ export const ActivePINMultiResponse = [
 export const validCreatePinBodyInc: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
-    pid: '1234|5678',
+    lastName_1: 'None',
+    pids: '1234|5678',
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
@@ -565,7 +566,7 @@ export const validCreatePinBodyInc: createPinRequestBody = {
 export const validCreatePinBodyName: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
-    pid: '1234|5678',
+    pids: '1234|5678',
     givenName: 'John',
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
@@ -577,8 +578,9 @@ export const validCreatePinBodyName: createPinRequestBody = {
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
     phoneNumber: '19021234567',
+    lastName_1: 'None',
     email: 'example@example.com',
-    pid: 1234,
+    pids: '1234',
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
@@ -590,7 +592,7 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
-    pid: '1234|5678',
+    pids: '1234|5678',
     givenName: 'John',
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
@@ -600,10 +602,70 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     country: 'Canada',
 };
 
+export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pids: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    addressLine_2: 'Unit 100A',
+    country: 'Canada',
+};
+
+export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pids: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    addressLine_2: 'Unit 100A',
+    postalCode: 'V1V1V1',
+};
+
+export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pids: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    addressLine_2: 'Unit 100A',
+    provinceLong: 'Lower Mainland',
+    country: 'Canada',
+};
+
+export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    pids: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    addressLine_2: 'Unit 100A',
+    provinceAbbreviation: 'BZ',
+    country: 'Canada',
+};
+
+export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
+    {
+        phoneNumber: '19021234567',
+        email: 'example@example.com',
+        pids: '1234|5678',
+        givenName: 'John',
+        lastName_1: 'Smith',
+        addressLine_1: '123 example st',
+        addressLine_2: 'Unit 100A',
+        provinceAbbreviation: 'BZ',
+        provinceLong: 'British Columbia',
+        country: 'Canada',
+    };
+
 export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     phoneNumber: '88234',
     email: 'example@example.com',
-    pid: '1234|5678',
+    pids: '1234|5678',
     incorporationNumber: '91011',
     givenName: 'John',
     lastName_1: 'Smith',
@@ -615,7 +677,8 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
 };
 
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
-    pid: '1234|5678',
+    pids: '1234|5678',
+    lastName_1: 'None',
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
@@ -626,7 +689,8 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
 
 export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     phoneNumber: '+81334335111',
-    pid: '1234|5678',
+    lastName_1: 'None',
+    pids: '1234|5678',
     incorporationNumber: '91011',
     addressLine_1: '123 example st',
     city: 'Vancouver',
@@ -640,7 +704,7 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     allowedChars: 'A',
     phoneNumber: '19021234567',
     email: 'example@example.com',
-    pid: 1234,
+    pids: '1234',
     givenName: 'John',
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
@@ -654,7 +718,7 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
     lastName_1: 'None',
-    pid: '1234|5678',
+    pids: '1234|5678',
     addressLine_1: '123 example st',
     city: 'Vancouver',
     provinceAbbreviation: 'BC',
@@ -665,7 +729,8 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
 export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
-    pid: '1234|5678',
+    lastName_1: 'None',
+    pids: '1234|5678',
     addressLine_1: '123 example st',
     city: 'Vancouver',
     provinceAbbreviation: 'BC',
@@ -681,12 +746,10 @@ export const AuditLogMultiResponse = [
         sentToPhone: '19021234567',
         pinCreatedAt: '2023-08-24T15:01:59.488Z',
         updatedAt: '2023-08-25T15:12:59.810Z',
-        expiredByName: 'Self',
-        expiredByUsername: 'self',
+        alteredByUsername: 'self',
         livePinId: '31be8df8-3284-4b05-bb2b-f11b7e77cba0',
         action: 'R',
         logCreatedAt: '2023-08-25T15:12:59.810Z',
-        parcelStatus: undefined,
         titleNumber: undefined,
         landTitleDistrict: undefined,
         fromTitleNumber: undefined,
@@ -701,12 +764,10 @@ export const AuditLogMultiResponse = [
         sentToPhone: '19021234567',
         pinCreatedAt: '2023-08-24T15:01:49.628Z',
         updatedAt: '2023-08-24T15:06:27.269Z',
-        expiredByName: 'Self',
-        expiredByUsername: 'self',
+        alteredByUsername: 'self',
         livePinId: '31be8df8-3284-4b05-bb2b-f11b7e77cba0',
         action: 'C',
         logCreatedAt: '2023-08-24T15:06:27.269Z',
-        parcelStatus: undefined,
         titleNumber: undefined,
         landTitleDistrict: undefined,
         fromTitleNumber: undefined,
