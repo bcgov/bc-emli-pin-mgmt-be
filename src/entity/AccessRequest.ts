@@ -1,14 +1,14 @@
 import { Column, Entity, Index } from 'typeorm';
 
-@Index('users_pkey', ['userId'], { unique: true })
-@Entity('users')
-export class Users {
+@Index('access_request_pkey', ['requestId'], { unique: true })
+@Entity('access_request')
+export class AccessRequest {
     @Column('uuid', {
         primary: true,
-        name: 'user_id',
+        name: 'request_id',
         default: () => 'uuid_generate_v4()',
     })
-    userId: string;
+    requestId: string;
 
     @Column('character varying', { name: 'user_guid', length: 36 })
     userGuid: string;
@@ -16,8 +16,11 @@ export class Users {
     @Column('character varying', { name: 'identity_type', length: 10 })
     identityType: string;
 
-    @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
-    role: 'Standard' | 'Admin' | 'SuperAdmin';
+    @Column('enum', {
+        name: 'requested_role',
+        enum: ['Standard', 'Admin', 'SuperAdmin'],
+    })
+    requestRole: 'Standard' | 'Admin' | 'SuperAdmin';
 
     @Column('character varying', { name: 'organization', length: 50 })
     organization: string;
@@ -34,11 +37,11 @@ export class Users {
     @Column('character varying', { name: 'last_name', length: 75 })
     lastName: string;
 
-    @Column('boolean', { name: 'is_active' })
-    isActive: boolean;
-
-    @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
-    updatedAt: Date | null;
+    @Column('enum', {
+        name: 'request_status',
+        enum: ['NotGranted', 'Granted', 'Rejected'],
+    })
+    requestStatus: 'NotGranted' | 'Granted' | 'Rejected';
 
     @Column('timestamp with time zone', {
         name: 'created_at',
@@ -46,9 +49,15 @@ export class Users {
     })
     createdAt: Date;
 
+    @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
+    updatedAt: Date | null;
+
     @Column('character varying', { name: 'updated_by', length: 75 })
     updatedBy: string;
 
-    @Column('text', { name: 'deactivation_reason' })
-    deactivationReason: string;
+    @Column('text', { name: 'request_reason' })
+    requestReason: string;
+
+    @Column('text', { name: 'rejection_reason' })
+    rejectionReason: string;
 }
