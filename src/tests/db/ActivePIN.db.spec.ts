@@ -6,8 +6,12 @@ import {
     UpdateResult,
 } from 'typeorm';
 import * as ActivePIN from '../../db/ActivePIN.db';
-import { ActivePINMultiResponse } from '../commonResponses';
-import { expirationReason } from '../../helpers/types';
+import {
+    ActivePINMultiResponse,
+    ActivePINResponseNoPIN,
+    ActivePINResponseWithPIN,
+} from '../commonResponses';
+import { expirationReason, roleType } from '../../helpers/types';
 import { ActivePin } from '../../entity/ActivePin';
 
 // mock out db
@@ -175,5 +179,31 @@ describe('Active PIN db tests', () => {
         expect(response[0]).toBe(
             'An error occured while updating updatedPins[0] in batchUpdatePin: No rows were affected by the update',
         );
+    });
+
+    test('findPropertyDetails returns property details with pin for SuperAdmin', async () => {
+        jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
+            async () => {
+                return [ActivePINResponseWithPIN];
+            },
+        );
+        const res = await ActivePIN.findPropertyDetails(
+            '9765107',
+            roleType.SuperAdmin,
+        );
+        expect(res[0].pin).toBeDefined();
+    });
+
+    test('findPropertyDetails returns property details without pin for Admin', async () => {
+        jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
+            async () => {
+                return [ActivePINResponseNoPIN];
+            },
+        );
+        const res = await ActivePIN.findPropertyDetails(
+            '9765107',
+            roleType.Admin,
+        );
+        expect(res[0].pin).not.toBeDefined();
     });
 });

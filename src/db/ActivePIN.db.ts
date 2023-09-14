@@ -2,7 +2,7 @@ import { UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason } from '../helpers/types';
+import { emailPhone, expirationReason, roleType } from '../helpers/types';
 import logger from '../middleware/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,15 +25,16 @@ export async function findPin(
 }
 
 export async function findPropertyDetails(
-    pid: number,
-    role: string,
+    pids: string,
+    role: roleType,
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
-    if (role === 'SuperAdmin') {
+    if (role === roleType.SuperAdmin) {
         query = {
             select: {
-                pid: true,
+                livePinId: true,
+                pids: true,
                 pin: true,
                 titleNumber: true,
                 landTitleDistrict: true,
@@ -44,17 +45,18 @@ export async function findPropertyDetails(
                 addressLine_1: true,
                 addressLine_2: true,
                 city: true,
-                province: true,
-                otherGeographicDivision: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
                 country: true,
                 postalCode: true,
             },
-            where: { pid: pid },
+            where: { pids: pids },
         };
     } else {
         query = {
             select: {
-                pid: true,
+                livePinId: true,
+                pids: true,
                 titleNumber: true,
                 landTitleDistrict: true,
                 givenName: true,
@@ -64,12 +66,12 @@ export async function findPropertyDetails(
                 addressLine_1: true,
                 addressLine_2: true,
                 city: true,
-                province: true,
-                otherGeographicDivision: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
                 country: true,
                 postalCode: true,
             },
-            where: { pid: pid },
+            where: { pids: pids },
         };
     }
     const result = await PINRepo.find(query);

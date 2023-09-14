@@ -141,7 +141,9 @@ export interface PINDictionary {
  * An object containing property details
  *
  * @example {
- *     "pid": 1234567,
+ * 	"12345|AB" : [
+ * 	  {
+ *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
  *     "givenName": "firstname",
@@ -151,10 +153,12 @@ export interface PINDictionary {
  *     "addressLine_1": "123 Main Street",
  *     "addressLine_2": "",
  *     "city": "Vancouver",
- *     "province": "BC",
- *     "otherGeographicDivision": null,
+ *     "provinceAbbreviation": "BC",
+ *     "provinceLong": null,
  *     "country": "Canada",
  *     "postalCode": "A1B2C3"
+ * 	  }
+ * 	]
  * }
  *
  */
@@ -262,6 +266,15 @@ export enum expirationReason {
     CallCenterPinReset = 'CC',
     OnlineReset = 'OR',
     ChangeOfOwnership = 'CO',
+}
+
+/**
+ * User role types
+ */
+export enum roleType {
+    Admin = 'Admin',
+    SuperAdmin = 'SuperAdmin',
+    Standard = 'Standard',
 }
 
 /**
