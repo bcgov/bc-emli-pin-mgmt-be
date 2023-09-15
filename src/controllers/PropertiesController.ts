@@ -18,7 +18,7 @@ import {
 } from '../helpers/types';
 import { findPropertyDetails } from '../db/ActivePIN.db';
 import axios from 'axios';
-import { pidStringSort } from '../helpers/pidHelpers';
+import { pidStringSplitAndSort } from '../helpers/pidHelpers';
 
 @Route('properties')
 export class PropertiesController extends Controller {
@@ -171,7 +171,7 @@ export class PropertiesController extends Controller {
             };
 
             const pidsData: any = await getPIDs();
-            const pids = pidStringSort(pidsData.data.pids);
+            const pids = pidStringSplitAndSort(pidsData.data.pids);
             const result = await findPropertyDetails(pids, role);
             if (result[0] === undefined) {
                 logger.warn(

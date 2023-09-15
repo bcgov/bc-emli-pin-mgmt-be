@@ -9,6 +9,8 @@ import {
     DataSource,
     EntityMetadata,
     EntityNotFoundError,
+    FindOperator,
+    Like,
     TypeORMError,
 } from 'typeorm';
 import { emailPhone, expirationReason } from '../../helpers/types';
@@ -50,7 +52,10 @@ describe('Pin endpoints', () => {
                 pin1.country = 'Canada';
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
-                if ((where as any).pids === '1234|5678')
+                if (
+                    (where as any)[0].pids instanceof FindOperator &&
+                    (where as any)[1].pids instanceof FindOperator
+                )
                     return result as ActivePin[];
                 return [];
             },
@@ -101,7 +106,7 @@ describe('Pin endpoints', () => {
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
 
-                if ((where as any).pids === '1234')
+                if ((where as any).pids instanceof FindOperator)
                     return result as ActivePin[];
                 return [];
             },
@@ -308,7 +313,7 @@ describe('Pin endpoints', () => {
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
 
-                if ((where as any).pids === '1234')
+                if ((where as any).pids instanceof FindOperator)
                     return result as ActivePin[];
                 return [];
             },
@@ -360,7 +365,7 @@ describe('Pin endpoints', () => {
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
 
-                if ((where as any).pids === '1234')
+                if ((where as any).pids instanceof FindOperator)
                     return result as ActivePin[];
                 return [];
             },
@@ -399,7 +404,10 @@ describe('Pin endpoints', () => {
                 pin1.country = 'Canada';
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
-                if ((where as any).pids === '1234|5678')
+                if (
+                    (where as any)[0].pids instanceof FindOperator &&
+                    (where as any)[1].pids instanceof FindOperator
+                )
                     return result as ActivePin[];
                 return [];
             },
@@ -480,7 +488,7 @@ describe('Pin endpoints', () => {
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
 
-                if ((where as any).pids === '1234')
+                if ((where as any).pids instanceof FindOperator)
                     return result as ActivePin[];
                 return [];
             },

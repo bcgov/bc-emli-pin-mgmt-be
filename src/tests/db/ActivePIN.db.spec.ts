@@ -188,7 +188,7 @@ describe('Active PIN db tests', () => {
             },
         );
         const res = await ActivePIN.findPropertyDetails(
-            '9765107',
+            ['9765107'],
             roleType.SuperAdmin,
         );
         expect(res[0].pin).toBeDefined();
@@ -201,7 +201,7 @@ describe('Active PIN db tests', () => {
             },
         );
         const res = await ActivePIN.findPropertyDetails(
-            '9765107',
+            ['9765107', '000000'],
             roleType.Admin,
         );
         expect(res[0].pin).not.toBeDefined();

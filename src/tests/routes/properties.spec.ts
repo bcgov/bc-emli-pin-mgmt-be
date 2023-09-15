@@ -78,10 +78,10 @@ describe('Properties endpoints', () => {
 });
 
 jest.spyOn(ActivePIN, 'findPropertyDetails').mockImplementation(
-    async (pid: string): Promise<any> => {
+    async (pid: string[]): Promise<any> => {
         const result = [ActivePINResponse, ActivePINResponse];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (pid === '030317304') return result as unknown as ActivePin[];
+        if (pid[0] === '030317304') return result as unknown as ActivePin[];
         return [];
     },
 );

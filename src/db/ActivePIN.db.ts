@@ -1,4 +1,4 @@
-import { UpdateResult } from 'typeorm';
+import { Like, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
@@ -25,11 +25,23 @@ export async function findPin(
 }
 
 export async function findPropertyDetails(
-    pids: string,
+    pids: string[],
     role: roleType,
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
+    let where: any[] | object = [];
+    if (pids.length === 0) {
+        // error
+    }
+    if (pids.length === 1) {
+        where = { pids: Like(`%` + pids[0] + `%`) };
+    } else {
+        where = [];
+        for (let i = 0; i < pids.length; i++) {
+            (where as any[]).push({ pids: Like(`%` + pids[i] + `%`) });
+        }
+    }
     if (role === roleType.SuperAdmin) {
         query = {
             select: {
@@ -50,7 +62,7 @@ export async function findPropertyDetails(
                 country: true,
                 postalCode: true,
             },
-            where: { pids: pids },
+            where,
         };
     } else {
         query = {
@@ -71,7 +83,7 @@ export async function findPropertyDetails(
                 country: true,
                 postalCode: true,
             },
-            where: { pids: pids },
+            where,
         };
     }
     const result = await PINRepo.find(query);
