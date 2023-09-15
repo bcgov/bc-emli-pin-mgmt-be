@@ -409,3 +409,26 @@ export interface auditLogInfo {
     action: pinAuditAction;
     logCreatedAt: string;
 }
+
+/**
+ * Enum for status for Request Access
+ */
+export enum requestStatusType {
+    NotGranted = 'NotGranted',
+    Granted = 'Granted',
+    Rejected = 'Rejected',
+}
+
+export type role = 'Standard' | 'Admin' | 'SuperAdmin';
+
+export interface accessRequestResponseBody {
+    userGuid: string;
+    identityType: string;
+    requestRole: role;
+    organization: string;
+    email: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    requestReason: string;
+}
