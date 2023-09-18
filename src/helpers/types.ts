@@ -409,3 +409,41 @@ export interface auditLogInfo {
     action: pinAuditAction;
     logCreatedAt: string;
 }
+
+/**
+ * Enum for status for Request Access
+ */
+export enum requestStatusType {
+    NotGranted = 'NotGranted',
+    Granted = 'Granted',
+    Rejected = 'Rejected',
+}
+
+export type role = 'Standard' | 'Admin' | 'SuperAdmin';
+
+/**
+ * Request body for access request submission
+ * @example
+ * {
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "requestRole": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "requestReason": "To get access to site"
+  }
+ */
+export interface accessRequestResponseBody {
+    userGuid: string;
+    identityType: string;
+    requestRole: role;
+    organization: string;
+    email: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    requestReason: string;
+}

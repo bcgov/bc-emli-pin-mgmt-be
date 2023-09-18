@@ -6,6 +6,118 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"GenericTypeORMErrorType": {
+				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+				}
+			},
+			"requiredFieldErrorType": {
+				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Must provide an expiration name when expiring a PIN"
+				}
+			},
+			"serverErrorType": {
+				"description": "Generic unknown server error",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Internal Server Error"
+				}
+			},
+			"role": {
+				"type": "string",
+				"enum": [
+					"Standard",
+					"Admin",
+					"SuperAdmin"
+				]
+			},
+			"accessRequestResponseBody": {
+				"description": "Request body for access request submission",
+				"properties": {
+					"userGuid": {
+						"type": "string"
+					},
+					"identityType": {
+						"type": "string"
+					},
+					"requestRole": {
+						"$ref": "#/components/schemas/role"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"requestReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userGuid",
+					"identityType",
+					"requestRole",
+					"organization",
+					"email",
+					"userName",
+					"firstName",
+					"lastName",
+					"requestReason"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"identityType": "idir",
+					"requestRole": "Admin",
+					"organization": "Bc Service",
+					"email": "abc@gov.ca",
+					"userName": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"requestReason": "To get access to site"
+				}
+			},
 			"HelloWorldResponse": {
 				"properties": {
 					"message": {
@@ -139,54 +251,6 @@
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"GenericTypeORMErrorType": {
-				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
-				}
-			},
-			"requiredFieldErrorType": {
-				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Must provide an expiration name when expiring a PIN"
-				}
-			},
-			"serverErrorType": {
-				"description": "Generic unknown server error",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Internal Server Error"
-				}
 			},
 			"updatedPIN": {
 				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
@@ -769,6 +833,48 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/user-requests": {
+			"post": {
+				"operationId": "CreateAccessRequest",
+				"responses": {
+					"201": {
+						"description": "Created"
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/accessRequestResponseBody"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/helloworld": {
 			"get": {
 				"operationId": "GetMessage",
