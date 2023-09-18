@@ -44,7 +44,7 @@ export class AccessRequestController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
 
-        if (requestBody.requestRole === null) {
+        if (requestBody.requestedRole === null) {
             const message = 'Must provide an role for requested user.';
             logger.warn(message);
             return requiredFieldErrorResponse(422, { message });

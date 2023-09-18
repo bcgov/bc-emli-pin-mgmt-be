@@ -1,8 +1,8 @@
-import { UpdateResult } from 'typeorm';
+import { Like, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason } from '../helpers/types';
+import { emailPhone, expirationReason, roleType } from '../helpers/types';
 import logger from '../middleware/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,15 +25,28 @@ export async function findPin(
 }
 
 export async function findPropertyDetails(
-    pid: number,
-    role: string,
+    pids: string[],
+    role: roleType,
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
-    if (role === 'SuperAdmin') {
+    let where: any[] | object = [];
+    if (pids.length === 0) {
+        // error
+    }
+    if (pids.length === 1) {
+        where = { pids: Like(`%` + pids[0] + `%`) };
+    } else {
+        where = [];
+        for (let i = 0; i < pids.length; i++) {
+            (where as any[]).push({ pids: Like(`%` + pids[i] + `%`) });
+        }
+    }
+    if (role === roleType.SuperAdmin) {
         query = {
             select: {
-                pid: true,
+                livePinId: true,
+                pids: true,
                 pin: true,
                 titleNumber: true,
                 landTitleDistrict: true,
@@ -44,17 +57,18 @@ export async function findPropertyDetails(
                 addressLine_1: true,
                 addressLine_2: true,
                 city: true,
-                province: true,
-                otherGeographicDivision: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
                 country: true,
                 postalCode: true,
             },
-            where: { pid: pid },
+            where,
         };
     } else {
         query = {
             select: {
-                pid: true,
+                livePinId: true,
+                pids: true,
                 titleNumber: true,
                 landTitleDistrict: true,
                 givenName: true,
@@ -64,12 +78,12 @@ export async function findPropertyDetails(
                 addressLine_1: true,
                 addressLine_2: true,
                 city: true,
-                province: true,
-                otherGeographicDivision: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
                 country: true,
                 postalCode: true,
             },
-            where: { pid: pid },
+            where,
         };
     }
     const result = await PINRepo.find(query);
@@ -79,7 +93,6 @@ export async function findPropertyDetails(
 export async function deletePin(
     id: string,
     reason: expirationReason,
-    expiredByName: string,
     expiredByUsername: string,
 ): Promise<ActivePin | undefined> {
     const transactionReturn = (await AppDataSource.transaction(
@@ -98,8 +111,12 @@ export async function deletePin(
             const logInfo = await manager.update(
                 PinAuditLog,
                 { logId: log.logId },
-                { expirationReason: reason, expiredByName, expiredByUsername },
+                {
+                    expirationReason: reason,
+                    alteredByUsername: expiredByUsername,
+                },
             );
+            // TO DO: Query for User ID???
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
@@ -127,20 +144,14 @@ export async function deletePin(
 export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
-    requesterName?: string,
     requesterUsername?: string,
 ): Promise<string[]> {
     const errors = [];
-    let expireName: string,
-        expireUsername: string,
-        reason: expirationReason,
-        logInfo;
-    if (!requesterName || !requesterUsername) {
-        expireName = 'Self';
+    let expireUsername: string, reason: expirationReason, logInfo;
+    if (!requesterUsername) {
         expireUsername = 'self';
         reason = expirationReason.OnlineReset;
     } else {
-        expireName = requesterName;
         expireUsername = requesterUsername;
         reason = expirationReason.CallCenterPinReset;
     }
@@ -162,15 +173,13 @@ export async function batchUpdatePin(
                     if (log.expiredAt != null) {
                         updateInfo = {
                             expirationReason: reason,
-                            expiredByName: expireName,
-                            expiredByUsername: expireUsername,
+                            alteredByUsername: expireUsername, // TODO: Join on user GUID
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };
                     } else {
                         updateInfo = {
-                            expiredByName: expireName,
-                            expiredByUsername: expireUsername,
+                            alteredByUsername: expireUsername,
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };

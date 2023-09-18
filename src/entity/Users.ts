@@ -1,7 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
 
-export type UserRoles = 'Standard' | 'Admin' | 'SuperAdmin';
-
 @Index('users_pkey', ['userId'], { unique: true })
 @Entity('users')
 export class Users {
@@ -19,19 +17,27 @@ export class Users {
     identityType: string;
 
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
-    role: UserRoles;
+    role: 'Standard' | 'Admin' | 'SuperAdmin';
 
-    @Column('character varying', { name: 'organization', length: 50 })
-    organization: string;
+    @Column('character varying', {
+        name: 'organization',
+        nullable: true,
+        length: 50,
+    })
+    organization: string | null;
 
     @Column('citext', { name: 'email' })
     email: string;
 
-    @Column('character varying', { name: 'user_name', length: 50 })
-    userName: string;
+    @Column('character varying', {
+        name: 'username',
+        nullable: true,
+        length: 100,
+    })
+    username: string | null;
 
-    @Column('character varying', { name: 'first_name', length: 50 })
-    firstName: string;
+    @Column('character varying', { name: 'given_name', length: 50 })
+    givenName: string;
 
     @Column('character varying', { name: 'last_name', length: 75 })
     lastName: string;
@@ -48,9 +54,16 @@ export class Users {
     })
     createdAt: Date;
 
-    @Column('character varying', { name: 'updated_by', length: 75 })
-    updatedBy: string;
+    @Column('character varying', { name: 'display_name', length: 125 })
+    displayName: string;
 
-    @Column('text', { name: 'deactivation_reason' })
-    deactivationReason: string;
+    @Column('character varying', {
+        name: 'updated_by',
+        nullable: true,
+        length: 75,
+    })
+    updatedBy: string | null;
+
+    @Column('text', { name: 'deactivation_reason', nullable: true })
+    deactivationReason: string | null;
 }

@@ -1,12 +1,12 @@
 import { Users } from '../entity/Users';
 import { Permission } from '../entity/Permission';
 import { AppDataSource } from '../data-source';
-import { UserRoles } from '../entity/Users';
+import { UserRoles } from '../helpers/types';
 
 export async function findUser(
     select?: object,
     where?: object,
-): Promise<Users | any> {
+): Promise<Users[] | any> {
     const userRepo = await AppDataSource.getRepository(Users);
     const query = {
         select: select ? select : undefined,

@@ -54,7 +54,7 @@
 					"message": "Internal Server Error"
 				}
 			},
-			"role": {
+			"UserRoles": {
 				"type": "string",
 				"enum": [
 					"Standard",
@@ -71,8 +71,8 @@
 					"identityType": {
 						"type": "string"
 					},
-					"requestRole": {
-						"$ref": "#/components/schemas/role"
+					"requestedRole": {
+						"$ref": "#/components/schemas/UserRoles"
 					},
 					"organization": {
 						"type": "string"
@@ -96,7 +96,7 @@
 				"required": [
 					"userGuid",
 					"identityType",
-					"requestRole",
+					"requestedRole",
 					"organization",
 					"email",
 					"userName",
@@ -109,7 +109,7 @@
 				"example": {
 					"userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
 					"identityType": "idir",
-					"requestRole": "Admin",
+					"requestedRole": "Admin",
 					"organization": "Bc Service",
 					"email": "abc@gov.ca",
 					"userName": "johndoe",
@@ -258,9 +258,8 @@
 					"pin": {
 						"type": "string"
 					},
-					"pid": {
-						"type": "number",
-						"format": "double"
+					"pids": {
+						"type": "string"
 					},
 					"livePinId": {
 						"type": "string"
@@ -268,14 +267,14 @@
 				},
 				"required": [
 					"pin",
-					"pid",
+					"pids",
 					"livePinId"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"pin": "abcdefgh",
-					"pid": 1234,
+					"pids": "1234",
 					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
 				}
 			},
@@ -354,16 +353,8 @@
 					"email": {
 						"type": "string"
 					},
-					"pid": {
-						"anyOf": [
-							{
-								"type": "number",
-								"format": "double"
-							},
-							{
-								"type": "string"
-							}
-						]
+					"pids": {
+						"type": "string"
 					},
 					"givenName": {
 						"type": "string"
@@ -389,9 +380,6 @@
 					"provinceAbbreviation": {
 						"type": "string"
 					},
-					"provinceLong": {
-						"type": "string"
-					},
 					"country": {
 						"type": "string"
 					},
@@ -406,13 +394,14 @@
 					}
 				},
 				"required": [
-					"pid"
+					"pids",
+					"lastName_1"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"phoneNumber": "19021234567",
-					"pid": "1234|5678",
+					"pids": "1234|5678",
 					"givenName": "Jane",
 					"lastName_1": "Smith",
 					"lastName_2": "Green",
@@ -460,16 +449,8 @@
 						"type": "string",
 						"nullable": true
 					},
-					"pid": {
-						"type": "number",
-						"format": "double"
-					},
-					"parcelStatus": {
-						"type": "string",
-						"enum": [
-							"A",
-							"I"
-						]
+					"pids": {
+						"type": "string"
 					},
 					"titleNumber": {
 						"type": "string"
@@ -509,25 +490,28 @@
 						"nullable": true
 					},
 					"addressLine_1": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"addressLine_2": {
 						"type": "string",
 						"nullable": true
 					},
 					"city": {
-						"type": "string"
-					},
-					"province": {
 						"type": "string",
 						"nullable": true
 					},
-					"otherGeographicDivision": {
+					"provinceAbbreviation": {
+						"type": "string",
+						"nullable": true
+					},
+					"provinceLong": {
 						"type": "string",
 						"nullable": true
 					},
 					"country": {
-						"type": "string"
+						"type": "string",
+						"nullable": true
 					},
 					"postalCode": {
 						"type": "string",
@@ -546,8 +530,7 @@
 				"required": [
 					"livePinId",
 					"pin",
-					"pid",
-					"parcelStatus",
+					"pids",
 					"titleNumber",
 					"landTitleDistrict",
 					"titleStatus",
@@ -560,8 +543,8 @@
 					"addressLine_1",
 					"addressLine_2",
 					"city",
-					"province",
-					"otherGeographicDivision",
+					"provinceAbbreviation",
+					"provinceLong",
 					"country",
 					"postalCode",
 					"createdAt",
@@ -579,9 +562,6 @@
 					"expirationReason": {
 						"$ref": "#/components/schemas/expirationReason"
 					},
-					"expiredByName": {
-						"type": "string"
-					},
 					"expiredByUsername": {
 						"type": "string"
 					}
@@ -595,7 +575,6 @@
 				"example": {
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
-					"expiredByName": "John Smith",
 					"expiredByUsername": "jsmith"
 				}
 			},
@@ -691,20 +670,24 @@
 					"type": "string"
 				},
 				"example": {
-					"pid": 1234567,
-					"titleNumber": "12345",
-					"landTitleDistrict": "AB",
-					"givenName": "firstname",
-					"lastName_1": "lastname",
-					"lastName_2": null,
-					"incorporationNumber": null,
-					"addressLine_1": "123 Main Street",
-					"addressLine_2": "",
-					"city": "Vancouver",
-					"province": "BC",
-					"otherGeographicDivision": null,
-					"country": "Canada",
-					"postalCode": "A1B2C3"
+					"12345|AB": [
+						{
+							"pids": "1234567",
+							"titleNumber": "12345",
+							"landTitleDistrict": "AB",
+							"givenName": "firstname",
+							"lastName_1": "lastname",
+							"lastName_2": null,
+							"incorporationNumber": null,
+							"addressLine_1": "123 Main Street",
+							"addressLine_2": "",
+							"city": "Vancouver",
+							"provinceAbbreviation": "BC",
+							"provinceLong": null,
+							"country": "Canada",
+							"postalCode": "A1B2C3"
+						}
+					]
 				}
 			},
 			"unauthorizedError": {
@@ -816,6 +799,15 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
+			},
+			"roleType": {
+				"description": "User role types",
+				"enum": [
+					"Admin",
+					"SuperAdmin",
+					"Standard"
+				],
+				"type": "string"
 			}
 		},
 		"securitySchemes": {}
@@ -982,7 +974,60 @@
 						}
 					}
 				},
-				"description": "Used to create or recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/regenerate": {
+			"post": {
+				"operationId": "RecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -1106,13 +1151,13 @@
 				"security": [],
 				"parameters": [],
 				"requestBody": {
-					"description": "The body of the request. Note that expiredByName and username are only required for reasons other than \"CO\" (change of ownership).",
+					"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership).",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/expireRequestBody",
-								"description": "The body of the request. Note that expiredByName and username are only required for reasons other than \"CO\" (change of ownership)."
+								"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership)."
 							}
 						}
 					}
@@ -1264,7 +1309,7 @@
 						"name": "role",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/roleType"
 						}
 					}
 				]

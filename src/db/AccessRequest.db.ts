@@ -12,7 +12,7 @@ export async function createRequest(
             const newRequest = await manager.create(AccessRequest, {
                 userGuid: accessRequestInfo.userGuid,
                 identityType: accessRequestInfo.identityType,
-                requestRole: accessRequestInfo.requestRole,
+                requestedRole: accessRequestInfo.requestedRole,
                 organization: accessRequestInfo.organization,
                 email: accessRequestInfo.email,
                 userName: accessRequestInfo.userName,
