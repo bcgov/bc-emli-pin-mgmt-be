@@ -6,8 +6,8 @@ import { Permission } from './entity/Permission';
 import { PinAuditLog } from './entity/PinAuditLog';
 import { Users } from './entity/Users';
 import { Migrations } from './entity/Migrations';
-import { join } from 'path';
 import { AccessRequest } from './entity/AccessRequest';
+import { join } from 'path';
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
