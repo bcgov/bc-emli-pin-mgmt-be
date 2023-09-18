@@ -22,6 +22,10 @@ import { TypeORMError } from 'typeorm';
 export class AccessRequestController extends Controller {
     @SuccessResponse('201', 'Created')
     @Post('')
+    /**
+     * Create a new access request for a user
+     * @param {accessRequestResponseBody} requestBody
+     */
     public async createAccessRequest(
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
         @Res()
