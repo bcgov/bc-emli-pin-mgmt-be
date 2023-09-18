@@ -168,40 +168,6 @@ describe('pinController private function tests', () => {
         expect(isValid).toBe(false);
     });
 
-    test('pinResultValidate should return false with otherGeographicDivision given in pin but not body', () => {
-        const pin: ActivePin = new ActivePin();
-        const body = validCreatePinBodyName;
-        pin.pids = '1234|5678';
-        pin.givenName = 'John';
-        pin.lastName_1 = 'Smith';
-        pin.addressLine_1 = '123 example st';
-        pin.city = 'Vancouver';
-        pin.provinceAbbreviation = 'BC';
-        pin.provinceLong = 'Lower Mainland';
-        pin.country = 'Canada';
-        pin.postalCode = 'V1V1V1';
-
-        const isValid: boolean = (proto as any).pinResultValidate(body, pin);
-        expect(isValid).toBe(false);
-    });
-
-    test('pinResultValidate should return false with otherGeographicDivision not matching', () => {
-        const pin: ActivePin = new ActivePin();
-        const body = validCreatePinBodyNameAddLineProvLong;
-        pin.pids = '1234|5678';
-        pin.givenName = 'John';
-        pin.lastName_1 = 'Smith';
-        pin.addressLine_1 = '123 example st';
-        pin.addressLine_2 = 'Unit 100A';
-        pin.city = 'Vancouver';
-        pin.provinceLong = 'Okanagan';
-        pin.country = 'Canada';
-        pin.postalCode = 'V1V1V1';
-
-        const isValid: boolean = (proto as any).pinResultValidate(body, pin);
-        expect(isValid).toBe(false);
-    });
-
     test('pinResultValidate should return false with postalCode in body but not pin', () => {
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;

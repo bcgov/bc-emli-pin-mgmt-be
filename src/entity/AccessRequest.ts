@@ -20,7 +20,7 @@ export class AccessRequest {
         name: 'requested_role',
         enum: ['Standard', 'Admin', 'SuperAdmin'],
     })
-    requestRole: 'Standard' | 'Admin' | 'SuperAdmin';
+    requestedRole: 'Standard' | 'Admin' | 'SuperAdmin';
 
     @Column('character varying', { name: 'organization', length: 50 })
     organization: string;
@@ -52,12 +52,16 @@ export class AccessRequest {
     @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
     updatedAt: Date | null;
 
-    @Column('character varying', { name: 'updated_by', length: 75 })
-    updatedBy: string;
+    @Column('character varying', {
+        name: 'updated_by',
+        nullable: true,
+        length: 75,
+    })
+    updatedBy: string | null;
 
-    @Column('text', { name: 'request_reason' })
-    requestReason: string;
+    @Column('text', { name: 'request_reason', nullable: true })
+    requestReason: string | null;
 
-    @Column('text', { name: 'rejection_reason' })
-    rejectionReason: string;
+    @Column('text', { name: 'rejection_reason', nullable: true })
+    rejectionReason: string | null;
 }

@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { ActivePin } from './entity/ActivePin';
 import { Permission } from './entity/Permission';
 import { PinAuditLog } from './entity/PinAuditLog';
-import { Employee } from './entity/Employee';
+import { Users } from './entity/Users';
 import { Migrations } from './entity/Migrations';
 import { join } from 'path';
 import { AccessRequest } from './entity/AccessRequest';
@@ -21,7 +21,7 @@ export const AppDataSource = new DataSource({
         ActivePin,
         Permission,
         PinAuditLog,
-        Employee,
+        Users,
         Migrations,
         AccessRequest,
     ],

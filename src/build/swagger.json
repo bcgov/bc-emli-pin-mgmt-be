@@ -316,9 +316,6 @@
 					"provinceAbbreviation": {
 						"type": "string"
 					},
-					"provinceLong": {
-						"type": "string"
-					},
 					"country": {
 						"type": "string"
 					},

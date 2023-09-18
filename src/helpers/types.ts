@@ -332,7 +332,6 @@ export interface createPinRequestBody {
     addressLine_2?: string;
     city?: string;
     provinceAbbreviation?: string;
-    provinceLong?: string;
     country?: string;
     postalCode?: string;
     requesterName?: string;

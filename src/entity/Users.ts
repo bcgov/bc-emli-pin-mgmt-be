@@ -1,9 +1,8 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { PinAuditLog } from './PinAuditLog';
+import { Column, Entity, Index } from 'typeorm';
 
 @Index('users_pkey', ['userId'], { unique: true })
-@Entity('employee')
-export class Employee {
+@Entity('users')
+export class Users {
     @Column('uuid', {
         primary: true,
         name: 'user_id',
@@ -27,8 +26,8 @@ export class Employee {
     })
     organization: string | null;
 
-    @Column('citext', { name: 'email', nullable: true })
-    email: string | null;
+    @Column('citext', { name: 'email' })
+    email: string;
 
     @Column('character varying', {
         name: 'username',
@@ -58,11 +57,13 @@ export class Employee {
     @Column('character varying', { name: 'display_name', length: 125 })
     displayName: string;
 
-    @OneToMany(() => PinAuditLog, (pinAuditLog) => pinAuditLog.alteredByUser)
-    pinAuditLogs: PinAuditLog[];
-    @Column('character varying', { name: 'updated_by', length: 75 })
-    updatedBy: string;
+    @Column('character varying', {
+        name: 'updated_by',
+        nullable: true,
+        length: 75,
+    })
+    updatedBy: string | null;
 
-    @Column('text', { name: 'deactivation_reason' })
-    deactivationReason: string;
+    @Column('text', { name: 'deactivation_reason', nullable: true })
+    deactivationReason: string | null;
 }

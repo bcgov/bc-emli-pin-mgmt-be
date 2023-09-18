@@ -183,25 +183,7 @@ describe('Pin endpoints', () => {
                 `\nJohn Smith ` +
                 `\n123 example st` +
                 `\nUnit 100A` +
-                `\nVancouver, Lower Mainland, Canada`,
-        );
-    });
-
-    test('create on request body on no updatable results (province long no city) returns 422', async () => {
-        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
-            async (select?: object | undefined, where?: object | undefined) => {
-                return [] as ActivePin[];
-            },
-        );
-        const reqBody = validCreatePinBodyNameAddLineProvLongOnly;
-        const res = await request(app).post('/pins/create').send(reqBody);
-        expect(res.statusCode).toBe(422);
-        expect(res.body.message).toBe(
-            'Pids 1234|5678 does not match the address and name / incorporation number given:' +
-                `\nJohn Smith ` +
-                `\n123 example st` +
-                `\nUnit 100A` +
-                `\nLower Mainland, Canada`,
+                `\nVancouver, Canada`,
         );
     });
 
@@ -220,24 +202,6 @@ describe('Pin endpoints', () => {
                 `\n123 example st` +
                 `\nUnit 100A` +
                 `\nBZ, Canada`,
-        );
-    });
-
-    test('create on request body on no updatable results (province abbreviation and long) returns 422', async () => {
-        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
-            async (select?: object | undefined, where?: object | undefined) => {
-                return [] as ActivePin[];
-            },
-        );
-        const reqBody = validCreatePinBodyNameAddLineProvAbbrevLong;
-        const res = await request(app).post('/pins/create').send(reqBody);
-        expect(res.statusCode).toBe(422);
-        expect(res.body.message).toBe(
-            'Pids 1234|5678 does not match the address and name / incorporation number given:' +
-                `\nJohn Smith ` +
-                `\n123 example st` +
-                `\nUnit 100A` +
-                `\nBZ (British Columbia), Canada`,
         );
     });
 
@@ -292,7 +256,7 @@ describe('Pin endpoints', () => {
                 `\nJohn Smith Appleseed ` +
                 `\n123 example st` +
                 `\nUnit 100A` +
-                `\nVancouver, Lower Mainland, Canada`,
+                `\nVancouver, Canada`,
         );
     });
 
@@ -468,7 +432,7 @@ describe('Pin endpoints', () => {
                 `\nJohn Smith Appleseed ` +
                 `\n123 example st` +
                 `\nUnit 100A` +
-                `\nVancouver, Lower Mainland, Canada`,
+                `\nVancouver, Canada`,
         );
     });
 

@@ -133,14 +133,6 @@ export class PINController extends Controller {
                 return false; // province abbreviation provided in one but not the other, or doesn't match
             }
             if (
-                (requestBody.provinceLong &&
-                    (!pinResult.provinceLong ||
-                        requestBody.provinceLong !== pinResult.provinceLong)) ||
-                (pinResult.provinceLong && !requestBody.provinceLong)
-            ) {
-                return false; // other geographic division provided in one but not the other, or doesn't match
-            }
-            if (
                 (requestBody.country &&
                     (!pinResult.country ||
                         requestBody.country !== pinResult.country)) ||
@@ -235,16 +227,6 @@ export class PINController extends Controller {
                     errMessage += `\n${requestBody.provinceAbbreviation}`;
                 } else {
                     errMessage += `, ${requestBody.provinceAbbreviation}`;
-                }
-            }
-            if (requestBody.provinceLong) {
-                if (requestBody.provinceAbbreviation) {
-                    errMessage += ` (${requestBody.provinceLong})`;
-                } else if (!newLineFlag) {
-                    newLineFlag = true;
-                    errMessage += `\n${requestBody.provinceLong}`;
-                } else {
-                    errMessage += `, ${requestBody.provinceLong}`;
                 }
             }
             if (requestBody.country) {

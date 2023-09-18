@@ -9,9 +9,6 @@ export class Migration1693322911755 implements MigrationInterface {
             `ALTER TABLE IF EXISTS ${schemaName}.users ALTER COLUMN organization DROP NOT NULL;`,
         );
         await queryRunner.query(
-            `ALTER TABLE IF EXISTS ${schemaName}.users ALTER COLUMN email DROP NOT NULL;`,
-        );
-        await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.users ALTER COLUMN user_name DROP NOT NULL;`,
         );
         await queryRunner.query(
@@ -25,9 +22,6 @@ export class Migration1693322911755 implements MigrationInterface {
         );
         await queryRunner.query(
             `ALTER TABLE IF EXISTS ${schemaName}.users ADD COLUMN IF NOT EXISTS display_name varchar(125) NOT NULL;`,
-        );
-        await queryRunner.query(
-            `ALTER TABLE IF EXISTS users RENAME TO employee;`,
         );
 
         // Pin audit log table updates
@@ -53,11 +47,8 @@ export class Migration1693322911755 implements MigrationInterface {
             `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log DROP COLUMN IF EXISTS parcel_status;`,
         );
         await queryRunner.query(
-            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS altered_by_user_id UUID;`,
+            `ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD COLUMN IF NOT EXISTS altered_by_user_guid varchar(36);`,
         );
-        await queryRunner.query(`ALTER TABLE IF EXISTS ${schemaName}.pin_audit_log ADD CONSTRAINT fk_altered_by_user_id 
-									FOREIGN KEY(altered_by_user_id) REFERENCES ${schemaName}.employee(user_id) 
-										ON DELETE SET NULL ON UPDATE CASCADE;`);
         await queryRunner.query(`CREATE OR REPLACE FUNCTION ${schemaName}.log_expiration()
 		RETURNS trigger
 		LANGUAGE plpgsql

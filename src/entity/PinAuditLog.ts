@@ -1,5 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
-import { Employee } from './Employee';
+import { Column, Entity, Index } from 'typeorm';
 
 @Index('pin_audit_log_pkey', ['logId'], { unique: true })
 @Entity('pin_audit_log')
@@ -88,12 +87,10 @@ export class PinAuditLog {
     })
     logCreatedAt: Date;
 
-    @ManyToOne(() => Employee, (employee) => employee.pinAuditLogs, {
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE',
+    @Column('character varying', {
+        name: 'altered_by_user_guid',
+        nullable: true,
+        length: 36,
     })
-    @JoinColumn([
-        { name: 'altered_by_user_id', referencedColumnName: 'userId' },
-    ])
-    alteredByUser: Employee;
+    alteredByUserGuid: string | null;
 }

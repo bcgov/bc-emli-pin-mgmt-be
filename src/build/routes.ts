@@ -136,7 +136,6 @@ const models: TsoaRoute.Models = {
             "addressLine_2": {"dataType":"string"},
             "city": {"dataType":"string"},
             "provinceAbbreviation": {"dataType":"string"},
-            "provinceLong": {"dataType":"string"},
             "country": {"dataType":"string"},
             "postalCode": {"dataType":"string"},
             "requesterName": {"dataType":"string"},

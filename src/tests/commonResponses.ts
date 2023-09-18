@@ -645,7 +645,6 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     city: 'Vancouver',
-    provinceLong: 'Lower Mainland',
     country: 'Canada',
 };
 
@@ -679,7 +678,6 @@ export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
     lastName_1: 'Smith',
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
-    provinceLong: 'Lower Mainland',
     country: 'Canada',
 };
 
@@ -705,7 +703,6 @@ export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
         addressLine_1: '123 example st',
         addressLine_2: 'Unit 100A',
         provinceAbbreviation: 'BZ',
-        provinceLong: 'British Columbia',
         country: 'Canada',
     };
 
