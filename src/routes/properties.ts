@@ -1,6 +1,7 @@
 import express from 'express';
 import { Request, Response } from 'express';
 import { PropertiesController } from '../controllers/PropertiesController';
+import { roleType } from '../helpers/types';
 
 const propertiesRouter = express.Router();
 const controller = new PropertiesController();
@@ -30,7 +31,7 @@ propertiesRouter.get(
             () => {},
             () => {},
             req.params.siteID,
-            req.params.role,
+            req.params.role as roleType,
         );
         return res.send(response);
     },

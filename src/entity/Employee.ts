@@ -60,4 +60,9 @@ export class Employee {
 
     @OneToMany(() => PinAuditLog, (pinAuditLog) => pinAuditLog.alteredByUser)
     pinAuditLogs: PinAuditLog[];
+    @Column('character varying', { name: 'updated_by', length: 75 })
+    updatedBy: string;
+
+    @Column('text', { name: 'deactivation_reason' })
+    deactivationReason: string;
 }

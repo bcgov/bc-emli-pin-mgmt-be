@@ -8,8 +8,6 @@ import logger from './middleware/logger';
 import morganConfig from './middleware/morgan';
 import 'dotenv/config';
 import { AppDataSource } from './data-source';
-import session from 'express-session';
-import createMemoryStore from 'memorystore';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
@@ -120,34 +118,6 @@ app.use(function errorHandler(
 
     next();
 });
-
-// Auth handling
-// TODO: Check if session is required for authentication
-const ONE_DAY = 24 * (60 * 60 * 1000);
-const MemoryStore = createMemoryStore(session);
-
-const store = new MemoryStore({
-    checkPeriod: ONE_DAY,
-});
-
-app.use(
-    session({
-        name: process.env.COOKIE_SESSION_NAME
-            ? process.env.COOKIE_SESSION_NAME
-            : '',
-        secret: process.env.COOKIE_SESSION_SECRET
-            ? process.env.COOKIE_SESSION_SECRET
-            : '',
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            maxAge: ONE_DAY,
-            httpOnly: true,
-            secure: false,
-        },
-        store,
-    }),
-);
 
 app.disable('x-powered-by');
 

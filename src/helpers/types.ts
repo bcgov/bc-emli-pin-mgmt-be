@@ -421,3 +421,6 @@ export interface auditLogInfo {
     action: pinAuditAction;
     logCreatedAt: string;
 }
+
+// User Role Types
+export type UserRoles = 'Standard' | 'Admin' | 'SuperAdmin';
