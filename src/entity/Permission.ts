@@ -1,4 +1,5 @@
 import { Column, Entity, Index } from 'typeorm';
+import { UserRoles } from './Users';
 
 @Index('permission_pkey', ['permissionId'], { unique: true })
 @Entity('permission')
@@ -14,7 +15,7 @@ export class Permission {
     permission: string;
 
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
-    role: 'Standard' | 'Admin' | 'SuperAdmin';
+    role: UserRoles;
 
     @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
     updatedAt: Date | null;

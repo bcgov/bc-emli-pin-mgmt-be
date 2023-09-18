@@ -1,5 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 
+export type UserRoles = 'Standard' | 'Admin' | 'SuperAdmin';
+
 @Index('users_pkey', ['userId'], { unique: true })
 @Entity('users')
 export class Users {
@@ -17,7 +19,7 @@ export class Users {
     identityType: string;
 
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
-    role: 'Standard' | 'Admin' | 'SuperAdmin';
+    role: UserRoles;
 
     @Column('character varying', { name: 'organization', length: 50 })
     organization: string;
