@@ -27,9 +27,9 @@ import {
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
 import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
-import { EntityNotFoundError, TypeORMError } from 'typeorm';
+import { EntityNotFoundError, Like, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
-import { pidStringSort } from '../helpers/pidHelpers';
+import { pidStringSplitAndSort } from '../helpers/pidHelpers';
 import { NotFoundError } from '../helpers/NotFoundError';
 
 @Route('pins')
@@ -182,9 +182,16 @@ export class PINController extends Controller {
         }
 
         // Grab input pid(s)
-        const pids: string = pidStringSort(requestBody.pids);
-
-        const where = { pids: pids };
+        const pids: string[] = pidStringSplitAndSort(requestBody.pids);
+        let where;
+        if (pids.length === 1) {
+            where = { pids: Like(`%` + pids[0] + `%`) };
+        } else {
+            where = [];
+            for (let i = 0; i < pids.length; i++) {
+                where.push({ pids: Like(`%` + pids[i] + `%`) });
+            }
+        }
 
         // Find Active PIN entry (or entries if more than one pid to insert or update
         const pinResults = await findPin(undefined, where);

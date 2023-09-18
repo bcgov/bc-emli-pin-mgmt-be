@@ -11,12 +11,14 @@ import {
     pidNotFound,
     pinRangeErrorType,
     propertyDetailsResponse,
+    roleType,
     searchRangeErrorType,
     serverErrorType,
     unauthorizedError,
 } from '../helpers/types';
 import { findPropertyDetails } from '../db/ActivePIN.db';
 import axios from 'axios';
+import { pidStringSplitAndSort } from '../helpers/pidHelpers';
 
 @Route('properties')
 export class PropertiesController extends Controller {
@@ -72,6 +74,28 @@ export class PropertiesController extends Controller {
     }
 
     /**
+     * Sorts the details results into seperate arrays with land title and land title district
+     */
+    private sortDetailsResults(input: Array<propertyDetailsResponse>) {
+        const titleSet = new Set();
+        const output: any = {};
+        for (const prop of input) {
+            const titleAndDistrict =
+                prop.titleNumber + '|' + prop.landTitleDistrict;
+            if (titleSet.has(titleAndDistrict)) {
+                // Add to existing title
+                output[titleAndDistrict].push(prop);
+            } else {
+                // Create a new entry
+                titleSet.add(titleAndDistrict);
+                output[titleAndDistrict] = [];
+                output[titleAndDistrict].push(prop);
+            }
+        }
+        return output;
+    }
+
+    /**
      * Used to get property owner details from a given a site ID
      * Step 1: Call bc geocoder parcel API to get PIDs from site ID
      * Step 2: Check database and return property details for properties with a matching PID
@@ -101,9 +125,9 @@ export class PropertiesController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res() pidNotFoundResponse: TsoaResponse<204, pidNotFound>,
         @Query() siteID: string,
-        @Query() role: string,
+        @Query() role: roleType,
     ): Promise<Array<propertyDetailsResponse>> {
-        const results: Array<propertyDetailsResponse> = [];
+        let results: Array<propertyDetailsResponse> = [];
         try {
             const parcelsApiUrl = `${process.env.GEOCODER_API_BASE_URL}${process.env.GEOCODER_API_PARCELS_ENDPOINT}`;
             const jsonFormat = '.json';
@@ -147,22 +171,19 @@ export class PropertiesController extends Controller {
             };
 
             const pidsData: any = await getPIDs();
-            const pidsArray = pidsData.data.pids.split('|');
-
-            for (const pid of pidsArray) {
-                const result = await findPropertyDetails(parseInt(pid), role);
-                if (result[0] === undefined) {
-                    logger.warn(
-                        `Encountered a 204 message in getPropertyDetails. The retrieved pid does not exist in the database.`,
-                    );
-                    const exception: pidNotFound = {
-                        message: `Encountered a 204 message in getPropertyDetails. The following pid does not exist in the database: ${pid}`,
-                        code: 204,
-                    };
-                    throw exception;
-                }
-                results.push(await result);
+            const pids = pidStringSplitAndSort(pidsData.data.pids);
+            const result = await findPropertyDetails(pids, role);
+            if (result[0] === undefined) {
+                logger.warn(
+                    `Encountered a 204 message in getPropertyDetails. The retrieved pid(s) do(es) not exist in the database.`,
+                );
+                const exception: pidNotFound = {
+                    message: `Encountered a 204 message in getPropertyDetails. The following pid(s) do(es) not exist in the database: ${pids}`,
+                    code: 204,
+                };
+                throw exception;
             }
+            results = result;
         } catch (err: any) {
             if (err.code === 401) {
                 logger.warn(
@@ -208,6 +229,8 @@ export class PropertiesController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
+        // Sort results
+        results = this.sortDetailsResults(results);
         return results;
     }
 }

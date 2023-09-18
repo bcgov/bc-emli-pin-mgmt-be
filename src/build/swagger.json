@@ -609,20 +609,24 @@
 					"type": "string"
 				},
 				"example": {
-					"pid": 1234567,
-					"titleNumber": "12345",
-					"landTitleDistrict": "AB",
-					"givenName": "firstname",
-					"lastName_1": "lastname",
-					"lastName_2": null,
-					"incorporationNumber": null,
-					"addressLine_1": "123 Main Street",
-					"addressLine_2": "",
-					"city": "Vancouver",
-					"province": "BC",
-					"otherGeographicDivision": null,
-					"country": "Canada",
-					"postalCode": "A1B2C3"
+					"12345|AB": [
+						{
+							"pids": "1234567",
+							"titleNumber": "12345",
+							"landTitleDistrict": "AB",
+							"givenName": "firstname",
+							"lastName_1": "lastname",
+							"lastName_2": null,
+							"incorporationNumber": null,
+							"addressLine_1": "123 Main Street",
+							"addressLine_2": "",
+							"city": "Vancouver",
+							"provinceAbbreviation": "BC",
+							"provinceLong": null,
+							"country": "Canada",
+							"postalCode": "A1B2C3"
+						}
+					]
 				}
 			},
 			"unauthorizedError": {
@@ -734,6 +738,15 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
+			},
+			"roleType": {
+				"description": "User role types",
+				"enum": [
+					"Admin",
+					"SuperAdmin",
+					"Standard"
+				],
+				"type": "string"
 			}
 		},
 		"securitySchemes": {}
@@ -1193,7 +1206,7 @@
 						"name": "role",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/roleType"
 						}
 					}
 				]

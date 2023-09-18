@@ -78,11 +78,10 @@ describe('Properties endpoints', () => {
 });
 
 jest.spyOn(ActivePIN, 'findPropertyDetails').mockImplementation(
-    async (pid: number): Promise<any> => {
-        const result = [ActivePINResponse];
+    async (pid: string[]): Promise<any> => {
+        const result = [ActivePINResponse, ActivePINResponse];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (pid === parseInt('030317304'))
-            return result as unknown as ActivePin[];
+        if (pid[0] === '030317304') return result as unknown as ActivePin[];
         return [];
     },
 );
@@ -96,11 +95,11 @@ describe('Properties endpoints', () => {
             '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c&role=Admin',
         );
 
-        const body = await res.body[0][0];
+        const body = await res.body['123|AB'][0];
 
         expect(res.statusCode).toBe(200);
         expect(body.titleNumber).toBe('123');
-        expect(body.pid).toBe(9765107);
+        expect(body.pids).toBe('9765107');
     });
 
     test('/details should return 204 for pid that is not in database', async () => {
@@ -148,6 +147,18 @@ describe('Properties endpoints', () => {
             '/properties/details?siteID=123&role=Admin',
         );
         expect(res.statusCode).toBe(403);
+    });
+
+    test('/details Throw 404 not found error', async () => {
+        jest.spyOn(axios, 'get').mockRejectedValueOnce({
+            response: {
+                status: 404,
+            },
+        });
+        const res = await request(app).get(
+            '/properties/details?siteID=123&role=Admin',
+        );
+        expect(res.statusCode).toBe(404);
     });
 
     test('/details Throw 500 error', async () => {
