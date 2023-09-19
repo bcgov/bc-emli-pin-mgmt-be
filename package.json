@@ -16,7 +16,7 @@
     "db:migrate:down": "typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
     "db:migrate:test": "NODE_ENV=test typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
     "db:migrate:test:down": "NODE_ENV=test typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
-    "model:generate": "typeorm-model-generator -d $DB_NAME -s public -u $DB_USERNAME -e postgres -h $DB_HOST && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''public'\\'' }//g' ./src/entity/*.ts"
+    "model:generate": "typeorm-model-generator -d $DB_NAME -s public -u $DB_USERNAME -e postgres -h $DB_HOST && rm ./output/entities/RawParcelData.ts ./output/entities/RawTitleparcelData.ts ./output/entities/RawTitleData.ts ./output/entities/RawTitleownerData.ts && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''public'\\'' }//g' ./src/entity/*.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -54,9 +54,6 @@ export class Users {
     })
     createdAt: Date;
 
-    @Column('character varying', { name: 'display_name', length: 125 })
-    displayName: string;
-
     @Column('character varying', {
         name: 'updated_by',
         nullable: true,
