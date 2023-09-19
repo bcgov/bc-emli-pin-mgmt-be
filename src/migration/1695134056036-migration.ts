@@ -11,7 +11,7 @@ export class Migration1695134056036 implements MigrationInterface {
     public async down(queryRunner: QueryRunner): Promise<void> {
         const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'public';
         await queryRunner.query(
-            `ALTER TABLE IF EXISTS ${schemaName}.users ADD COLUMN IF NOT EXISTS display_name varchar(125) NOT NULL;`,
+            `ALTER TABLE IF EXISTS ${schemaName}.users ADD COLUMN IF NOT EXISTS display_name varchar(125);`,
         );
     }
 }
