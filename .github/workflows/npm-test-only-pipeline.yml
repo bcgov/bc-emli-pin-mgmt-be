@@ -7,7 +7,6 @@ on:
       - '!main'
       - '!dev'
       - '!qa'
-      - '!BVPS-251'
 
 jobs:
   build:
