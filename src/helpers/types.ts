@@ -307,6 +307,7 @@ export interface expireRequestBody {
  * @example {
  * "phoneNumber": "19021234567",
  * "pids": "1234|5678",
+ * "numberOfOwners": 2,
  * "givenName": "Jane",
  * "lastName_1": "Smith",
  * "lastName_2": "Green",
@@ -321,6 +322,7 @@ export interface expireRequestBody {
 export interface createPinRequestBody {
     pinLength?: number;
     allowedChars?: string;
+    numberOfOwners: number;
     phoneNumber?: string;
     email?: string;
     pids: string;
@@ -328,13 +330,12 @@ export interface createPinRequestBody {
     lastName_1: string;
     lastName_2?: string;
     incorporationNumber?: string;
-    addressLine_1?: string;
+    addressLine_1: string;
     addressLine_2?: string;
     city?: string;
     provinceAbbreviation?: string;
     country?: string;
     postalCode?: string;
-    requesterName?: string;
     requesterUsername?: string;
 }
 
@@ -458,4 +459,39 @@ export interface accessRequestResponseBody {
     firstName: string;
     lastName: string;
     requestReason: string;
+}
+
+/**
+ * A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
+ */
+export interface addressMatchScore {
+    weightedAverage: number;
+    givenNameScore?: number;
+    lastNamesScore: number;
+    ownerNumberScore: number;
+    incorporationNumberScore?: number;
+    streetAddressScore: number;
+    cityScore?: number;
+    provinceAbbreviationScore?: number;
+    countryScore?: number;
+    postalCodeScore?: number;
+}
+
+/**
+ * Since these results are verified by a human, much less information is required
+ * than the standard create / recreate request
+ * @example
+ * 	{
+ * 		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+ * 		"email": "example@example.com"
+ * 		"phoneNumber": "+19021234567"
+ * 	}
+ */
+export interface serviceBCCreateRequestBody {
+    livePinId: string;
+    email: string;
+    phoneNumber: string;
+    pinLength?: number;
+    allowedChars?: string;
+    requesterUsername?: string;
 }

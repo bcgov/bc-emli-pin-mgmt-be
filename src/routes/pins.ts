@@ -1,7 +1,10 @@
 import express from 'express';
 import { PINController } from '../controllers/pinController';
 import { Request, Response } from 'express';
-import { createPinRequestBody } from '../helpers/types';
+import {
+    createPinRequestBody,
+    serviceBCCreateRequestBody,
+} from '../helpers/types';
 
 const pinsRouter = express.Router();
 const controller = new PINController();
@@ -38,6 +41,31 @@ pinsRouter.post('/regenerate', async (req: Request, res: Response) => {
     );
     return res.send(response);
 });
+
+pinsRouter.post('/service-bc-create', async (req: Request, res: Response) => {
+    const response = await controller.serviceBCCreatePin(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body as serviceBCCreateRequestBody,
+    );
+    return res.send(response);
+});
+
+pinsRouter.post(
+    '/service-bc-regenerate',
+    async (req: Request, res: Response) => {
+        const response = await controller.serviceBCRecreatePin(
+            () => {},
+            () => {},
+            () => {},
+            () => {},
+            req.body as serviceBCCreateRequestBody,
+        );
+        return res.send(response);
+    },
+);
 
 pinsRouter.post('/expire', async (req: Request, res: Response) => {
     const response = await controller.expirePin(

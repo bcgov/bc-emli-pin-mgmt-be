@@ -23,14 +23,21 @@ import {
     aggregateValidationErrorType,
     emailPhone,
     updatedPIN,
+    addressMatchScore,
+    serviceBCCreateRequestBody,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
 import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
 import { EntityNotFoundError, Like, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
-import { pidStringSplitAndSort } from '../helpers/pidHelpers';
+import {
+    pidStringSplitAndSort,
+    sortActivePinResults,
+} from '../helpers/pidHelpers';
 import { NotFoundError } from '../helpers/NotFoundError';
+import 'string_score';
+import { BorderlineResultError } from '../helpers/BordelineResultError';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -39,7 +46,7 @@ export class PINController extends Controller {
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
     private pinRequestBodyValidate(
-        requestBody: createPinRequestBody,
+        requestBody: createPinRequestBody | serviceBCCreateRequestBody,
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
@@ -63,104 +70,392 @@ export class PINController extends Controller {
     }
 
     /**
+     * Used so jest can mock out the dynamic import as it doesn't play nice with them
+     */
+    private async dynamicImportCaller() {
+        const json = (
+            await import('./matchWeightsThresholds.json', {
+                assert: { type: 'json' },
+            })
+        ).default;
+        if (
+            (json.thresholds as { [key: string]: number }) &&
+            (json.weights as { [key: string]: number })
+        )
+            return json;
+        else throw new Error(`Missing required fields in import`);
+    }
+
+    /**
      * Used to validate that the result from the db matches the create request so that a pin can be created
      * TODO: Change this to a fuzzy match with scoring
      * (will have to search by pid(s), narrow down by close or exact name match & validate
      * against a canonical form). This will be time consuming...
      * @param requestBody The request body to validate against
      * @param pinResult The individual ActivePin result to validate against
-     * @returns true if valid, false otherwise
+     * @returns a
      */
-    private pinResultValidate(
+    private async pinResultValidate(
         requestBody: createPinRequestBody,
         pinResult: ActivePin,
-    ): boolean {
-        // Always required field
-        if (requestBody.lastName_1 === pinResult.lastName_1) {
-            // Optional fields
-            if (
-                (requestBody.givenName &&
-                    (!pinResult.givenName ||
-                        requestBody.givenName !== pinResult.givenName)) ||
-                (pinResult.givenName && !requestBody.givenName)
-            ) {
-                return false; // last name 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.lastName_2 &&
-                    (!pinResult.lastName_2 ||
-                        requestBody.lastName_2 !== pinResult.lastName_2)) ||
-                (pinResult.lastName_2 && !requestBody.lastName_2)
-            ) {
-                return false; // last name 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.incorporationNumber &&
-                    (!pinResult.incorporationNumber ||
-                        requestBody.incorporationNumber !==
-                            pinResult.incorporationNumber)) ||
-                (pinResult.incorporationNumber &&
-                    !requestBody.incorporationNumber)
-            ) {
-                return false; // last name 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.addressLine_1 &&
-                    (!pinResult.addressLine_1 ||
-                        requestBody.addressLine_1 !==
-                            pinResult.addressLine_1)) ||
-                (pinResult.addressLine_1 && !requestBody.addressLine_1)
-            ) {
-                return false; // address line 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.addressLine_2 &&
-                    (!pinResult.addressLine_2 ||
-                        requestBody.addressLine_2 !==
-                            pinResult.addressLine_2)) ||
-                (pinResult.addressLine_2 && !requestBody.addressLine_2)
-            ) {
-                return false; // address line 2 provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.provinceAbbreviation &&
-                    (!pinResult.provinceAbbreviation ||
-                        requestBody.provinceAbbreviation !==
-                            pinResult.provinceAbbreviation)) ||
-                (pinResult.provinceAbbreviation &&
-                    !requestBody.provinceAbbreviation)
-            ) {
-                return false; // province abbreviation provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.country &&
-                    (!pinResult.country ||
-                        requestBody.country !== pinResult.country)) ||
-                (pinResult.country && !requestBody.country)
-            ) {
-                return false; // postal code provided in one but not the other, or doesn't match
-            }
-            if (
-                (requestBody.postalCode &&
-                    (!pinResult.postalCode ||
-                        requestBody.postalCode !== pinResult.postalCode)) ||
-                (pinResult.postalCode && !requestBody.postalCode)
-            ) {
-                return false; // postal code provided in one but not the other, or doesn't match
-            }
-            return true;
+        ownerNumber: number,
+    ): Promise<addressMatchScore | string[]> {
+        // Fail if owner number doesn't match
+        if (requestBody.numberOfOwners !== ownerNumber) {
+            throw new Error(
+                'Number of owners does not match -- automatic fail.',
+            );
         }
-        return false; // last_name_1 not included
+
+        // Check the fields in the result to see if the required ones for an automatic match are present
+        const faults: string[] = [];
+        if (
+            pinResult.addressLine_1 === undefined ||
+            pinResult.addressLine_1 === null ||
+            pinResult.addressLine_1.trim().toUpperCase() ===
+                'NO ADDRESS ON FILE FOR THIS OWNER'
+        ) {
+            faults.push(
+                'No address is on file for this owner: please contact service BC to create or recreate your PIN',
+            );
+        }
+        if (
+            pinResult.lastName_1 === undefined ||
+            pinResult.lastName_1 === null
+        ) {
+            faults.push(
+                'No legal name or corporation name is on file for this owner: please contact service BC to create or recreate your PIN',
+            );
+        }
+        if (
+            (pinResult.city === undefined || pinResult.city === null) &&
+            (pinResult.postalCode === undefined ||
+                pinResult.postalCode === null)
+        ) {
+            faults.push(
+                'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
+            );
+        }
+        if (faults.length > 0) {
+            return faults;
+        }
+
+        /* Do fuzzy matching on each field to determine a score
+		   Note: this dynamic import is an "experimental" Node feature, but it works fine 
+		   on Node 16, and the normal read file method refused to work...
+		   This needs to be a dynamic import because we need to be able to change the 
+		   weights without rebuilding / restarting the server .
+		*/
+        const weightsAndThresholds = await this.dynamicImportCaller();
+        const weights: { [key: string]: number } = weightsAndThresholds.weights;
+        const thresholds: { [key: string]: number } =
+            weightsAndThresholds.thresholds;
+        let weightedAverage = 0,
+            givenNameScore = NaN,
+            lastNamesScore = NaN,
+            incorporationNumberScore = NaN,
+            streetAddressScore = NaN,
+            cityScore = NaN,
+            provinceAbbreviationScore = NaN,
+            countryScore = NaN,
+            postalCodeScore = NaN;
+
+        // If given name is present, it isn't a corporation. These only have lastName_1 and sometimes lastName_2
+        if (pinResult.givenName !== null && pinResult.givenName !== undefined) {
+            if (
+                requestBody.givenName === null ||
+                requestBody.givenName === undefined
+            )
+                givenNameScore = 0; // nothing to match
+            else {
+                givenNameScore = pinResult.givenName
+                    .trim()
+                    .toLowerCase()
+                    .score(requestBody.givenName.trim().toLowerCase());
+                if (givenNameScore < thresholds.givenNameThreshold)
+                    givenNameScore = 0; // no points below threshold
+            }
+        } else {
+            // it's a corporation
+            if (
+                pinResult.incorporationNumber !== null &&
+                pinResult.incorporationNumber !== undefined
+            ) {
+                if (
+                    requestBody.incorporationNumber === null ||
+                    requestBody.incorporationNumber === undefined
+                ) {
+                    incorporationNumberScore = 0;
+                } else {
+                    incorporationNumberScore = pinResult.incorporationNumber
+                        .trim()
+                        .toLowerCase()
+                        .score(
+                            requestBody.incorporationNumber
+                                .trim()
+                                .toLowerCase(),
+                        );
+                    if (
+                        incorporationNumberScore <
+                        thresholds.incorporationNumberThreshold
+                    )
+                        incorporationNumberScore = 0; // no points below threshold
+                }
+            }
+        }
+
+        // Match fields that should be present in both cases
+        // Last name(s)
+        let combinedRequestLastNames, combinedResultLastNames;
+        combinedRequestLastNames = requestBody.lastName_1;
+        if (
+            requestBody.lastName_2 !== null &&
+            requestBody.lastName_2 !== undefined
+        )
+            combinedRequestLastNames += ' ' + requestBody.lastName_2.trim();
+        combinedResultLastNames = pinResult.lastName_1;
+        if (pinResult.lastName_2 !== null && pinResult.lastName_2 !== undefined)
+            combinedResultLastNames += ' ' + pinResult.lastName_2.trim();
+
+        if (
+            combinedResultLastNames === null ||
+            combinedResultLastNames === undefined
+        )
+            lastNamesScore = 0;
+        else
+            lastNamesScore = combinedResultLastNames
+                .trim()
+                .toLowerCase()
+                .score(combinedRequestLastNames.trim().toLowerCase());
+        if (lastNamesScore < thresholds.lastNamesThreshold) lastNamesScore = 0; // no points below threshold
+
+        /* Street address
+		   This is special in that it is a loose match: 
+		   we check the threshold to see if it should be assigned partial points, 
+		   not if it should be assigned 0 points.
+		   We wait until weights are adjusted to do this
+		*/
+        let combinedRequestAddress, combinedResultAddress;
+        combinedRequestAddress = requestBody.addressLine_1;
+        if (
+            requestBody.addressLine_2 !== null &&
+            requestBody.addressLine_2 !== undefined
+        )
+            combinedRequestAddress += ' ' + requestBody.addressLine_2.trim();
+        combinedResultAddress = pinResult.addressLine_1;
+        if (
+            pinResult.addressLine_2 !== null &&
+            pinResult.addressLine_2 !== undefined
+        )
+            combinedResultAddress += ' ' + pinResult.addressLine_2.trim();
+
+        if (
+            combinedResultAddress === null ||
+            combinedResultAddress === undefined
+        )
+            streetAddressScore = 0;
+        else
+            streetAddressScore = combinedResultAddress
+                .trim()
+                .toLowerCase()
+                .score(combinedRequestAddress.trim().toLowerCase());
+
+        // City
+        if (pinResult.city !== null && pinResult.city !== undefined) {
+            if (requestBody.city === null || requestBody.city === undefined)
+                cityScore = 0;
+            else
+                cityScore = pinResult.city
+                    .trim()
+                    .toLowerCase()
+                    .score(requestBody.city.trim().toLowerCase());
+        }
+
+        // Province Abbreviation
+        if (
+            pinResult.provinceAbbreviation !== null &&
+            pinResult.provinceAbbreviation !== undefined
+        ) {
+            if (
+                requestBody.provinceAbbreviation === null ||
+                requestBody.provinceAbbreviation === undefined
+            )
+                provinceAbbreviationScore = 0;
+            else
+                provinceAbbreviationScore = pinResult.provinceAbbreviation
+                    .trim()
+                    .toLowerCase()
+                    .score(
+                        requestBody.provinceAbbreviation.trim().toLowerCase(),
+                    );
+        }
+
+        // Country
+        if (pinResult.country !== null && pinResult.country !== undefined) {
+            if (
+                requestBody.country === null ||
+                requestBody.country === undefined
+            )
+                countryScore = 0;
+            else
+                countryScore = pinResult.country
+                    .trim()
+                    .toLowerCase()
+                    .score(requestBody.country.trim().toLowerCase());
+        }
+
+        // Postal Code
+        if (
+            pinResult.postalCode !== null &&
+            pinResult.postalCode !== undefined
+        ) {
+            if (
+                requestBody.postalCode === null ||
+                requestBody.postalCode === undefined
+            )
+                postalCodeScore = 0;
+            else
+                postalCodeScore = pinResult.postalCode
+                    .trim()
+                    .toLowerCase()
+                    .score(requestBody.postalCode.trim().toLowerCase());
+        }
+
+        // Adjust weights if required
+        let totalWeight =
+            weights.lastNamesWeight +
+            weights.ownerNumberWeight +
+            weights.streetAddressWeight +
+            weights.cityWeight +
+            weights.provinceAbbreviationWeight +
+            weights.countryWeight +
+            weights.postalCodeWeight;
+
+        // For single owners
+        if (!Number.isNaN(givenNameScore)) {
+            totalWeight += weights.givenNameWeight;
+        } else {
+            // For corporations
+            totalWeight += weights.incorporationNumberWeight;
+            if (Number.isNaN(incorporationNumberScore)) {
+                // assign all inc # weight to company name instead
+                weights.lastNamesWeight += weights.incorporationNumberWeight;
+                weights.incorporationNumberWeight = 0;
+            }
+        }
+
+        // Subtract missing weights from total
+        if (Number.isNaN(cityScore)) {
+            totalWeight -= weights.cityWeight;
+            weights.cityWeight = 0;
+        }
+        if (Number.isNaN(provinceAbbreviationScore)) {
+            totalWeight -= weights.provinceAbbreviationWeight;
+            weights.provinceAbbreviationWeight = 0;
+        }
+        if (Number.isNaN(countryScore)) {
+            totalWeight -= weights.countryWeight;
+            weights.countryWeight = 0;
+        }
+        if (Number.isNaN(postalCodeScore)) {
+            totalWeight -= weights.postalCodeWeight;
+            weights.postalCodeWeight = 0;
+        }
+
+        // Reweight everything and calculate
+        // eslint-disable-next-line prefer-const
+        let result: any = {};
+        let denominator = 0;
+
+        const weightEntries = Object.entries(weights);
+        for (const weight of weightEntries) {
+            weights[weight[0]] = weight[1] / totalWeight;
+            if (weight[0] === 'streetAddressWeight') {
+                if (streetAddressScore < thresholds.streetAddressThreshold)
+                    streetAddressScore =
+                        streetAddressScore *
+                        weight[1] *
+                        0.25; // partial points below threshold
+                else streetAddressScore = weights.streetAddressWeight;
+            }
+        }
+        result = { ...result, streetAddressScore };
+        denominator += weights.streetAddressWeight;
+        result = { ...result, ownerNumberScore: weights.ownerNumberWeight };
+        denominator += weights.ownerNumberWeight;
+        if (lastNamesScore === 0) {
+            result = { ...result, lastNamesScore };
+        } else result = { ...result, lastNamesScore: weights.lastNamesWeight };
+        denominator += weights.lastNamesWeight;
+
+        if (!Number.isNaN(cityScore)) {
+            if (cityScore === 0) {
+                result = { ...result, cityScore };
+            } else result = { ...result, cityScore: weights.cityWeight };
+            denominator += weights.cityWeight;
+        }
+        if (!Number.isNaN(provinceAbbreviationScore)) {
+            if (provinceAbbreviationScore === 0) {
+                result = { ...result, provinceAbbreviationScore };
+            } else
+                result = {
+                    ...result,
+                    provinceAbbreviationScore:
+                        weights.provinceAbbreviationWeight,
+                };
+            denominator += weights.provinceAbbreviationWeight;
+        }
+        if (!Number.isNaN(countryScore)) {
+            if (countryScore === 0) {
+                result = { ...result, countryScore };
+            } else result = { ...result, countryScore: weights.countryWeight };
+            denominator += weights.countryWeight;
+        }
+        if (!Number.isNaN(postalCodeScore)) {
+            if (postalCodeScore === 0) {
+                result = { ...result, postalCodeScore };
+            } else
+                result = {
+                    ...result,
+                    postalCodeScore: weights.postalCodeWeight,
+                };
+            denominator += weights.postalCodeWeight;
+        }
+        if (!Number.isNaN(givenNameScore)) {
+            if (givenNameScore === 0) {
+                result = { ...result, givenNameScore };
+            } else
+                result = { ...result, givenNameScore: weights.givenNameWeight };
+            denominator += weights.givenNameWeight;
+        }
+        if (!Number.isNaN(incorporationNumberScore)) {
+            if (incorporationNumberScore === 0) {
+                result = { ...result, incorporationNumberScore };
+            } else
+                result = {
+                    ...result,
+                    incorporationNumberScore: weights.incorporationNumberWeight,
+                };
+            denominator += weights.incorporationNumberWeight;
+        }
+
+        const resultEntries: number[] = Object.values(result);
+        for (const entry of resultEntries) weightedAverage += entry;
+        weightedAverage = weightedAverage / denominator;
+        result = { ...result, weightedAverage };
+        logger.info(`Result score info below:`);
+        logger.info(result);
+        return result as addressMatchScore;
     }
 
     /**
      * Internal method for creating or recreating a PIN. The process is the same.
+     *
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
     ): Promise<updatedPIN[]> {
         const gen: PINGenerator = new PINGenerator();
-        let pin;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result: any[] = [];
 
@@ -186,20 +481,64 @@ export class PINController extends Controller {
         }
 
         // Find Active PIN entry (or entries if more than one pid to insert or update
-        const pinResults = await findPin(undefined, where);
+        let pinResults = await findPin(undefined, where);
+        pinResults = sortActivePinResults(pinResults);
 
-        const updateResults: ActivePin[] = [];
-        const updateTitleNumbers = new Set();
-        for (const result of pinResults) {
-            // TODO: fuzzy match rather than exact match ActivePins to update
-            const isMatch = this.pinResultValidate(requestBody, result);
-            if (isMatch) {
-                updateTitleNumbers.add(result.titleNumber); // add to set of title numbers to generate a pin for
-                updateResults.push(result);
+        const updateResults = [];
+        const borderlineResults = [];
+        const thresholds = (await this.dynamicImportCaller()).thresholds;
+        const pinResultKeys = Object.keys(pinResults);
+
+        if (pinResultKeys.length > 0) {
+            for (const key of pinResultKeys) {
+                const titleOwners = pinResults[key].length;
+                for (let i = 0; i < titleOwners; i++) {
+                    let matchScore: addressMatchScore | string[];
+                    try {
+                        matchScore = await this.pinResultValidate(
+                            requestBody,
+                            pinResults[key][i],
+                            titleOwners,
+                        );
+                        if (!('weightedAverage' in matchScore)) {
+                            // it's a string array
+                            continue; // bad match, skip
+                        }
+                    } catch (err) {
+                        logger.error(err);
+                        continue; // skip this entry
+                    }
+                    if (
+                        matchScore.weightedAverage >=
+                        thresholds.overallThreshold
+                    ) {
+                        // updateTitleNumbers.add(result.titleNumber); // add to set of title numbers to generate a pin for
+                        updateResults.push({
+                            ActivePin: pinResults[key][i],
+                            matchScore,
+                        });
+                    } else if (
+                        matchScore.weightedAverage >=
+                        thresholds.borderlineThreshold
+                    ) {
+                        borderlineResults.push({
+                            ActivePin: pinResults[key][i],
+                            matchScore,
+                        });
+                    }
+                }
             }
+            updateResults.sort(
+                (a, b) =>
+                    b.matchScore.weightedAverage - a.matchScore.weightedAverage,
+            );
+            borderlineResults.sort(
+                (a, b) =>
+                    b.matchScore.weightedAverage - a.matchScore.weightedAverage,
+            );
         }
 
-        if (updateResults.length <= 0) {
+        if (updateResults.length <= 0 && borderlineResults.length <= 0) {
             let errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
             let newLineFlag = false;
             // Line 1
@@ -242,25 +581,41 @@ export class PINController extends Controller {
                 else errMessage += ` ${requestBody.postalCode}`;
             }
             throw new NotFoundError(errMessage);
+        } else if (updateResults.length <= 0 && borderlineResults.length > 0) {
+            // Give an error message related to the closest result
+            let errMessage = `Close result: consider checking your `;
+            if (
+                borderlineResults[0].matchScore.streetAddressScore <
+                thresholds.streetAddressThreshold
+            ) {
+                errMessage += `address`;
+            } else if (
+                borderlineResults[0].matchScore.postalCodeScore &&
+                borderlineResults[0].matchScore.postalCodeScore <
+                    thresholds.postalCodeThreshold
+            ) {
+                errMessage += `postal code`;
+            } else if (
+                borderlineResults[0].matchScore.incorporationNumberScore &&
+                borderlineResults[0].matchScore.incorporationNumberScore <
+                    thresholds.incorporationNumberThreshold
+            ) {
+                errMessage += `incorporation number`;
+            } else {
+                errMessage += `name`; // we're not going to tell them about things that barely affect
+                // the score like country or province, and if they got the number of owners
+                // wrong since that is easily guessable
+            }
+            throw new BorderlineResultError(errMessage);
         }
 
-        // Generate Pin(s) and add to results
-        const pinArray = [];
-        for (const number of updateTitleNumbers) {
-            pin = await gen.create(
-                requestBody.pinLength,
-                requestBody.allowedChars,
-            ); // we only need one pin for multiple pids on the same title
-            pinArray.push({ titleNumber: number, pin: pin.pin });
-        }
-        for (const result of updateResults) {
-            for (const pin of pinArray) {
-                if (result.titleNumber === pin.titleNumber) {
-                    result.pin = pin.pin;
-                    break;
-                }
-            }
-        }
+        // Generate pin and add to result
+        const pin = await gen.create(
+            requestBody.pinLength,
+            requestBody.allowedChars,
+        );
+        const resultToUpdate = updateResults[0].ActivePin; // this will be the one with the highest match score
+        resultToUpdate.pin = pin.pin;
         const emailPhone: emailPhone = {
             email: requestBody.email,
             phoneNumber: requestBody.phoneNumber,
@@ -268,9 +623,74 @@ export class PINController extends Controller {
 
         // Insert into DB
         const errors = await batchUpdatePin(
-            updateResults,
+            [resultToUpdate],
             emailPhone,
-            requestBody.requesterUsername,
+            requestBody.requesterUsername, // TODO: Get info from token
+        );
+        if (errors.length >= 1) {
+            throw new AggregateError(
+                errors,
+                `Error(s) occured in batchUpdatePin: `,
+            );
+        }
+
+        // Prepare and return result
+        if (resultToUpdate.pin) {
+            const toPush: updatedPIN = {
+                pin: resultToUpdate.pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
+                pids: resultToUpdate.pids,
+                livePinId: resultToUpdate.livePinId,
+            };
+            result.push(toPush);
+        }
+        // TODO: Add GCNotify to send the email / text
+        return result;
+    }
+
+    /**
+     * Internal method for creating or recreating with external validation.
+     */
+    private async createOrRecreatePinServiceBC(
+        requestBody: serviceBCCreateRequestBody,
+    ): Promise<updatedPIN[]> {
+        const result: any[] = [];
+
+        // Validate that the input request has the correct email / phone information
+        const faults = this.pinRequestBodyValidate(requestBody);
+        if (faults.length > 0) {
+            throw new AggregateError(
+                faults,
+                'Validation Error(s) occured in createPin request body:',
+            );
+        }
+
+        // Find the pin to update
+        const pinResult = await findPin(undefined, {
+            livePinId: requestBody.livePinId,
+        });
+        if (pinResult.length < 1) {
+            throw new NotFoundError(
+                `Active Pin with livePinId ${requestBody.livePinId} not found in database.`,
+            );
+        }
+
+        // Generate the new pin
+        const gen: PINGenerator = new PINGenerator();
+        const pin = await gen.create(
+            requestBody.pinLength,
+            requestBody.allowedChars,
+        );
+        pinResult.pin = pin;
+
+        // Insert into DB
+        const emailPhone: emailPhone = {
+            email: requestBody.email,
+            phoneNumber: requestBody.phoneNumber,
+        };
+        const errors = await batchUpdatePin(
+            [pinResult],
+            emailPhone,
+            requestBody.requesterUsername, // TODO: Get info from token
         );
         if (errors.length >= 1) {
             throw new AggregateError(
@@ -280,16 +700,12 @@ export class PINController extends Controller {
         }
 
         // Prepare and return results
-        for (const res of updateResults) {
-            if (res.pin) {
-                const toPush: updatedPIN = {
-                    pin: res.pin,
-                    pids: res.pids,
-                    livePinId: res.livePinId,
-                };
-                result.push(toPush);
-            }
-        }
+        const toPush: updatedPIN = {
+            pin: pinResult.pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
+            pids: pinResult.pids,
+            livePinId: pinResult.livePinId,
+        };
+        result.push(toPush);
         // TODO: Add GCNotify to send the email / text
         return result;
     }
@@ -321,7 +737,10 @@ export class PINController extends Controller {
         try {
             res = await this.createOrRecreatePin(requestBody);
         } catch (err) {
-            if (err instanceof NotFoundError) {
+            if (
+                err instanceof NotFoundError ||
+                err instanceof BorderlineResultError
+            ) {
                 logger.warn(
                     `Encountered not found error in createPin: ${err.message}`,
                 );
@@ -380,7 +799,136 @@ export class PINController extends Controller {
         try {
             res = await this.createOrRecreatePin(requestBody);
         } catch (err) {
-            if (err instanceof NotFoundError) {
+            if (
+                err instanceof NotFoundError ||
+                err instanceof BorderlineResultError
+            ) {
+                logger.warn(
+                    `Encountered not found error in createPin: ${err.message}`,
+                );
+                return notFoundErrorResponse(422, {
+                    message: err.message,
+                } as EntityNotFoundErrorType);
+            }
+            if (err instanceof AggregateError) {
+                logger.warn(`${err.message} ${err.errors}`);
+                return aggregateErrorResponse(422, {
+                    message: err.message,
+                    faults: err.errors,
+                });
+            }
+            if (err instanceof RangeError) {
+                logger.warn(
+                    `Encountered Range Error in createPin: ${err.message}`,
+                );
+                return rangeErrorResponse(422, {
+                    message: err.message,
+                } as pinRangeErrorType);
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in createPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Used to create a single, unique PIN, checking against the DB to do so.
+     * This endpoint has minimal validation, as the validation is expected to be performed by a human.
+     * Expected error codes and messages:
+     * - `422`
+     * -- `PIN must be of length 1 or greater`
+     * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
+     * -- `Error(s) occured in batchUpdatePin: []`
+     * - `500`
+     *  -- `Internal Server Error`
+     * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
+     * @returns An object containing the unique PIN
+     */
+    @Post('service-bc-create')
+    public async serviceBCCreatePin(
+        @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res()
+        aggregateErrorResponse: TsoaResponse<422, aggregateValidationErrorType>,
+        @Res()
+        notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
+        @Body() requestBody: serviceBCCreateRequestBody,
+    ): Promise<updatedPIN[]> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let res: any[] = [];
+        try {
+            res = await this.createOrRecreatePinServiceBC(requestBody);
+        } catch (err) {
+            if (
+                err instanceof NotFoundError ||
+                err instanceof BorderlineResultError
+            ) {
+                logger.warn(
+                    `Encountered not found error in createPin: ${err.message}`,
+                );
+                return notFoundErrorResponse(422, {
+                    message: err.message,
+                } as EntityNotFoundErrorType);
+            }
+            if (err instanceof AggregateError) {
+                logger.warn(`${err.message} ${err.errors}`);
+                return aggregateErrorResponse(422, {
+                    message: err.message,
+                    faults: err.errors,
+                });
+            }
+            if (err instanceof RangeError) {
+                logger.warn(
+                    `Encountered Range Error in createPin: ${err.message}`,
+                );
+                return rangeErrorResponse(422, {
+                    message: err.message,
+                } as pinRangeErrorType);
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in createPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Used to recreate a single, unique PIN, checking against the DB to do so.
+     * This endpoint has minimal validation, as the validation is expected to be performed by a human.
+     * Expected error codes and messages:
+     * - `422`
+     * -- `PIN must be of length 1 or greater`
+     * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
+     * -- `Error(s) occured in batchUpdatePin: []`
+     * - `500`
+     *  -- `Internal Server Error`
+     * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
+     * @returns An object containing the unique PIN
+     */
+    @Post('service-bc-regenerate')
+    public async serviceBCRecreatePin(
+        @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res()
+        aggregateErrorResponse: TsoaResponse<422, aggregateValidationErrorType>,
+        @Res()
+        notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
+        @Body() requestBody: serviceBCCreateRequestBody,
+    ): Promise<updatedPIN[]> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let res: any[] = [];
+        try {
+            res = await this.createOrRecreatePinServiceBC(requestBody);
+        } catch (err) {
+            if (
+                err instanceof NotFoundError ||
+                err instanceof BorderlineResultError
+            ) {
                 logger.warn(
                     `Encountered not found error in createPin: ${err.message}`,
                 );

@@ -1,0 +1,26 @@
+{
+	"thresholds": {
+		"overallThreshold": 0.9,
+		"borderlineThreshold": 0.85,
+		"givenNameThreshold": 0.95,
+		"lastNamesThreshold": 0.95,
+		"incorporationNumberThreshold": 1,
+		"ownerNumberThreshold": 1,
+		"streetAddressThreshold": 0.85,
+		"cityThreshold": 0.8,
+		"provinceAbbreviationThreshold": 0.95,
+		"countryThreshold": 0.8,
+		"postalCodeThreshold": 1
+	},
+	"weights": {
+		"givenNameWeight": 0.2,
+		"lastNamesWeight": 0.2,
+		"incorporationNumberWeight": 0.2,
+		"ownerNumberWeight": 0.125,
+		"streetAddressWeight": 0.125,
+		"cityWeight": 0.02,
+		"provinceAbbreviationWeight": 0.01,
+		"countryWeight": 0.01,
+		"postalCodeWeight": 0.31
+	}
+}
