@@ -548,7 +548,7 @@ export class PINController extends Controller {
                             continue; // bad match, skip
                         }
                     } catch (err) {
-                        logger.error(err);
+                        if (err instanceof Error) logger.error(err.message);
                         continue; // skip this entry
                     }
                     if (

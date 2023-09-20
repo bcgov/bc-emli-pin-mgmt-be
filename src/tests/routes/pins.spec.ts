@@ -34,6 +34,7 @@ import {
     invalidCreatePinBodyPinLengthServiceBC,
     invalidCreatePinBodyWrongPhoneServiceBC,
     validCreatePinBodySinglePidServiceBC,
+    invalidCreatePinBodySinglePid,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
@@ -90,6 +91,7 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
+        // jest.spyOn()
 
         const reqBody = validCreatePinBodyInc;
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
@@ -159,6 +161,66 @@ describe('Pin endpoints', () => {
         );
         expect(res.body.faults[0]).toBe(
             'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
+        );
+    });
+
+    test('vhers-create on request body with wrong number of owners returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+
+                if ((where as any).pids instanceof FindOperator)
+                    return result as ActivePin[];
+                return [];
+            },
+        );
+
+        const reqBody = invalidCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
+        );
+    });
+
+    test('vhers-create on pin with no postal code or city returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                const result = [pin1];
+
+                if ((where as any).pids instanceof FindOperator)
+                    return result as ActivePin[];
+                return [];
+            },
+        );
+
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
         );
     });
 
@@ -344,8 +406,10 @@ describe('Pin endpoints', () => {
                 return [];
             },
         );
-        const reqBody = invalidCreatePinBodyPinLength;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const requBody = invalidCreatePinBodyPinLength;
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(requBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });

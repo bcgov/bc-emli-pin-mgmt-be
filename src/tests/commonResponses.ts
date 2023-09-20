@@ -648,6 +648,20 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     numberOfOwners: 1,
 };
 
+export const invalidCreatePinBodySinglePid: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    lastName_1: 'None',
+    email: 'example@example.com',
+    pids: '1234',
+    incorporationNumber: '91011',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+    numberOfOwners: 7,
+};
+
 export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
     {
         phoneNumber: '19021234567',
