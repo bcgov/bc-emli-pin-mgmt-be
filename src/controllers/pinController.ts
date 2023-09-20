@@ -38,6 +38,8 @@ import {
 import { NotFoundError } from '../helpers/NotFoundError';
 import 'string_score';
 import { BorderlineResultError } from '../helpers/BordelineResultError';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -70,14 +72,15 @@ export class PINController extends Controller {
     }
 
     /**
-     * Used so jest can mock out the dynamic import as it doesn't play nice with them
+     * Used to import the JSON with the weights dynamically
      */
     private async dynamicImportCaller() {
-        const json = (
-            await import('./matchWeightsThresholds.json', {
-                assert: { type: 'json' },
-            })
-        ).default;
+        const json = JSON.parse(
+            readFileSync(
+                path.join(__dirname, 'matchWeightsThresholds.json'),
+                'utf-8',
+            ),
+        );
         if (
             (json.thresholds as { [key: string]: number }) &&
             (json.weights as { [key: string]: number })
@@ -140,12 +143,7 @@ export class PINController extends Controller {
             return faults;
         }
 
-        /* Do fuzzy matching on each field to determine a score
-		   Note: this dynamic import is an "experimental" Node feature, but it works fine 
-		   on Node 16, and the normal read file method refused to work...
-		   This needs to be a dynamic import because we need to be able to change the 
-		   weights without rebuilding / restarting the server .
-		*/
+        // Do fuzzy matching on each field to determine a score
         const weightsAndThresholds = await this.dynamicImportCaller();
         const weights: { [key: string]: number } = weightsAndThresholds.weights;
         const thresholds: { [key: string]: number } =
@@ -372,10 +370,8 @@ export class PINController extends Controller {
             weights[weight[0]] = weight[1] / totalWeight;
             if (weight[0] === 'streetAddressWeight') {
                 if (streetAddressScore < thresholds.streetAddressThreshold)
-                    streetAddressScore =
-                        streetAddressScore *
-                        weight[1] *
-                        0.25; // partial points below threshold
+                    streetAddressScore = streetAddressScore * weight[1] * 0.25;
+                // partial points below threshold
                 else streetAddressScore = weights.streetAddressWeight;
             }
         }

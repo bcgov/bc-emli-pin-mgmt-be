@@ -608,6 +608,7 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyName: createPinRequestBody = {
@@ -621,6 +622,7 @@ export const validCreatePinBodyName: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
@@ -634,6 +636,7 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
@@ -646,6 +649,7 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     city: 'Vancouver',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
@@ -657,6 +661,7 @@ export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
@@ -668,6 +673,7 @@ export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
@@ -679,6 +685,7 @@ export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
@@ -691,6 +698,7 @@ export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     provinceAbbreviation: 'BZ',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
@@ -704,6 +712,7 @@ export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
         addressLine_2: 'Unit 100A',
         provinceAbbreviation: 'BZ',
         country: 'Canada',
+        numberOfOwners: 1,
     };
 
 export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
@@ -718,6 +727,7 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
@@ -729,6 +739,7 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
@@ -741,6 +752,7 @@ export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyPinLength: createPinRequestBody = {
@@ -756,6 +768,7 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
@@ -768,6 +781,7 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
@@ -779,6 +793,7 @@ export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
     city: 'Vancouver',
     provinceAbbreviation: 'BC',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const AuditLogMultiResponse = [
