@@ -1,4 +1,7 @@
-import { createPinRequestBody } from '../helpers/types';
+import {
+    createPinRequestBody,
+    serviceBCCreateRequestBody,
+} from '../helpers/types';
 
 // API Responses to mock (sorry, this is a real response and it's long)
 export const geocodeAddressAPIResponse = {
@@ -611,6 +614,12 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     numberOfOwners: 1,
 };
 
+export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+};
+
 export const validCreatePinBodyName: createPinRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
@@ -638,6 +647,13 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
 };
+
+export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
+    {
+        phoneNumber: '19021234567',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
 
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     phoneNumber: '19021234567',
@@ -730,6 +746,13 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     numberOfOwners: 1,
 };
 
+export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody =
+    {
+        phoneNumber: '88234',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
+
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     pids: '1234|5678',
     lastName_1: 'None',
@@ -770,6 +793,15 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
 };
+
+export const invalidCreatePinBodyPinLengthServiceBC: serviceBCCreateRequestBody =
+    {
+        pinLength: 0,
+        allowedChars: 'A',
+        phoneNumber: '19021234567',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
 
 export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     phoneNumber: '19021234567',

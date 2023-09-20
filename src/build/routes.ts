@@ -412,7 +412,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/pins/create',
+        app.post('/pins/vhers-create',
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.createPin)),
 
@@ -441,7 +441,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/pins/regenerate',
+        app.post('/pins/vhers-regenerate',
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.recreatePin)),
 
@@ -470,7 +470,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/pins/service-bc-create',
+        app.post('/pins/create',
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.serviceBCCreatePin)),
 
@@ -499,7 +499,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/pins/service-bc-regenerate',
+        app.post('/pins/regenerate',
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.serviceBCRecreatePin)),
 

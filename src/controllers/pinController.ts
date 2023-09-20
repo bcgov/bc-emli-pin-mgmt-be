@@ -77,23 +77,56 @@ export class PINController extends Controller {
     private async dynamicImportCaller() {
         const json = JSON.parse(
             readFileSync(
-                path.join(__dirname, 'matchWeightsThresholds.json'),
+                path.join(__dirname, '/../../matchWeightsThresholds.json'),
                 'utf-8',
             ),
         );
         if (
             (json.thresholds as { [key: string]: number }) &&
-            (json.weights as { [key: string]: number })
+            (json.weights as { [key: string]: number }) &&
+            (json.fuzzinessCoefficients as { [key: string]: number }) &&
+            (json.streetAddressLooseMatchReductionCoefficient as number)
         )
             return json;
         else throw new Error(`Missing required fields in import`);
     }
 
     /**
+     * Used to score address comparisons,
+     * either with an exact match if threshold === 1 or fuzzy match otherwise
+     */
+    private score(
+        base: string | null,
+        compare: string,
+        threshold: number,
+        fuzziness = 1,
+    ): number {
+        if (base === null) throw new Error(`Base string cannot be null.`);
+        if (threshold > 1 || threshold < 0)
+            throw new Error(
+                'Invalid scoring threshold. Please provide thresholds between 0 and 1 inclusive.',
+            );
+        if (fuzziness && (!Number.isFinite(fuzziness) || fuzziness > 1))
+            // we don't check for negative numbers because these technically work, they just provide very low scores
+            throw new Error(
+                'Invalid fuzziness coefficient. Please provide fuzziness coeffiecients less than or equal to 1.',
+            );
+
+        if (threshold === 1)
+            // exact match
+            return base.trim().toLowerCase() === compare.trim().toLowerCase()
+                ? 1
+                : 0;
+        else {
+            return base
+                .trim()
+                .toLowerCase()
+                .score(compare.trim().toLowerCase(), fuzziness);
+        }
+    }
+
+    /**
      * Used to validate that the result from the db matches the create request so that a pin can be created
-     * TODO: Change this to a fuzzy match with scoring
-     * (will have to search by pid(s), narrow down by close or exact name match & validate
-     * against a canonical form). This will be time consuming...
      * @param requestBody The request body to validate against
      * @param pinResult The individual ActivePin result to validate against
      * @returns a
@@ -103,7 +136,7 @@ export class PINController extends Controller {
         pinResult: ActivePin,
         ownerNumber: number,
     ): Promise<addressMatchScore | string[]> {
-        // Fail if owner number doesn't match
+        // Fail if owner number doesn't match. This isn't a fuzzy match: it's exact
         if (requestBody.numberOfOwners !== ownerNumber) {
             throw new Error(
                 'Number of owners does not match -- automatic fail.',
@@ -148,6 +181,8 @@ export class PINController extends Controller {
         const weights: { [key: string]: number } = weightsAndThresholds.weights;
         const thresholds: { [key: string]: number } =
             weightsAndThresholds.thresholds;
+        const coefficients: { [key: string]: number } =
+            weightsAndThresholds.fuzzinessCoefficients;
         let weightedAverage = 0,
             givenNameScore = NaN,
             lastNamesScore = NaN,
@@ -166,10 +201,12 @@ export class PINController extends Controller {
             )
                 givenNameScore = 0; // nothing to match
             else {
-                givenNameScore = pinResult.givenName
-                    .trim()
-                    .toLowerCase()
-                    .score(requestBody.givenName.trim().toLowerCase());
+                givenNameScore = this.score(
+                    pinResult.givenName,
+                    requestBody.givenName,
+                    thresholds.givenNameThreshold,
+                    coefficients.givenNameFuzzyCoefficient,
+                );
                 if (givenNameScore < thresholds.givenNameThreshold)
                     givenNameScore = 0; // no points below threshold
             }
@@ -185,14 +222,12 @@ export class PINController extends Controller {
                 ) {
                     incorporationNumberScore = 0;
                 } else {
-                    incorporationNumberScore = pinResult.incorporationNumber
-                        .trim()
-                        .toLowerCase()
-                        .score(
-                            requestBody.incorporationNumber
-                                .trim()
-                                .toLowerCase(),
-                        );
+                    incorporationNumberScore = this.score(
+                        pinResult.incorporationNumber,
+                        requestBody.incorporationNumber,
+                        thresholds.incorporationNumberThreshold,
+                        coefficients.incorporationNumberFuzzyCoefficient,
+                    );
                     if (
                         incorporationNumberScore <
                         thresholds.incorporationNumberThreshold
@@ -214,17 +249,12 @@ export class PINController extends Controller {
         combinedResultLastNames = pinResult.lastName_1;
         if (pinResult.lastName_2 !== null && pinResult.lastName_2 !== undefined)
             combinedResultLastNames += ' ' + pinResult.lastName_2.trim();
-
-        if (
-            combinedResultLastNames === null ||
-            combinedResultLastNames === undefined
-        )
-            lastNamesScore = 0;
-        else
-            lastNamesScore = combinedResultLastNames
-                .trim()
-                .toLowerCase()
-                .score(combinedRequestLastNames.trim().toLowerCase());
+        lastNamesScore = this.score(
+            combinedResultLastNames,
+            combinedRequestLastNames,
+            thresholds.lastNamesThreshold,
+            coefficients.lastNamesFuzzyCoefficient,
+        );
         if (lastNamesScore < thresholds.lastNamesThreshold) lastNamesScore = 0; // no points below threshold
 
         /* Street address
@@ -246,27 +276,26 @@ export class PINController extends Controller {
             pinResult.addressLine_2 !== undefined
         )
             combinedResultAddress += ' ' + pinResult.addressLine_2.trim();
-
-        if (
-            combinedResultAddress === null ||
-            combinedResultAddress === undefined
-        )
-            streetAddressScore = 0;
-        else
-            streetAddressScore = combinedResultAddress
-                .trim()
-                .toLowerCase()
-                .score(combinedRequestAddress.trim().toLowerCase());
+        streetAddressScore = this.score(
+            combinedResultAddress,
+            combinedRequestAddress,
+            thresholds.streetAddressThreshold,
+            coefficients.streetAddressFuzzyCoefficient,
+        );
 
         // City
         if (pinResult.city !== null && pinResult.city !== undefined) {
             if (requestBody.city === null || requestBody.city === undefined)
                 cityScore = 0;
-            else
-                cityScore = pinResult.city
-                    .trim()
-                    .toLowerCase()
-                    .score(requestBody.city.trim().toLowerCase());
+            else {
+                cityScore = this.score(
+                    pinResult.city,
+                    requestBody.city,
+                    thresholds.cityThreshold,
+                    coefficients.cityFuzzyCoefficient,
+                );
+                if (cityScore < thresholds.cityThreshold) cityScore = 0; // no points below threshold
+            }
         }
 
         // Province Abbreviation
@@ -279,13 +308,19 @@ export class PINController extends Controller {
                 requestBody.provinceAbbreviation === undefined
             )
                 provinceAbbreviationScore = 0;
-            else
-                provinceAbbreviationScore = pinResult.provinceAbbreviation
-                    .trim()
-                    .toLowerCase()
-                    .score(
-                        requestBody.provinceAbbreviation.trim().toLowerCase(),
-                    );
+            else {
+                provinceAbbreviationScore = this.score(
+                    pinResult.provinceAbbreviation,
+                    requestBody.provinceAbbreviation,
+                    thresholds.provinceAbbreviationThreshold,
+                    coefficients.provinceAbbreviationFuzzyCoefficient,
+                );
+                if (
+                    provinceAbbreviationScore <
+                    thresholds.provinceAbbreviationThreshold
+                )
+                    provinceAbbreviationScore = 0; // no points below threshold
+            }
         }
 
         // Country
@@ -295,11 +330,16 @@ export class PINController extends Controller {
                 requestBody.country === undefined
             )
                 countryScore = 0;
-            else
-                countryScore = pinResult.country
-                    .trim()
-                    .toLowerCase()
-                    .score(requestBody.country.trim().toLowerCase());
+            else {
+                countryScore = this.score(
+                    pinResult.country,
+                    requestBody.country,
+                    thresholds.countryThreshold,
+                    coefficients.countryFuzzyCoefficient,
+                );
+                if (countryScore < thresholds.countryThreshold)
+                    countryScore = 0; // no points below threshold
+            }
         }
 
         // Postal Code
@@ -312,11 +352,16 @@ export class PINController extends Controller {
                 requestBody.postalCode === undefined
             )
                 postalCodeScore = 0;
-            else
-                postalCodeScore = pinResult.postalCode
-                    .trim()
-                    .toLowerCase()
-                    .score(requestBody.postalCode.trim().toLowerCase());
+            else {
+                postalCodeScore = this.score(
+                    pinResult.postalCode.replace(/\s+/g, ''),
+                    requestBody.postalCode.replace(/\s+/g, ''),
+                    thresholds.postalCodeThreshold,
+                    coefficients.postalCodeFuzzyCoefficient,
+                );
+                if (postalCodeScore < thresholds.postalCodeThreshold)
+                    postalCodeScore = 0; // no points below threshold
+            }
         }
 
         // Adjust weights if required
@@ -370,7 +415,10 @@ export class PINController extends Controller {
             weights[weight[0]] = weight[1] / totalWeight;
             if (weight[0] === 'streetAddressWeight') {
                 if (streetAddressScore < thresholds.streetAddressThreshold)
-                    streetAddressScore = streetAddressScore * weight[1] * 0.25;
+                    streetAddressScore =
+                        streetAddressScore *
+                        weight[1] *
+                        weightsAndThresholds.streetAddressLooseMatchReductionCoefficient;
                 // partial points below threshold
                 else streetAddressScore = weights.streetAddressWeight;
             }
@@ -446,7 +494,6 @@ export class PINController extends Controller {
 
     /**
      * Internal method for creating or recreating a PIN. The process is the same.
-     *
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
@@ -508,7 +555,6 @@ export class PINController extends Controller {
                         matchScore.weightedAverage >=
                         thresholds.overallThreshold
                     ) {
-                        // updateTitleNumbers.add(result.titleNumber); // add to set of title numbers to generate a pin for
                         updateResults.push({
                             ActivePin: pinResults[key][i],
                             matchScore,
@@ -676,7 +722,7 @@ export class PINController extends Controller {
             requestBody.pinLength,
             requestBody.allowedChars,
         );
-        pinResult.pin = pin;
+        pinResult[0].pin = pin.pin;
 
         // Insert into DB
         const emailPhone: emailPhone = {
@@ -684,7 +730,7 @@ export class PINController extends Controller {
             phoneNumber: requestBody.phoneNumber,
         };
         const errors = await batchUpdatePin(
-            [pinResult],
+            [pinResult[0]],
             emailPhone,
             requestBody.requesterUsername, // TODO: Get info from token
         );
@@ -697,9 +743,9 @@ export class PINController extends Controller {
 
         // Prepare and return results
         const toPush: updatedPIN = {
-            pin: pinResult.pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
-            pids: pinResult.pids,
-            livePinId: pinResult.livePinId,
+            pin: pinResult[0].pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
+            pids: pinResult[0].pids,
+            livePinId: pinResult[0].livePinId,
         };
         result.push(toPush);
         // TODO: Add GCNotify to send the email / text
@@ -718,7 +764,7 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
-    @Post('create')
+    @Post('vhers-create')
     public async createPin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
@@ -780,7 +826,7 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
-    @Post('regenerate')
+    @Post('vhers-regenerate')
     public async recreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
@@ -843,7 +889,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
-    @Post('service-bc-create')
+    @Post('create')
     public async serviceBCCreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
@@ -906,7 +952,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
-    @Post('service-bc-regenerate')
+    @Post('regenerate')
     public async serviceBCRecreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,

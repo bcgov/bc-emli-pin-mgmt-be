@@ -14,7 +14,7 @@
 	},
 	"weights": {
 		"givenNameWeight": 0.2,
-		"lastNamesWeight": 0.2,
+		"lastNamesWeight": 0.8,
 		"incorporationNumberWeight": 0.2,
 		"ownerNumberWeight": 0.125,
 		"streetAddressWeight": 0.125,
@@ -22,5 +22,16 @@
 		"provinceAbbreviationWeight": 0.01,
 		"countryWeight": 0.01,
 		"postalCodeWeight": 0.31
-	}
+	},
+	"fuzzinessCoefficients": {
+		"givenNameFuzzyCoefficient": 0.95,
+		"lastNamesFuzzyCoefficient": 0.95,
+		"incorporationNumberFuzzyCoefficient": 0,
+		"streetAddressFuzzyCoefficient": 0.95,
+		"cityFuzzyCoefficient": 0.95,
+		"provinceAbbreviationFuzzyCoefficient": 0.95,
+		"countryFuzzyCoefficient": 0.95,
+		"postalCodeFuzzyCoefficient": 0
+	},
+	"streetAddressLooseMatchReductionCoefficient": 0.25
 }

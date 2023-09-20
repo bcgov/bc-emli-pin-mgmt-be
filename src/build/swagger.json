@@ -971,7 +971,7 @@
 				]
 			}
 		},
-		"/pins/create": {
+		"/pins/vhers-create": {
 			"post": {
 				"operationId": "CreatePin",
 				"responses": {
@@ -1024,7 +1024,7 @@
 				}
 			}
 		},
-		"/pins/regenerate": {
+		"/pins/vhers-regenerate": {
 			"post": {
 				"operationId": "RecreatePin",
 				"responses": {
@@ -1077,7 +1077,7 @@
 				}
 			}
 		},
-		"/pins/service-bc-create": {
+		"/pins/create": {
 			"post": {
 				"operationId": "ServiceBCCreatePin",
 				"responses": {
@@ -1130,7 +1130,7 @@
 				}
 			}
 		},
-		"/pins/service-bc-regenerate": {
+		"/pins/regenerate": {
 			"post": {
 				"operationId": "ServiceBCRecreatePin",
 				"responses": {
