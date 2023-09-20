@@ -6,6 +6,7 @@ import { Permission } from './entity/Permission';
 import { PinAuditLog } from './entity/PinAuditLog';
 import { Users } from './entity/Users';
 import { Migrations } from './entity/Migrations';
+import { AccessRequest } from './entity/AccessRequest';
 import { join } from 'path';
 
 export const AppDataSource = new DataSource({
@@ -16,7 +17,14 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [ActivePin, Permission, PinAuditLog, Users, Migrations],
+    entities: [
+        ActivePin,
+        Permission,
+        PinAuditLog,
+        Users,
+        Migrations,
+        AccessRequest,
+    ],
     migrations: [join(__dirname, 'migration', '**.ts')],
     synchronize:
         process.env.TYPEORM_SYNCHRONIZE?.toLowerCase() === 'true' &&

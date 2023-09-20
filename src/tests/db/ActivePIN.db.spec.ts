@@ -6,8 +6,12 @@ import {
     UpdateResult,
 } from 'typeorm';
 import * as ActivePIN from '../../db/ActivePIN.db';
-import { ActivePINMultiResponse } from '../commonResponses';
-import { emailPhone, expirationReason } from '../../helpers/types';
+import {
+    ActivePINMultiResponse,
+    ActivePINResponseNoPIN,
+    ActivePINResponseWithPIN,
+} from '../commonResponses';
+import { expirationReason, roleType } from '../../helpers/types';
 import { ActivePin } from '../../entity/ActivePin';
 
 // mock out db
@@ -79,7 +83,6 @@ describe('Active PIN db tests', () => {
         const deletedPin = await ActivePIN.deletePin(
             'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
             expirationReason.OptOut,
-            'System',
             'test',
         );
         expect(deletedPin).toBeDefined();
@@ -95,7 +98,7 @@ describe('Active PIN db tests', () => {
         };
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
-        const emailPhone: emailPhone = { email: 'email@example.com' };
+        const emailPhone = { email: 'email@example.com' };
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
          * mock the whole thing and not the individual db calls within it.
@@ -114,8 +117,7 @@ describe('Active PIN db tests', () => {
         };
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
-        const emailPhone: emailPhone = { email: 'email@example.com' };
-        const requesterName = 'John Smith';
+        const emailPhone = { email: 'email@example.com' };
         const requesterUsername = 'jsmith';
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
@@ -127,7 +129,6 @@ describe('Active PIN db tests', () => {
         const response = await ActivePIN.batchUpdatePin(
             pins,
             emailPhone,
-            requesterName,
             requesterUsername,
         );
         expect(response.length).toBe(0);
@@ -136,8 +137,7 @@ describe('Active PIN db tests', () => {
     test(`batchUpdatePin returns error when there's an error in the transaction`, async () => {
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
-        const emailPhone: emailPhone = { email: 'email@example.com' };
-        const requesterName = 'John Smith';
+        const emailPhone = { email: 'email@example.com' };
         const requesterUsername = 'jsmith';
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
@@ -151,7 +151,6 @@ describe('Active PIN db tests', () => {
         const response = await ActivePIN.batchUpdatePin(
             pins,
             emailPhone,
-            requesterName,
             requesterUsername,
         );
         expect(response.length).toBe(1);
@@ -167,7 +166,7 @@ describe('Active PIN db tests', () => {
         };
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
-        const emailPhone: emailPhone = { email: 'email@example.com' };
+        const emailPhone = { email: 'email@example.com' };
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
          * mock the whole thing and not the individual db calls within it.
@@ -180,5 +179,31 @@ describe('Active PIN db tests', () => {
         expect(response[0]).toBe(
             'An error occured while updating updatedPins[0] in batchUpdatePin: No rows were affected by the update',
         );
+    });
+
+    test('findPropertyDetails returns property details with pin for SuperAdmin', async () => {
+        jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
+            async () => {
+                return [ActivePINResponseWithPIN];
+            },
+        );
+        const res = await ActivePIN.findPropertyDetails(
+            ['9765107'],
+            roleType.SuperAdmin,
+        );
+        expect(res[0].pin).toBeDefined();
+    });
+
+    test('findPropertyDetails returns property details without pin for Admin', async () => {
+        jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
+            async () => {
+                return [ActivePINResponseNoPIN];
+            },
+        );
+        const res = await ActivePIN.findPropertyDetails(
+            ['9765107', '000000'],
+            roleType.Admin,
+        );
+        expect(res[0].pin).not.toBeDefined();
     });
 });

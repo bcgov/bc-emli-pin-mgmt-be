@@ -3,6 +3,8 @@
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AccessRequestController } from './../controllers/AccessRequestController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { HelloWorldController } from './../controllers/helloworld';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PinAuditLogController } from './../controllers/PinAuditLogController';
@@ -15,6 +17,51 @@ import type { RequestHandler, Router } from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "GenericTypeORMErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "requiredFieldErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "serverErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserRoles": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["Standard"]},{"dataType":"enum","enums":["Admin"]},{"dataType":"enum","enums":["SuperAdmin"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "accessRequestResponseBody": {
+        "dataType": "refObject",
+        "properties": {
+            "userGuid": {"dataType":"string","required":true},
+            "identityType": {"dataType":"string","required":true},
+            "requestedRole": {"ref":"UserRoles","required":true},
+            "organization": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "userName": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "requestReason": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "HelloWorldResponse": {
         "dataType": "refObject",
         "properties": {
@@ -61,35 +108,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "GenericTypeORMErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "requiredFieldErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "serverErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "updatedPIN": {
         "dataType": "refObject",
         "properties": {
             "pin": {"dataType":"string","required":true},
-            "pid": {"dataType":"double","required":true},
+            "pids": {"dataType":"string","required":true},
             "livePinId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -127,16 +150,15 @@ const models: TsoaRoute.Models = {
             "allowedChars": {"dataType":"string"},
             "phoneNumber": {"dataType":"string"},
             "email": {"dataType":"string"},
-            "pid": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"string"}],"required":true},
+            "pids": {"dataType":"string","required":true},
             "givenName": {"dataType":"string"},
-            "lastName_1": {"dataType":"string"},
+            "lastName_1": {"dataType":"string","required":true},
             "lastName_2": {"dataType":"string"},
             "incorporationNumber": {"dataType":"string"},
             "addressLine_1": {"dataType":"string"},
             "addressLine_2": {"dataType":"string"},
             "city": {"dataType":"string"},
             "provinceAbbreviation": {"dataType":"string"},
-            "provinceLong": {"dataType":"string"},
             "country": {"dataType":"string"},
             "postalCode": {"dataType":"string"},
             "requesterName": {"dataType":"string"},
@@ -163,8 +185,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "livePinId": {"dataType":"string","required":true},
             "pin": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "pid": {"dataType":"double","required":true},
-            "parcelStatus": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["A"]},{"dataType":"enum","enums":["I"]}],"required":true},
+            "pids": {"dataType":"string","required":true},
             "titleNumber": {"dataType":"string","required":true},
             "landTitleDistrict": {"dataType":"string","required":true},
             "titleStatus": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["R"]},{"dataType":"enum","enums":["C"]}],"required":true},
@@ -174,12 +195,12 @@ const models: TsoaRoute.Models = {
             "lastName_1": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "lastName_2": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "incorporationNumber": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "addressLine_1": {"dataType":"string","required":true},
+            "addressLine_1": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "addressLine_2": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "city": {"dataType":"string","required":true},
-            "province": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "otherGeographicDivision": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
-            "country": {"dataType":"string","required":true},
+            "city": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "provinceAbbreviation": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "provinceLong": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "country": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "postalCode": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}],"required":true},
@@ -192,7 +213,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "livePinId": {"dataType":"string","required":true},
             "expirationReason": {"ref":"expirationReason","required":true},
-            "expiredByName": {"dataType":"string"},
             "expiredByUsername": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -284,6 +304,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "roleType": {
+        "dataType": "refEnum",
+        "enums": ["Admin","SuperAdmin","Standard"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -294,6 +319,34 @@ export function RegisterRoutes(app: Router) {
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
+        app.post('/user-requests',
+            ...(fetchMiddlewares<RequestHandler>(AccessRequestController)),
+            ...(fetchMiddlewares<RequestHandler>(AccessRequestController.prototype.createAccessRequest)),
+
+            function AccessRequestController_createAccessRequest(request: any, response: any, next: any) {
+            const args = {
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
+                    requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"accessRequestResponseBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new AccessRequestController();
+
+
+              const promise = controller.createAccessRequest.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/helloworld',
             ...(fetchMiddlewares<RequestHandler>(HelloWorldController)),
             ...(fetchMiddlewares<RequestHandler>(HelloWorldController.prototype.getMessage)),
@@ -369,6 +422,35 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.createPin.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/regenerate',
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.recreatePin)),
+
+            function PINController_recreatePin(request: any, response: any, next: any) {
+            const args = {
+                    rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
+                    notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"createPinRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.recreatePin.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -474,7 +556,7 @@ export function RegisterRoutes(app: Router) {
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     pidNotFoundResponse: {"in":"res","name":"204","required":true,"ref":"pidNotFound"},
                     siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
-                    role: {"in":"query","name":"role","required":true,"dataType":"string"},
+                    role: {"in":"query","name":"role","required":true,"ref":"roleType"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

@@ -103,13 +103,13 @@ export interface createdPIN {
  * all numbers + lowercase letters as the character set.
  * @example {
  * "pin": "abcdefgh",
- * "pid": 1234,
+ * "pids": "1234",
  * "livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
  * }
  */
 export interface updatedPIN {
     pin: string;
-    pid: number;
+    pids: string;
     livePinId: string;
 }
 
@@ -141,7 +141,9 @@ export interface PINDictionary {
  * An object containing property details
  *
  * @example {
- *     "pid": 1234567,
+ * 	"12345|AB" : [
+ * 	  {
+ *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
  *     "givenName": "firstname",
@@ -151,10 +153,12 @@ export interface PINDictionary {
  *     "addressLine_1": "123 Main Street",
  *     "addressLine_2": "",
  *     "city": "Vancouver",
- *     "province": "BC",
- *     "otherGeographicDivision": null,
+ *     "provinceAbbreviation": "BC",
+ *     "provinceLong": null,
  *     "country": "Canada",
  *     "postalCode": "A1B2C3"
+ * 	  }
+ * 	]
  * }
  *
  */
@@ -265,22 +269,30 @@ export enum expirationReason {
 }
 
 /**
+ * User role types
+ */
+export enum roleType {
+    Admin = 'Admin',
+    SuperAdmin = 'SuperAdmin',
+    Standard = 'Standard',
+}
+
+/**
  * The request body for a pin expiration request.
  * Note that expiredByName and username are only required for reasons other
  * than "CO" (change of ownership).
  * @example {
  * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
  * 	"expirationReason": "OP",
- *  "expiredByName": "John Smith",
  *  "expiredByUsername": "jsmith"
  * }
  */
 export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
-    expiredByName?: string;
     expiredByUsername?: string;
 }
+// TODO: Change to look up by GUID??
 
 /**
  * The request body for a pin creation / recreation request.
@@ -294,7 +306,7 @@ export interface expireRequestBody {
  *  rather than self serve
  * @example {
  * "phoneNumber": "19021234567",
- * "pid": "1234|5678",
+ * "pids": "1234|5678",
  * "givenName": "Jane",
  * "lastName_1": "Smith",
  * "lastName_2": "Green",
@@ -311,16 +323,15 @@ export interface createPinRequestBody {
     allowedChars?: string;
     phoneNumber?: string;
     email?: string;
-    pid: number | string;
+    pids: string;
     givenName?: string;
-    lastName_1?: string;
+    lastName_1: string;
     lastName_2?: string;
     incorporationNumber?: string;
     addressLine_1?: string;
     addressLine_2?: string;
     city?: string;
     provinceAbbreviation?: string;
-    provinceLong?: string;
     country?: string;
     postalCode?: string;
     requesterName?: string;
@@ -408,4 +419,43 @@ export interface auditLogInfo {
     livePinId: string;
     action: pinAuditAction;
     logCreatedAt: string;
+}
+
+// User Role Types
+export type UserRoles = 'Standard' | 'Admin' | 'SuperAdmin';
+
+/**
+ * Enum for status for Request Access
+ */
+export enum requestStatusType {
+    NotGranted = 'NotGranted',
+    Granted = 'Granted',
+    Rejected = 'Rejected',
+}
+
+/**
+ * Request body for access request submission
+ * @example
+ * {
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "requestedRole": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "requestReason": "To get access to site"
+  }
+ */
+export interface accessRequestResponseBody {
+    userGuid: string;
+    identityType: string;
+    requestedRole: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    requestReason: string;
 }

@@ -11,13 +11,10 @@ export class PinAuditLog {
     logId: string;
 
     @Column('character varying', { name: 'pin', nullable: true, length: 8 })
-    pin: string;
+    pin: string | null;
 
-    @Column('integer', { name: 'pid' })
-    pid: number;
-
-    @Column('enum', { name: 'parcel_status', enum: ['A', 'I'] })
-    parcelStatus: 'A' | 'I';
+    @Column('character varying', { name: 'pids', length: 500 })
+    pids: string;
 
     @Column('character varying', { name: 'title_number', length: 11 })
     titleNumber: string;
@@ -62,25 +59,21 @@ export class PinAuditLog {
     })
     sentToPhone: string | null;
 
-    @Column('timestamp with time zone', { name: 'pin_created_at' })
-    pinCreatedAt: Date;
+    @Column('timestamp with time zone', {
+        name: 'pin_created_at',
+        nullable: true,
+    })
+    pinCreatedAt: Date | null;
 
     @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
     updatedAt: Date | null;
 
     @Column('character varying', {
-        name: 'expired_by_name',
+        name: 'altered_by_username',
         nullable: true,
-        length: 75,
+        length: 100,
     })
-    expiredByName: string | null;
-
-    @Column('character varying', {
-        name: 'expired_by_username',
-        nullable: true,
-        length: 75,
-    })
-    expiredByUsername: string | null;
+    alteredByUsername: string | null;
 
     @Column('uuid', { name: 'live_pin_id' })
     livePinId: string;
@@ -90,8 +83,14 @@ export class PinAuditLog {
 
     @Column('timestamp with time zone', {
         name: 'log_created_at',
-        nullable: true,
         default: () => 'now()',
     })
-    logCreatedAt: Date | null;
+    logCreatedAt: Date;
+
+    @Column('character varying', {
+        name: 'altered_by_user_guid',
+        nullable: true,
+        length: 36,
+    })
+    alteredByUserGuid: string | null;
 }
