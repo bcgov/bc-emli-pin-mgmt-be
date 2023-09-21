@@ -6,6 +6,7 @@
     "./index.ts"
   ],
   "scripts": {
+	"windows": "npm run build && node -r dotenv/config dist/index.js",
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
