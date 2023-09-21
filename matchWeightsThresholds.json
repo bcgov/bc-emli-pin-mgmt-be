@@ -14,7 +14,7 @@
 	},
 	"weights": {
 		"givenNameWeight": 0.2,
-		"lastNamesWeight": 0.8,
+		"lastNamesWeight": 0.2,
 		"incorporationNumberWeight": 0.2,
 		"ownerNumberWeight": 0.125,
 		"streetAddressWeight": 0.125,
