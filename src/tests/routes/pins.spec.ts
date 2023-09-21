@@ -220,7 +220,7 @@ describe('Pin endpoints', () => {
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
-            'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
+            'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
         );
     });
 

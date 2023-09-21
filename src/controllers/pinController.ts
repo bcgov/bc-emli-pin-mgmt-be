@@ -531,6 +531,7 @@ export class PINController extends Controller {
         const borderlineResults = [];
         const thresholds = (await this.dynamicImportCaller()).thresholds;
         const pinResultKeys = Object.keys(pinResults);
+        const contactMessages = new Set();
 
         if (pinResultKeys.length > 0) {
             for (const key of pinResultKeys) {
@@ -545,6 +546,9 @@ export class PINController extends Controller {
                         );
                         if (!('weightedAverage' in matchScore)) {
                             // it's a string array
+                            for (const message of matchScore) {
+                                contactMessages.add(message);
+                            }
                             continue; // bad match, skip
                         }
                     } catch (err) {
@@ -581,46 +585,56 @@ export class PINController extends Controller {
         }
 
         if (updateResults.length <= 0 && borderlineResults.length <= 0) {
-            let errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
-            let newLineFlag = false;
-            // Line 1
-            if (requestBody.givenName)
-                errMessage += `${requestBody.givenName} `;
-            errMessage += `${requestBody.lastName_1} `;
-            if (requestBody.lastName_2)
-                errMessage += `${requestBody.lastName_2} `;
-            if (requestBody.incorporationNumber)
-                errMessage += `Inc. # ${requestBody.incorporationNumber}`;
-            // Line 2
-            if (requestBody.addressLine_1)
-                errMessage += `\n${requestBody.addressLine_1}`;
-            // Line 3
-            if (requestBody.addressLine_2)
-                errMessage += `\n${requestBody.addressLine_2}`;
-            // Line 4
-            if (requestBody.city) {
-                newLineFlag = true;
-                errMessage += `\n${requestBody.city}`;
-            }
-            if (requestBody.provinceAbbreviation) {
-                if (!newLineFlag) {
-                    newLineFlag = true;
-                    errMessage += `\n${requestBody.provinceAbbreviation}`;
-                } else {
-                    errMessage += `, ${requestBody.provinceAbbreviation}`;
+            let errMessage;
+            if (contactMessages.size > 0) {
+                errMessage = '';
+                for (const message of contactMessages) {
+                    errMessage += message + `\n`;
                 }
-            }
-            if (requestBody.country) {
-                if (!newLineFlag) {
+                errMessage = errMessage.substring(0, errMessage.length - 1);
+            } else {
+                errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
+                let newLineFlag = false;
+                // Line 1
+                if (requestBody.givenName)
+                    errMessage += `${requestBody.givenName} `;
+                errMessage += `${requestBody.lastName_1} `;
+                if (requestBody.lastName_2)
+                    errMessage += `${requestBody.lastName_2} `;
+                if (requestBody.incorporationNumber)
+                    errMessage += `Inc. # ${requestBody.incorporationNumber}`;
+                // Line 2
+                if (requestBody.addressLine_1)
+                    errMessage += `\n${requestBody.addressLine_1}`;
+                // Line 3
+                if (requestBody.addressLine_2)
+                    errMessage += `\n${requestBody.addressLine_2}`;
+                // Line 4
+                if (requestBody.city) {
                     newLineFlag = true;
-                    errMessage += `\n${requestBody.country}`;
-                } else {
-                    errMessage += `, ${requestBody.country}`;
+                    errMessage += `\n${requestBody.city}`;
                 }
-            }
-            if (requestBody.postalCode) {
-                if (!newLineFlag) errMessage += `\n${requestBody.postalCode}`;
-                else errMessage += ` ${requestBody.postalCode}`;
+                if (requestBody.provinceAbbreviation) {
+                    if (!newLineFlag) {
+                        newLineFlag = true;
+                        errMessage += `\n${requestBody.provinceAbbreviation}`;
+                    } else {
+                        errMessage += `, ${requestBody.provinceAbbreviation}`;
+                    }
+                }
+                if (requestBody.country) {
+                    if (!newLineFlag) {
+                        newLineFlag = true;
+                        errMessage += `\n${requestBody.country}`;
+                    } else {
+                        errMessage += `, ${requestBody.country}`;
+                    }
+                }
+                if (requestBody.postalCode) {
+                    if (!newLineFlag)
+                        errMessage += `\n${requestBody.postalCode}`;
+                    else errMessage += ` ${requestBody.postalCode}`;
+                }
             }
             throw new NotFoundError(errMessage);
         } else if (updateResults.length <= 0 && borderlineResults.length > 0) {
