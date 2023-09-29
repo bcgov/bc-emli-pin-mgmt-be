@@ -1,4 +1,5 @@
-import { InsertResult } from 'typeorm';
+// import { Query } from 'tsoa';
+import { InsertResult, FindOptionsOrderValue } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { AccessRequest } from '../entity/AccessRequest';
 import logger from '../middleware/logger';
@@ -40,4 +41,38 @@ export async function createRequest(
             return transactionReturn.createdRequest.identifiers;
         }
     }
+}
+
+/* The `getRequestList` function is retrieving a list of access requests from the
+database based on the provided status. It takes a `status` parameter of type
+`requestStatusType` and returns a promise that resolves to an array of
+`AccessRequest` entities or any value. */
+export async function getRequestList(
+    status: requestStatusType,
+): Promise<AccessRequest[] | any> {
+    const repo = await AppDataSource.getRepository(AccessRequest);
+    const query = {
+        select: {
+            requestId: true,
+            userGuid: true,
+            identityType: true,
+            requestedRole: true,
+            organization: true,
+            email: true,
+            userName: true,
+            firstName: true,
+            lastName: true,
+            requestReason: true,
+            rejectionReason: true,
+            createdAt: true,
+        },
+        where: {
+            requestStatus: status,
+        },
+        order: { createdAt: 'ASC' as FindOptionsOrderValue },
+    };
+
+    const result = await repo.find(query);
+
+    return result;
 }

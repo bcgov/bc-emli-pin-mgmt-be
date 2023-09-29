@@ -459,3 +459,36 @@ export interface accessRequestResponseBody {
     lastName: string;
     requestReason: string;
 }
+
+/**
+ * Response for access request information
+ * @example
+ * {
+    "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "requestedRole": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "createdAt": ""2023-08-24T15:06:27.269Z",
+    "requestReason": "To get access to site",
+    "rejectionReason": "Information needed"
+  }
+ */
+export interface accessRequest {
+    requestId: string;
+    userGuid: string;
+    identityType: string;
+    requestedRole: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    requestReason: string;
+    rejectionReason: string;
+    createdAt: string;
+}
