@@ -85,7 +85,13 @@ router.get('/logout', (req, res) => {
 router.get('/oauth/logout', (req, res) => {
     try {
         res.setHeader('Set-Cookie', 'token=; path=/; Max-Age=-1');
-        res.redirect(`${process.env.FE_APP_URL}`);
+        res.clearCookie('token', {
+            domain: process.env.DOMAIN_NAME,
+            path: '/',
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+        }).redirect(`${process.env.FE_APP_URL}`);
     } catch (err) {
         if (err instanceof Error) {
             logger.error(err.message);
