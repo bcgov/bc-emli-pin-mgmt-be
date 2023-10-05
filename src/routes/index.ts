@@ -46,6 +46,8 @@ router.get('/oauth', async (req, res) => {
             console.log('-----------AUTH RESPONSE---------', code);
             const tokens = await getAccessToken({ code });
             const { access_token } = tokens;
+            const redirectUrl = new URL(process.env.FE_APP_URL ?? '');
+            redirectUrl.searchParams.set('token', access_token);
             res.cookie('token', access_token, {
                 domain: process.env.DOMAIN_NAME,
                 path: '/',
@@ -53,8 +55,7 @@ router.get('/oauth', async (req, res) => {
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true,
-            });
-            res.redirect(`${process.env.FE_APP_URL}`);
+            }).redirect(redirectUrl.toString() ?? '');
         }
     } catch (err) {
         if (err instanceof Error) {
