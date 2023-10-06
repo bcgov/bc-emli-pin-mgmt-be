@@ -347,6 +347,10 @@
 					"allowedChars": {
 						"type": "string"
 					},
+					"numberOfOwners": {
+						"type": "number",
+						"format": "double"
+					},
 					"phoneNumber": {
 						"type": "string"
 					},
@@ -386,22 +390,22 @@
 					"postalCode": {
 						"type": "string"
 					},
-					"requesterName": {
-						"type": "string"
-					},
 					"requesterUsername": {
 						"type": "string"
 					}
 				},
 				"required": [
+					"numberOfOwners",
 					"pids",
-					"lastName_1"
+					"lastName_1",
+					"addressLine_1"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"phoneNumber": "19021234567",
 					"pids": "1234|5678",
+					"numberOfOwners": 2,
 					"givenName": "Jane",
 					"lastName_1": "Smith",
 					"lastName_2": "Green",
@@ -412,6 +416,37 @@
 					"country": "Canada",
 					"postalCode": "V1V1V1"
 				}
+			},
+			"serviceBCCreateRequestBody": {
+				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request",
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"pinLength": {
+						"type": "number",
+						"format": "double"
+					},
+					"allowedChars": {
+						"type": "string"
+					},
+					"requesterUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"livePinId",
+					"email",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
 			},
 			"PIN": {
 				"type": "string",
@@ -936,7 +971,7 @@
 				]
 			}
 		},
-		"/pins/create": {
+		"/pins/vhers-create": {
 			"post": {
 				"operationId": "CreatePin",
 				"responses": {
@@ -989,7 +1024,7 @@
 				}
 			}
 		},
-		"/pins/regenerate": {
+		"/pins/vhers-regenerate": {
 			"post": {
 				"operationId": "RecreatePin",
 				"responses": {
@@ -1036,6 +1071,112 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/create": {
+			"post": {
+				"operationId": "ServiceBCCreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/regenerate": {
+			"post": {
+				"operationId": "ServiceBCRecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
 							}
 						}
 					}

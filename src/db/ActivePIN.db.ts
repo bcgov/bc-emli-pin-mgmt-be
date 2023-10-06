@@ -209,7 +209,7 @@ export async function batchUpdatePin(
             transactionReturn.logInfo.affected !== 0
         ) {
             logger.debug(
-                `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}}'`,
+                `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}'`,
             );
         } else {
             const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: No rows were affected by the update`;
