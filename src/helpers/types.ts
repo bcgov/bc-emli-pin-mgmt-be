@@ -279,7 +279,7 @@ export enum roleType {
 
 /**
  * The request body for a pin expiration request.
- * Note that expiredByName and username are only required for reasons other
+ * Note that expiredByUsername is only required for reasons other
  * than "CO" (change of ownership).
  * @example {
  * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
@@ -375,8 +375,7 @@ export enum pinAuditAction {
     "sentToPhone": "19021234567",
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-25T15:12:59.764Z",
-    "expiredByName": "Self",
-    "expiredByUsername": "self",
+    "alteredByUsername": "self",
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "R",
     "logCreatedAt": "2023-08-25T15:12:59.764Z"
@@ -399,8 +398,7 @@ export interface auditLogReturn {
     "sentToPhone": "19021234567",
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-24T15:06:27.269Z",
-    "expiredByName": "Self",
-    "expiredByUsername": "self",
+    "alteredByUsername": "self",
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
     "logCreatedAt": "2023-08-24T15:06:27.269Z"
@@ -415,8 +413,7 @@ export interface auditLogInfo {
     sentToPhone: string | null;
     pinCreatedAt: string;
     updatedAt: string | null;
-    expiredByName: string | null;
-    expiredByUsername: string | null;
+    alteredByUsername: string | null;
     livePinId: string;
     action: pinAuditAction;
     logCreatedAt: string;

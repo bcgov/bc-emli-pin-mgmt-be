@@ -186,11 +186,7 @@
 						"type": "string",
 						"nullable": true
 					},
-					"expiredByName": {
-						"type": "string",
-						"nullable": true
-					},
-					"expiredByUsername": {
+					"alteredByUsername": {
 						"type": "string",
 						"nullable": true
 					},
@@ -213,8 +209,7 @@
 					"sentToPhone",
 					"pinCreatedAt",
 					"updatedAt",
-					"expiredByName",
-					"expiredByUsername",
+					"alteredByUsername",
 					"livePinId",
 					"action",
 					"logCreatedAt"
@@ -229,8 +224,7 @@
 					"sentToPhone": "19021234567",
 					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
 					"updatedAt": "2023-08-24T15:06:27.269Z",
-					"expiredByName": "Self",
-					"expiredByUsername": "self",
+					"alteredByUsername": "self",
 					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
 					"action": "C",
 					"logCreatedAt": "2023-08-24T15:06:27.269Z"
@@ -589,7 +583,7 @@
 				"additionalProperties": false
 			},
 			"expireRequestBody": {
-				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
+				"description": "The request body for a pin expiration request.\nNote that username are only required for reasons other\nthan \"CO\" (change of ownership).",
 				"properties": {
 					"livePinId": {
 						"type": "string"
