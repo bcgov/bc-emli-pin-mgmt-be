@@ -60,8 +60,7 @@ export class PinAuditLogController extends Controller {
                 sentToPhone: true,
                 logCreatedAt: true,
                 pinCreatedAt: true,
-                expiredByName: true,
-                expiredByUsername: true,
+                alteredByUsername: true,
                 livePinId: true,
             };
             res = await findAuditLog(select, where);
