@@ -1,0 +1,41 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/eslint-recommended", 
+        "prettier"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "quotes": [
+            "error",
+            "single",
+            {"avoidEscape": true, "allowTemplateLiterals": true}
+        ],
+        "eqeqeq": ["warn","smart"],
+        "default-case": "warn",
+        "default-case-last": "error",
+        "no-eval": "error",
+        "spaced-comment": ["error", "always", {
+            "line": {
+                "markers": ["/"],
+                "exceptions": ["+", "-"]
+            },
+            "block": {
+                "exceptions": ["+", "-", "*"]
+            }
+        }],
+		"@typescript-eslint/no-explicit-any": "off"
+    }
+}

@@ -1,0 +1,53 @@
+name: Prod Env - Test + Build Pipeline
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+      
+      - name: Build
+        run: npm run build
+
+    ####### Need to set up prod namespace on openshift
+
+      # - name: Login to Openshift
+      #   shell: bash
+      #   run: |
+      #     oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN_PROD }}
+
+      # - name: Switch to correct project environment in Openshift
+      #   shell: bash
+      #   run: |
+      #     oc project ${{ secrets.OPENSHIFT_NAMESPACE_PROD }}
+
+      # - name: Build image on OpenShift
+      #   shell: bash
+      #   run: |
+      #     oc start-build ${{ secrets.OPENSHIFT_BUILDCONFIG }}

@@ -1,0 +1,1459 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"GenericTypeORMErrorType": {
+				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "driverError: error: invalid input syntax for type uuid: \"abcd\""
+				}
+			},
+			"requiredFieldErrorType": {
+				"description": "A error that can occur when you don't give a required input parameter in the body of a request",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Must provide an expiration name when expiring a PIN"
+				}
+			},
+			"serverErrorType": {
+				"description": "Generic unknown server error",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Internal Server Error"
+				}
+			},
+			"UserRoles": {
+				"type": "string",
+				"enum": [
+					"Standard",
+					"Admin",
+					"SuperAdmin"
+				]
+			},
+			"accessRequestResponseBody": {
+				"description": "Request body for access request submission",
+				"properties": {
+					"userGuid": {
+						"type": "string"
+					},
+					"identityType": {
+						"type": "string"
+					},
+					"requestedRole": {
+						"$ref": "#/components/schemas/UserRoles"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"requestReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userGuid",
+					"identityType",
+					"requestedRole",
+					"organization",
+					"email",
+					"userName",
+					"firstName",
+					"lastName",
+					"requestReason"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"identityType": "idir",
+					"requestedRole": "Admin",
+					"organization": "Bc Service",
+					"email": "abc@gov.ca",
+					"userName": "johndoe",
+					"firstName": "John",
+					"lastName": "Doe",
+					"requestReason": "To get access to site"
+				}
+			},
+			"HelloWorldResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"expirationReason": {
+				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
+				"enum": [
+					"OP",
+					"CC",
+					"OR",
+					"CO"
+				],
+				"type": "string"
+			},
+			"pinAuditAction": {
+				"description": "The reason for adding an entry to the pin audit log.\n- Deleted PIN  = 'D',\n- (Initially) Created PIN = 'C',\n- Recreated (expire and create) PIN = 'R'",
+				"enum": [
+					"D",
+					"C",
+					"R"
+				],
+				"type": "string"
+			},
+			"auditLogInfo": {
+				"description": "The info returned in an audit log",
+				"properties": {
+					"logId": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "string",
+						"nullable": true
+					},
+					"expiredAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"expirationReason": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/expirationReason"
+							}
+						],
+						"nullable": true
+					},
+					"sentToEmail": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentToPhone": {
+						"type": "string",
+						"nullable": true
+					},
+					"pinCreatedAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"alteredByUsername": {
+						"type": "string",
+						"nullable": true
+					},
+					"livePinId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/pinAuditAction"
+					},
+					"logCreatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"logId",
+					"pin",
+					"expiredAt",
+					"expirationReason",
+					"sentToEmail",
+					"sentToPhone",
+					"pinCreatedAt",
+					"updatedAt",
+					"alteredByUsername",
+					"livePinId",
+					"action",
+					"logCreatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"logId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"expiredAt": null,
+					"expirationReason": null,
+					"sentToEmail": null,
+					"sentToPhone": "19021234567",
+					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
+					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"alteredByUsername": "self",
+					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
+					"action": "C",
+					"logCreatedAt": "2023-08-24T15:06:27.269Z"
+				}
+			},
+			"auditLogReturn": {
+				"description": "The information returned in an audit log request for a given pin, sorted descending",
+				"properties": {
+					"logs": {
+						"items": {
+							"$ref": "#/components/schemas/auditLogInfo"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"logs"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"updatedPIN": {
+				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
+				"properties": {
+					"pin": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					},
+					"livePinId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pin",
+					"pids",
+					"livePinId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pin": "abcdefgh",
+					"pids": "1234",
+					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
+				}
+			},
+			"pinRangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "PIN must be of length 1 or greater"
+				}
+			},
+			"aggregateValidationErrorType": {
+				"description": "A error that can occur when there are one or more validation errors for a given request",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"faults": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"message",
+					"faults"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Validation Error(s) occured in createPin request body:",
+					"faults": [
+						"Phone number OR email required",
+						"Given + Last Name OR Incorporation Number required"
+					]
+				}
+			},
+			"EntityNotFoundErrorType": {
+				"description": "Error that occurs when an entity cannot be found in the database meeting your search criteria",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Could not find any entity of type \"ActivePin\" matching: {\n\"where\": {\n\"livePinId\": \"e9bee7c0-de39-47b3-9457-34d32cf6feb4\"\n}\n}"
+				}
+			},
+			"createPinRequestBody": {
+				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address, hence the need\nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
+				"properties": {
+					"pinLength": {
+						"type": "number",
+						"format": "double"
+					},
+					"allowedChars": {
+						"type": "string"
+					},
+					"numberOfOwners": {
+						"type": "number",
+						"format": "double"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName_1": {
+						"type": "string"
+					},
+					"lastName_2": {
+						"type": "string"
+					},
+					"incorporationNumber": {
+						"type": "string"
+					},
+					"addressLine_1": {
+						"type": "string"
+					},
+					"addressLine_2": {
+						"type": "string"
+					},
+					"city": {
+						"type": "string"
+					},
+					"provinceAbbreviation": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"postalCode": {
+						"type": "string"
+					},
+					"requesterUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"numberOfOwners",
+					"pids",
+					"lastName_1",
+					"addressLine_1"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"phoneNumber": "19021234567",
+					"pids": "1234|5678",
+					"numberOfOwners": 2,
+					"givenName": "Jane",
+					"lastName_1": "Smith",
+					"lastName_2": "Green",
+					"addressLine_1": "123 Main St",
+					"addressLine_2": "Unit 12",
+					"city": "Vancouver",
+					"provinceAbbreviation": "BC",
+					"country": "Canada",
+					"postalCode": "V1V1V1"
+				}
+			},
+			"serviceBCCreateRequestBody": {
+				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request",
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"pinLength": {
+						"type": "number",
+						"format": "double"
+					},
+					"allowedChars": {
+						"type": "string"
+					},
+					"requesterUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"livePinId",
+					"email",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PIN": {
+				"type": "string",
+				"example": "abcdefgh",
+				"description": "A PIN generated for a homeowner. Defaults to 8 character length and\nall numbers + lowercase letters as the character set."
+			},
+			"PINObject": {
+				"description": "An object containing an array of unique, generated PINS",
+				"properties": {
+					"pins": {
+						"items": {
+							"$ref": "#/components/schemas/PIN"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"pins"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pins": [
+						"abcdefgh",
+						"12345678"
+					]
+				}
+			},
+			"ActivePin": {
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "string",
+						"nullable": true
+					},
+					"pids": {
+						"type": "string"
+					},
+					"titleNumber": {
+						"type": "string"
+					},
+					"landTitleDistrict": {
+						"type": "string"
+					},
+					"titleStatus": {
+						"type": "string",
+						"enum": [
+							"R",
+							"C"
+						]
+					},
+					"fromTitleNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"fromLandTitleDistrict": {
+						"type": "string",
+						"nullable": true
+					},
+					"givenName": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastName_1": {
+						"type": "string",
+						"nullable": true
+					},
+					"lastName_2": {
+						"type": "string",
+						"nullable": true
+					},
+					"incorporationNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"addressLine_1": {
+						"type": "string",
+						"nullable": true
+					},
+					"addressLine_2": {
+						"type": "string",
+						"nullable": true
+					},
+					"city": {
+						"type": "string",
+						"nullable": true
+					},
+					"provinceAbbreviation": {
+						"type": "string",
+						"nullable": true
+					},
+					"provinceLong": {
+						"type": "string",
+						"nullable": true
+					},
+					"country": {
+						"type": "string",
+						"nullable": true
+					},
+					"postalCode": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					}
+				},
+				"required": [
+					"livePinId",
+					"pin",
+					"pids",
+					"titleNumber",
+					"landTitleDistrict",
+					"titleStatus",
+					"fromTitleNumber",
+					"fromLandTitleDistrict",
+					"givenName",
+					"lastName_1",
+					"lastName_2",
+					"incorporationNumber",
+					"addressLine_1",
+					"addressLine_2",
+					"city",
+					"provinceAbbreviation",
+					"provinceLong",
+					"country",
+					"postalCode",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"expireRequestBody": {
+				"description": "The request body for a pin expiration request.\nNote that expiredByUsername is only required for reasons other\nthan \"CO\" (change of ownership).",
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"expirationReason": {
+						"$ref": "#/components/schemas/expirationReason"
+					},
+					"expiredByUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"livePinId",
+					"expirationReason"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
+					"expirationReason": "OP",
+					"expiredByUsername": "jsmith"
+				}
+			},
+			"GeocoderAddress": {
+				"description": "BC Geocoder address search result, including score, full address and site ID",
+				"properties": {
+					"score": {
+						"type": "number",
+						"format": "double"
+					},
+					"fullAddress": {
+						"type": "string"
+					},
+					"siteID": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"score",
+					"fullAddress",
+					"siteID"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"score": 100,
+					"fullAddress": "123 Example Street, City, BC",
+					"siteID": "dc1111ba-1f11-111-1eda-111ca1f111c1"
+				}
+			},
+			"getAddressResults": {
+				"description": "An object containing an array of the BC Geocoder address search results.",
+				"properties": {
+					"results": {
+						"items": {
+							"$ref": "#/components/schemas/GeocoderAddress"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"results"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"results": [
+						{
+							"score": 100,
+							"fullAddress": "123 Example Street, City, BC",
+							"siteID": "dc1111ba-1f11-111-1eda-111ca1f111c1"
+						}
+					]
+				}
+			},
+			"searchRangeErrorType": {
+				"description": "Generic range error that may occur when you give a value out of bounds to a search function",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Search string must be of length 3 or greater"
+				}
+			},
+			"geocoderReferenceErrorType": {
+				"description": "Reference error that may occur when you have not defined the API environment variables for the geocoder functions",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Geocoder API base URL or 'addresses' endpoint URL is undefined."
+				}
+			},
+			"propertyDetailsResponse": {
+				"description": "An object containing property details",
+				"properties": {},
+				"type": "object",
+				"additionalProperties": {
+					"type": "string"
+				},
+				"example": {
+					"12345|AB": [
+						{
+							"pids": "1234567",
+							"titleNumber": "12345",
+							"landTitleDistrict": "AB",
+							"givenName": "firstname",
+							"lastName_1": "lastname",
+							"lastName_2": null,
+							"incorporationNumber": null,
+							"addressLine_1": "123 Main Street",
+							"addressLine_2": "",
+							"city": "Vancouver",
+							"provinceAbbreviation": "BC",
+							"provinceLong": null,
+							"country": "Canada",
+							"postalCode": "A1B2C3"
+						}
+					]
+				}
+			},
+			"unauthorizedError": {
+				"description": "Unauthorized Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Unauthorized error",
+					"code": 401
+				}
+			},
+			"badRequestError": {
+				"description": "Bad Request Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Bad request error",
+					"code": 400
+				}
+			},
+			"forbiddenError": {
+				"description": "Forbidden Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Forbidden error",
+					"code": 403
+				}
+			},
+			"notFoundError": {
+				"description": "Not Found Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Not found error",
+					"code": 404
+				}
+			},
+			"pidNotFound": {
+				"description": "PID Not Found",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "PID not found in database",
+					"code": 204
+				}
+			},
+			"roleType": {
+				"description": "User role types",
+				"enum": [
+					"Admin",
+					"SuperAdmin",
+					"Standard"
+				],
+				"type": "string"
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "bc-emli-pin-mgmt-be",
+		"version": "1.0.0",
+		"description": "BC Virtual Home Energy Rating PIN Management System Backend",
+		"license": {
+			"name": "Apache-2.0"
+		},
+		"contact": {
+			"name": "Government of British Columbia"
+		}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/user-requests": {
+			"post": {
+				"operationId": "CreateAccessRequest",
+				"responses": {
+					"201": {
+						"description": "Created"
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/accessRequestResponseBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/helloworld": {
+			"get": {
+				"operationId": "GetMessage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HelloWorldResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/audit-trails": {
+			"get": {
+				"operationId": "GetAuditLogs",
+				"responses": {
+					"200": {
+						"description": "The audit logs for a particular pin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/auditLogReturn"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the audit logs for a vertical bar seperated (|) string of livePinIds. Limited to 500 logs.\nExpected error codes and messages:\n- `422`\n\t-- `invalid input syntax for type uuid: 'your query here'`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The list of ids for the pins, seperated by a vertical bar (|)",
+						"in": "query",
+						"name": "livePinIds",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/pins/vhers-create": {
+			"post": {
+				"operationId": "CreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/vhers-regenerate": {
+			"post": {
+				"operationId": "RecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/create": {
+			"post": {
+				"operationId": "ServiceBCCreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/regenerate": {
+			"post": {
+				"operationId": "ServiceBCRecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/initial-create": {
+			"get": {
+				"operationId": "GetInitialPins",
+				"responses": {
+					"200": {
+						"description": "An object containing an array of the created, unique PINs",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PINObject"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/pinRangeErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used for the initial creation of PINs, when none exist in the database yet.\nExpected error codes and messages:\n- `422`\n\t-- `PIN must be of length 1 or greater`\n\t-- `Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.`\n\t-- `The number of PINS created must be greater than 0.`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The quantity of PINs you wish to create.",
+						"in": "query",
+						"name": "quantity",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "The length of each PIN. Defaults to 8 characters.",
+						"in": "query",
+						"name": "pinLength",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "A string (not regex) of the characters to be used to\ngenerate the pin. Default is A-Z excluding O, and 1-9",
+						"in": "query",
+						"name": "allowedChars",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/pins/expire": {
+			"post": {
+				"operationId": "ExpirePin",
+				"responses": {
+					"200": {
+						"description": "The deleted pin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ActivePin"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.\nExpected error codes and messages:\n- `422`\n\t-- `Could not find any entity of type \"ActivePin\" matching: {\\n    \"livePinId\": \"id here\"\\n}`\n\t-- `Must provide an expiration name when expiring a PIN`\n\t-- `Must provide an expiration username when expiring a PIN`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership).",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/expireRequestBody",
+								"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership)."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/properties/address/{address}": {
+			"get": {
+				"operationId": "GetSiteID",
+				"responses": {
+					"200": {
+						"description": "An object with an array of search results.\nEach result contains the match score (from 50-100, 100 being a perfect match) of the result,\nthe full address of the property, and the siteID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/getAddressResults"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/geocoderReferenceErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to search for a siteID for a property, giving potentially multiple results.\nExpected error codes and messages:\n- `404`\n-- `Not Found` (when not passing in a path parameter as required)\n- `422`\n-- `Geocoder API base URL or 'addresses' endpoint URL is undefined.`\n-- `Search string must be of length 3 or greater`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The address you wish to find the siteID for",
+						"in": "path",
+						"name": "address",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/properties/details": {
+			"get": {
+				"operationId": "GetPropertyDetails",
+				"responses": {
+					"200": {
+						"description": "An object containing the property owner details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/propertyDetailsResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/pidNotFound"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/unauthorizedError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to get property owner details from a given a site ID\nStep 1: Call bc geocoder parcel API to get PIDs from site ID\nStep 2: Check database and return property details for properties with a matching PID\nExpected error codes and messages:\n- 200\n-- 'OK'\n- 204\n -- 'No Content'\n- 400\n -- 'Bad Request'\n- 401\n-- 'Unauthorized'\n- 403\n-- 'Forbidden'\n- 404\n-- 'Not Found'",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The siteID of a site",
+						"in": "query",
+						"name": "siteID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "role",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/roleType"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
