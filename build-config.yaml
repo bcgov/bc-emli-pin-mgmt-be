@@ -9,7 +9,7 @@ spec:
     type: Git
     git:
       uri: https://github.com/bcgov/bc-emli-pin-mgmt-be
-      ref: "dev"
+      ref: qa
     contextDir:
   strategy:
     type: Docker
