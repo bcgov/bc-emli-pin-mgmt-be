@@ -18,7 +18,7 @@ router.get('/helloworld', authenticate, async (req: Request, res: Response) => {
 });
 
 // Auth handling
-const ONE_DAY = 24 * (60 * 60 * 1000);
+const ONE_DAY = 5 * 60 * 1000; // 5 minutes
 
 router.get('/login', async (req, res) => {
     try {
@@ -46,8 +46,6 @@ router.get('/oauth', async (req, res) => {
             console.log('-----------AUTH RESPONSE---------', code);
             const tokens = await getAccessToken({ code });
             const { access_token } = tokens;
-            const redirectUrl = new URL(process.env.FE_APP_URL ?? '');
-            redirectUrl.searchParams.set('token', access_token);
             res.cookie('token', access_token, {
                 domain: process.env.DOMAIN_NAME,
                 path: '/',
@@ -55,7 +53,7 @@ router.get('/oauth', async (req, res) => {
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true,
-            }).redirect(redirectUrl.toString() ?? '');
+            }).redirect(`${process.env.FE_APP_URL}`);
         }
     } catch (err) {
         if (err instanceof Error) {
