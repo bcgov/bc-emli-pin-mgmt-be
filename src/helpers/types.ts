@@ -492,3 +492,26 @@ export interface serviceBCCreateRequestBody {
     allowedChars?: string;
     requesterUsername?: string;
 }
+
+/**
+ * A simplified version of the GCNotify error returned from the api
+ */
+export interface gcNotifyError {
+    response: gcNotifyErrorResponse;
+}
+
+interface gcNotifyErrorResponse {
+    data: gcNotifyErrorData;
+    status: number;
+    statusText: string;
+}
+
+interface gcNotifyErrorData {
+    errors: gcNotifyErrorInfo[];
+    status_code: number;
+}
+
+interface gcNotifyErrorInfo {
+    error: string;
+    message: string;
+}

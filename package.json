@@ -6,7 +6,7 @@
     "./index.ts"
   ],
   "scripts": {
-	"windows": "npm run build && node -r dotenv/config dist/index.js",
+    "windows": "npm run build && node -r dotenv/config dist/index.js",
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
@@ -59,6 +59,7 @@
     "express-rate-limit": "^6.7.1",
     "jsonwebtoken": "^9.0.1",
     "morgan": "^1.10.0",
+    "notifications-node-client": "^7.0.3",
     "pg": "^8.11.1",
     "qs": "^6.11.2",
     "reflect-metadata": "^0.1.13",
