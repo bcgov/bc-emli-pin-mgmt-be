@@ -537,8 +537,8 @@ export interface verifyPinRequestBody {
  * {
   	"verified": false,
   	"reason": {
- 		"errorType": "e",
-  		"errorMessage": "e"
+ 		"errorType": "NotFoundError",
+  		"errorMessage": "PIN was unable to be verified"
   	}
    }
  */
