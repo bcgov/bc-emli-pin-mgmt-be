@@ -4,21 +4,39 @@ import logger from '../middleware/logger';
 import { gcNotifyError } from './types';
 
 export default class GCNotifyCaller {
-    private notifyClient: any;
     // The number of times you want to retry sending the text / email, read in from the environment variables
     private retryLimit: number;
 
     constructor() {
-        this.notifyClient = new NotifyClient(
-            process.env.GC_NOTIFY_URL as string,
-            process.env.GC_NOTIFY_API_KEY as string,
-        );
         this.retryLimit = process.env.GC_NOTIFY_RETRY_LIMIT
             ? Number.isInteger(parseInt(process.env.GC_NOTIFY_RETRY_LIMIT)) &&
               parseInt(process.env.GC_NOTIFY_RETRY_LIMIT) > 0
                 ? parseInt(process.env.GC_NOTIFY_RETRY_LIMIT)
                 : 3
             : 3;
+    }
+
+    // Private functions for jest mocking
+    private async sendEmail(
+        notifyClient: unknown,
+        templateId: string,
+        email: string,
+        personalisation?: object,
+    ) {
+        return await (notifyClient as any).sendEmail(templateId, email, {
+            personalisation: personalisation,
+        });
+    }
+
+    private async sendSms(
+        notifyClient: unknown,
+        templateId: string,
+        phone: string,
+        personalisation?: object,
+    ) {
+        return await (notifyClient as any).sendSms(templateId, phone, {
+            personalisation: personalisation,
+        });
     }
 
     /**
@@ -33,17 +51,23 @@ export default class GCNotifyCaller {
         email: string,
         personalisation?: object,
     ) {
+        const notifyClient = new NotifyClient(
+            process.env.GC_NOTIFY_URL as string,
+            process.env.GC_NOTIFY_API_KEY as string,
+        );
         // Attempt to send email x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await this.notifyClient.sendEmail(
+                const response = await this.sendEmail(
+                    notifyClient,
                     templateId,
                     email,
                     { personalisation: personalisation },
                 );
                 return true;
             } catch (err) {
+                console.log((err as any).response);
                 let message =
                     `Error(s) sending GCNotify email - ` +
                     (err as gcNotifyError).response.status +
@@ -55,11 +79,9 @@ export default class GCNotifyCaller {
                     message =
                         message + `\n` + error.error + `: ` + error.message;
                 }
-                if (err instanceof Error) {
-                    logger.error(message);
-                    if (i + 1 === this.retryLimit) {
-                        throw new Error(message);
-                    }
+                logger.error(message);
+                if (i + 1 === this.retryLimit) {
+                    throw new Error(message);
                 }
                 continue;
             }
@@ -78,11 +100,16 @@ export default class GCNotifyCaller {
         phone: string,
         personalisation?: object,
     ) {
+        const notifyClient = new NotifyClient(
+            process.env.GC_NOTIFY_URL as string,
+            process.env.GC_NOTIFY_API_KEY as string,
+        );
         // Attempt to send text x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await this.notifyClient.sendSms(
+                const response = await this.sendSms(
+                    notifyClient,
                     templateId,
                     phone,
                     { personalisation: personalisation },
@@ -100,11 +127,9 @@ export default class GCNotifyCaller {
                     message =
                         message + `\n` + error.error + `: ` + error.message;
                 }
-                if (err instanceof Error) {
-                    logger.error(message);
-                    if (i + 1 === this.retryLimit) {
-                        throw new Error(message);
-                    }
+                logger.error(message);
+                if (i + 1 === this.retryLimit) {
+                    throw new Error(message);
                 }
                 continue;
             }
