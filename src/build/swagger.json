@@ -440,7 +440,12 @@
 					"phoneNumber"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"email": "example@example.com",
+					"phoneNumber": "+19021234567"
+				}
 			},
 			"PIN": {
 				"type": "string",
@@ -605,6 +610,65 @@
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
 					"expiredByUsername": "jsmith"
+				}
+			},
+			"verifyPinErrorType": {
+				"properties": {
+					"errorType": {
+						"type": "string"
+					},
+					"errorMessage": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"errorMessage"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"verifyPinResponse": {
+				"description": "The response given from a verify pin request.\nIf verified is false, the reason that the PIN was not verified is given.",
+				"properties": {
+					"verified": {
+						"type": "boolean"
+					},
+					"reason": {
+						"$ref": "#/components/schemas/verifyPinErrorType"
+					}
+				},
+				"required": [
+					"verified"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"verified": false,
+					"reason": {
+						"errorType": "NotFoundError",
+						"errorMessage": "PIN was unable to be verified"
+					}
+				}
+			},
+			"verifyPinRequestBody": {
+				"description": "The information needed to verify a pin from the VHERS side.\nNote that the pids are seperated by a vertical bar (|)",
+				"properties": {
+					"pin": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pin",
+					"pids"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pin": "ABCD1234",
+					"pids": "12345678|11234567"
 				}
 			},
 			"GeocoderAddress": {
@@ -1293,6 +1357,58 @@
 							"schema": {
 								"$ref": "#/components/schemas/expireRequestBody",
 								"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership)."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/verify": {
+			"post": {
+				"operationId": "VerifyPin",
+				"responses": {
+					"200": {
+						"description": "verified as true if verification was successful, and false otherwise along with a reason",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Verifies the user given a PIN and the pid(s) associated with the title",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/verifyPinRequestBody",
+								"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)"
 							}
 						}
 					}

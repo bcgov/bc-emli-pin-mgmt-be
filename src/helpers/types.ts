@@ -210,9 +210,9 @@ export interface unauthorizedError {
 /**
  * Bad Request Error
  * @example {
- * 	 "message": "Bad request error",
- *   "code": 400
- * }
+  	 "message": "Bad request error",
+    "code": 400
+  }
  */
 export interface badRequestError {
     message: string;
@@ -222,9 +222,9 @@ export interface badRequestError {
 /**
  * Forbidden Error
  * @example {
- * 	 "message": "Forbidden error",
- *   "code": 403
- * }
+  	 "message": "Forbidden error",
+    "code": 403
+  }
  */
 export interface forbiddenError {
     message: string;
@@ -282,10 +282,10 @@ export enum roleType {
  * Note that expiredByUsername is only required for reasons other
  * than "CO" (change of ownership).
  * @example {
- * 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
- * 	"expirationReason": "OP",
- *  "expiredByUsername": "jsmith"
- * }
+ 	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
+  	"expirationReason": "OP",
+   "expiredByUsername": "jsmith"
+  }
  */
 export interface expireRequestBody {
     livePinId: string;
@@ -305,19 +305,19 @@ export interface expireRequestBody {
  * - requesterName and requesterUsername are required if an employee is requesting the creation,
  *  rather than self serve
  * @example {
- * "phoneNumber": "19021234567",
- * "pids": "1234|5678",
- * "numberOfOwners": 2,
- * "givenName": "Jane",
- * "lastName_1": "Smith",
- * "lastName_2": "Green",
- * "addressLine_1": "123 Main St",
- * "addressLine_2": "Unit 12",
- * "city": "Vancouver",
- * "provinceAbbreviation": "BC",
- * "country": "Canada",
- * "postalCode": "V1V1V1"
- * }
+  "phoneNumber": "19021234567",
+  "pids": "1234|5678",
+  "numberOfOwners": 2,
+  "givenName": "Jane",
+  "lastName_1": "Smith",
+  "lastName_2": "Green",
+  "addressLine_1": "123 Main St",
+  "addressLine_2": "Unit 12",
+  "city": "Vancouver",
+  "provinceAbbreviation": "BC",
+  "country": "Canada",
+  "postalCode": "V1V1V1"
+  }
  */
 export interface createPinRequestBody {
     pinLength?: number;
@@ -342,9 +342,9 @@ export interface createPinRequestBody {
 /**
  * The email and/or phone number to send a new pin to
  * @example {
- * 	"email": "example@example.com",
- *  "phoneNumber": "19021234567"
- * }
+  	"email": "example@example.com",
+   "phoneNumber": "19021234567"
+  }
  */
 export interface emailPhone {
     email?: string;
@@ -479,10 +479,10 @@ export interface addressMatchScore {
  * than the standard create / recreate request
  * @example
  * 	{
- * 		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
- * 		"email": "example@example.com"
- * 		"phoneNumber": "+19021234567"
- * 	}
+  		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+  		"email": "example@example.com",
+  		"phoneNumber": "+19021234567"
+  	}
  */
 export interface serviceBCCreateRequestBody {
     livePinId: string;
@@ -514,4 +514,40 @@ interface gcNotifyErrorData {
 interface gcNotifyErrorInfo {
     error: string;
     message: string;
+}
+
+/**
+ * The information needed to verify a pin from the VHERS side.
+ * Note that the pids are seperated by a vertical bar (|)
+ * @example
+ * {
+  		"pin": "ABCD1234",
+  		"pids": "12345678|11234567"
+	}
+ */
+export interface verifyPinRequestBody {
+    pin: string;
+    pids: string;
+}
+
+/**
+ * The response given from a verify pin request.
+ * If verified is false, the reason that the PIN was not verified is given.
+ * @example
+ * {
+  	"verified": false,
+  	"reason": {
+ 		"errorType": "NotFoundError",
+  		"errorMessage": "PIN was unable to be verified"
+  	}
+   }
+ */
+export interface verifyPinResponse {
+    verified: boolean;
+    reason?: verifyPinErrorType;
+}
+
+interface verifyPinErrorType {
+    errorType?: string;
+    errorMessage: string;
 }

@@ -960,4 +960,57 @@ describe('Pin endpoints', () => {
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occured');
     });
+
+    /*
+		/verify endpoint tests
+	*/
+    test('verify PIN should return true', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: 'abcdefgh',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.verified).toBeTruthy;
+    });
+
+    test('verify PIN on verification error returns 401', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([]);
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: '12345678',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(401);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('NotFoundError');
+        expect(res.body.reason.errorMessage).toBe(
+            'PIN was unable to be verified',
+        );
+    });
+
+    test('verify PIN on generic error returns 500', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                throw new Error('An unknown error occured');
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: '12345678',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('Error');
+        expect(res.body.reason.errorMessage).toBe('An unknown error occured');
+    });
 });

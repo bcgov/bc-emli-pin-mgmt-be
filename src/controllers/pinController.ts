@@ -25,6 +25,8 @@ import {
     updatedPIN,
     addressMatchScore,
     serviceBCCreateRequestBody,
+    verifyPinRequestBody,
+    verifyPinResponse,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -32,12 +34,13 @@ import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
 import { EntityNotFoundError, Like, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
 import {
+    pidStringSort,
     pidStringSplitAndSort,
     sortActivePinResults,
 } from '../helpers/pidHelpers';
 import { NotFoundError } from '../helpers/NotFoundError';
 import 'string_score';
-import { BorderlineResultError } from '../helpers/BordelineResultError';
+import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
 
@@ -1127,5 +1130,50 @@ export class PINController extends Controller {
             }
         }
         return deletedPin;
+    }
+
+    /**
+     * Verifies the user given a PIN and the pid(s) associated with the title
+     * @param requestBody The body for the request. Note that pids should be seperated by a vertical bar (|)
+     * @returns verified as true if verification was successful, and false otherwise along with a reason
+     */
+    @Post('verify')
+    public async verifyPin(
+        @Res() verificationErrorResponse: TsoaResponse<401, verifyPinResponse>,
+        @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
+        @Body() requestBody: verifyPinRequestBody,
+    ): Promise<verifyPinResponse> {
+        try {
+            const sortedPids = pidStringSort(requestBody.pids); // ensure the pids are sorted for an exact string match
+            const response = await findPin(
+                { pin: true, pids: true },
+                { pin: requestBody.pin, pids: Like(`%` + sortedPids + `%`) },
+            );
+            if (response.length < 1) {
+                // we don't have a match
+                throw new NotFoundError('PIN was unable to be verified');
+            }
+        } catch (err) {
+            if (err instanceof NotFoundError) {
+                logger.warn(`Encountered error in verifyPin: ${err.message}`);
+                return verificationErrorResponse(401, {
+                    verified: false,
+                    reason: {
+                        errorType: 'NotFoundError',
+                        errorMessage: err.message,
+                    },
+                });
+            }
+            if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in verifyPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, {
+                    verified: false,
+                    reason: { errorType: err.name, errorMessage: err.message },
+                });
+            }
+        }
+        return { verified: true };
     }
 }

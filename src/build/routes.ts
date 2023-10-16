@@ -230,6 +230,33 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "verifyPinErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "errorType": {"dataType":"string"},
+            "errorMessage": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "verifyPinResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "verified": {"dataType":"boolean","required":true},
+            "reason": {"ref":"verifyPinErrorType"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "verifyPinRequestBody": {
+        "dataType": "refObject",
+        "properties": {
+            "pin": {"dataType":"string","required":true},
+            "pids": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GeocoderAddress": {
         "dataType": "refObject",
         "properties": {
@@ -579,6 +606,33 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.expirePin.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/verify',
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.verifyPin)),
+
+            function PINController_verifyPin(request: any, response: any, next: any) {
+            const args = {
+                    verificationErrorResponse: {"in":"res","name":"401","required":true,"ref":"verifyPinResponse"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"verifyPinResponse"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"verifyPinRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.verifyPin.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
