@@ -186,11 +186,7 @@
 						"type": "string",
 						"nullable": true
 					},
-					"expiredByName": {
-						"type": "string",
-						"nullable": true
-					},
-					"expiredByUsername": {
+					"alteredByUsername": {
 						"type": "string",
 						"nullable": true
 					},
@@ -213,8 +209,7 @@
 					"sentToPhone",
 					"pinCreatedAt",
 					"updatedAt",
-					"expiredByName",
-					"expiredByUsername",
+					"alteredByUsername",
 					"livePinId",
 					"action",
 					"logCreatedAt"
@@ -229,8 +224,7 @@
 					"sentToPhone": "19021234567",
 					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
 					"updatedAt": "2023-08-24T15:06:27.269Z",
-					"expiredByName": "Self",
-					"expiredByUsername": "self",
+					"alteredByUsername": "self",
 					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
 					"action": "C",
 					"logCreatedAt": "2023-08-24T15:06:27.269Z"
@@ -347,6 +341,10 @@
 					"allowedChars": {
 						"type": "string"
 					},
+					"numberOfOwners": {
+						"type": "number",
+						"format": "double"
+					},
 					"phoneNumber": {
 						"type": "string"
 					},
@@ -386,22 +384,22 @@
 					"postalCode": {
 						"type": "string"
 					},
-					"requesterName": {
-						"type": "string"
-					},
 					"requesterUsername": {
 						"type": "string"
 					}
 				},
 				"required": [
+					"numberOfOwners",
 					"pids",
-					"lastName_1"
+					"lastName_1",
+					"addressLine_1"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"phoneNumber": "19021234567",
 					"pids": "1234|5678",
+					"numberOfOwners": 2,
 					"givenName": "Jane",
 					"lastName_1": "Smith",
 					"lastName_2": "Green",
@@ -411,6 +409,42 @@
 					"provinceAbbreviation": "BC",
 					"country": "Canada",
 					"postalCode": "V1V1V1"
+				}
+			},
+			"serviceBCCreateRequestBody": {
+				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request",
+				"properties": {
+					"livePinId": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"pinLength": {
+						"type": "number",
+						"format": "double"
+					},
+					"allowedChars": {
+						"type": "string"
+					},
+					"requesterUsername": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"livePinId",
+					"email",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"email": "example@example.com",
+					"phoneNumber": "+19021234567"
 				}
 			},
 			"PIN": {
@@ -554,7 +588,7 @@
 				"additionalProperties": false
 			},
 			"expireRequestBody": {
-				"description": "The request body for a pin expiration request.\nNote that expiredByName and username are only required for reasons other\nthan \"CO\" (change of ownership).",
+				"description": "The request body for a pin expiration request.\nNote that expiredByUsername is only required for reasons other\nthan \"CO\" (change of ownership).",
 				"properties": {
 					"livePinId": {
 						"type": "string"
@@ -576,6 +610,65 @@
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
 					"expiredByUsername": "jsmith"
+				}
+			},
+			"verifyPinErrorType": {
+				"properties": {
+					"errorType": {
+						"type": "string"
+					},
+					"errorMessage": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"errorMessage"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"verifyPinResponse": {
+				"description": "The response given from a verify pin request.\nIf verified is false, the reason that the PIN was not verified is given.",
+				"properties": {
+					"verified": {
+						"type": "boolean"
+					},
+					"reason": {
+						"$ref": "#/components/schemas/verifyPinErrorType"
+					}
+				},
+				"required": [
+					"verified"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"verified": false,
+					"reason": {
+						"errorType": "NotFoundError",
+						"errorMessage": "PIN was unable to be verified"
+					}
+				}
+			},
+			"verifyPinRequestBody": {
+				"description": "The information needed to verify a pin from the VHERS side.\nNote that the pids are seperated by a vertical bar (|)",
+				"properties": {
+					"pin": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pin",
+					"pids"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pin": "ABCD1234",
+					"pids": "12345678|11234567"
 				}
 			},
 			"GeocoderAddress": {
@@ -936,7 +1029,7 @@
 				]
 			}
 		},
-		"/pins/create": {
+		"/pins/vhers-create": {
 			"post": {
 				"operationId": "CreatePin",
 				"responses": {
@@ -989,7 +1082,7 @@
 				}
 			}
 		},
-		"/pins/regenerate": {
+		"/pins/vhers-regenerate": {
 			"post": {
 				"operationId": "RecreatePin",
 				"responses": {
@@ -1036,6 +1129,112 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/create": {
+			"post": {
+				"operationId": "ServiceBCCreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/regenerate": {
+			"post": {
+				"operationId": "ServiceBCRecreatePin",
+				"responses": {
+					"200": {
+						"description": "An object containing the unique PIN",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/updatedPIN"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/serviceBCCreateRequestBody"
 							}
 						}
 					}
@@ -1158,6 +1357,58 @@
 							"schema": {
 								"$ref": "#/components/schemas/expireRequestBody",
 								"description": "The body of the request. Note that expiredByUsername is only required for reasons other than \"CO\" (change of ownership)."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/verify": {
+			"post": {
+				"operationId": "VerifyPin",
+				"responses": {
+					"200": {
+						"description": "verified as true if verification was successful, and false otherwise along with a reason",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Verifies the user given a PIN and the pid(s) associated with the title",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/verifyPinRequestBody",
+								"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)"
 							}
 						}
 					}

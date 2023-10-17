@@ -6,6 +6,7 @@
     "./index.ts"
   ],
   "scripts": {
+    "windows": "npm run build && node -r dotenv/config dist/index.js",
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
@@ -16,7 +17,7 @@
     "db:migrate:down": "typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
     "db:migrate:test": "NODE_ENV=test typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
     "db:migrate:test:down": "NODE_ENV=test typeorm-ts-node-commonjs migration:revert -d ./src/data-source.ts",
-    "model:generate": "typeorm-model-generator -d $DB_NAME -s public -u $DB_USERNAME -e postgres -h $DB_HOST && rm ./output/entities/RawParcelData.ts ./output/entities/RawTitleparcelData.ts ./output/entities/RawTitleData.ts ./output/entities/RawTitleownerData.ts && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''public'\\'' }//g' ./src/entity/*.ts"
+    "model:generate": "typeorm-model-generator -d $DB_NAME -s public -u $DB_USERNAME -e postgres -h $DB_HOST && rm ./output/entities/ParcelRaw.ts ./output/entities/TitleparcelRaw.ts ./output/entities/TitleRaw.ts ./output/entities/TitleownerRaw.ts && cp -r ./output/entities/. ./src/entity && rm -r ./output && sed -i '' 's/\"/'\\''/g' ./src/entity/*.ts && sed -i '' 's/, { schema: '\\''public'\\'' }//g' ./src/entity/*.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -45,6 +46,7 @@
     "@types/cookie-parser": "^1.4.3",
     "@types/express-session": "^1.17.0",
     "@types/morgan": "^1.9.4",
+    "@types/string_score": "^0.1.28",
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -57,9 +59,11 @@
     "express-rate-limit": "^6.7.1",
     "jsonwebtoken": "^9.0.1",
     "morgan": "^1.10.0",
+    "notifications-node-client": "^7.0.3",
     "pg": "^8.11.1",
     "qs": "^6.11.2",
     "reflect-metadata": "^0.1.13",
+    "string_score": "^0.1.22",
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^5.1.1",
     "typeorm": "^0.3.17",
