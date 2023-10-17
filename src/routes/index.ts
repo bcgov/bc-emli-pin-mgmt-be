@@ -6,7 +6,7 @@ import {
     getAccessToken,
     getAuthorizationUrl,
     getLogoutUrl,
-} from '../middleware/auth';
+} from '../helpers/auth';
 import 'dotenv/config';
 
 const router = express.Router();
@@ -26,7 +26,6 @@ router.get('/login', async (req, res) => {
             res.redirect(`${process.env.FE_APP_URL}`);
         } else {
             const authUrl = await getAuthorizationUrl();
-            console.log('-----------LOGIN---------', authUrl);
             res.redirect(authUrl);
         }
     } catch (err) {
@@ -43,10 +42,8 @@ router.get('/oauth', async (req, res) => {
     try {
         if (req.cookies) {
             const { code } = req.query;
-            console.log('-----------AUTH RESPONSE---------', code);
-            const tokens = await getAccessToken({ code });
-            const { access_token } = tokens;
-            res.cookie('token', access_token, {
+            const token = await getAccessToken({ code });
+            res.cookie('token', token, {
                 domain: process.env.DOMAIN_NAME,
                 path: '/',
                 maxAge: ONE_DAY,
@@ -69,7 +66,6 @@ router.get('/logout', (req, res) => {
             req.session.user = undefined;
         }
         const logoutUrl = getLogoutUrl();
-        console.log('-----------LOGGING OUT---------', logoutUrl);
         res.setHeader('Set-Cookie', 'token=; path=/; Max-Age=-1');
         res.redirect(logoutUrl);
     } catch (err) {
