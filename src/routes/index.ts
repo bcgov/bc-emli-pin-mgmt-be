@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import { HelloWorldController } from '../controllers/helloworld';
 import logger from '../middleware/logger';
 import {
-    authenticate,
     getAccessToken,
     getAuthorizationUrl,
     getLogoutUrl,
@@ -11,14 +10,14 @@ import 'dotenv/config';
 
 const router = express.Router();
 
-router.get('/helloworld', authenticate, async (req: Request, res: Response) => {
+router.get('/helloworld', async (req: Request, res: Response) => {
     const controller = new HelloWorldController();
     const response = await controller.getMessage();
     return res.send(response);
 });
 
 // Auth handling
-const ONE_DAY = 5 * 60 * 1000; // 5 minutes
+const ONE_DAY = 30 * 60 * 1000; // 5 minutes
 
 router.get('/login', async (req, res) => {
     try {

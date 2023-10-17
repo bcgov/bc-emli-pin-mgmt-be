@@ -2,7 +2,6 @@ import axios from 'axios';
 import { stringify } from 'qs';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import { NextFunction, Request, Response } from 'express';
 
 const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth` || '';
 const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token` || '';
@@ -12,7 +11,7 @@ const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout` || '';
 const JWT_SECRET = process.env.JWT_SECRET || '';
 
 const btoa = (input: string) => Buffer.from(input).toString('base64');
-const tokenExpiry = 5 * 60 * 1000; // 5 minutes
+const tokenExpiry = 30 * 60 * 1000;
 
 const decodeValue = (base64String: string) => {
     try {
@@ -126,16 +125,3 @@ export const getLogoutUrl = () => {
 
     return `${OIDC_LOGOUT_URL}?${stringify(params, { encode: false })}`;
 };
-
-export async function authenticate(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    const userAuthenticated = req.cookies.token === undefined ? false : true;
-    if (!userAuthenticated) {
-        res.redirect(`${process.env.BE_APP_URL}/login`);
-    } else if (userAuthenticated) {
-        next();
-    }
-}
