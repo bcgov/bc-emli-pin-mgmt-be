@@ -1,17 +1,17 @@
 import axios from 'axios';
 import { stringify } from 'qs';
 import 'dotenv/config';
-//
-import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
 const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth` || '';
 const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token` || '';
-const OIDC_USER_INFO_URL = `${process.env.CSS_DOMAIN_NAME_URL}/userinfo` || '';
 const OIDC_LOGOUT_URL = `${process.env.CSS_DOMAIN_NAME_URL}/logout` || '';
 const OIDC_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth` || '';
 const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout` || '';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 const btoa = (input: string) => Buffer.from(input).toString('base64');
+const tokenExpiry = 30 * 60 * 1000;
 
 const decodeValue = (base64String: string) => {
     try {
@@ -34,8 +34,23 @@ export const decodingJWT = (token: string) => {
     };
 };
 
+const prepareTokenInfo = (tokenPayload: any) => {
+    const tokenDetails: any = {};
+    tokenDetails.sid = tokenPayload.sid;
+    tokenDetails.idir_user_guid = tokenPayload.idir_user_guid;
+    tokenDetails.identity_provider = tokenPayload.identity_provider;
+    tokenDetails.idir_username = tokenPayload.idir_username;
+    tokenDetails.email_verified = tokenPayload.email_verified;
+    tokenDetails.preferred_username = tokenPayload.preferred_username;
+    tokenDetails.given_name = tokenPayload.given_name;
+    tokenDetails.display_name = tokenPayload.display_name;
+    tokenDetails.family_name = tokenPayload.family_name;
+    tokenDetails.email = tokenPayload.email;
+
+    return tokenDetails;
+};
+
 // see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1
-// TODO: identity_provider proper type
 export const getAuthorizationUrl = async ({
     identity_provider,
 }: { identity_provider?: any } = {}) => {
@@ -92,28 +107,14 @@ export const getAccessToken = async ({ code }: any) => {
 
     const { data } = await axios(config);
 
-    const { id_token, access_token, refresh_token } = data;
+    const { access_token } = data;
 
-    // Decode tokens to get user information
-    data.id_token_decoded = decodingJWT(id_token);
-
-    data.access_token_decoded = decodingJWT(access_token);
-
-    data.refresh_token_decoded = decodingJWT(refresh_token);
-
-    return data;
-};
-
-export const getUserInfo = async ({ accessToken }: any) => {
-    const { data } = await axios({
-        url: OIDC_USER_INFO_URL,
-        method: 'get',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
+    const userInfo = decodingJWT(access_token);
+    const tokenDetails = prepareTokenInfo(userInfo?.payload);
+    const signedToken = jwt.sign(tokenDetails, JWT_SECRET, {
+        expiresIn: tokenExpiry,
     });
-
-    return data;
+    return signedToken;
 };
 
 export const getLogoutUrl = () => {
@@ -124,69 +125,3 @@ export const getLogoutUrl = () => {
 
     return `${OIDC_LOGOUT_URL}?${stringify(params, { encode: false })}`;
 };
-
-export async function authenticate(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    const userAuthenticated = req.cookies.token === undefined ? false : true;
-    if (!userAuthenticated) {
-        res.redirect(`${process.env.BE_APP_URL}/login`);
-    } else if (userAuthenticated) {
-        next();
-    }
-}
-
-// import * as express from 'express';
-// import * as jwt from 'jsonwebtoken';
-
-// export function expressAuthentication(
-//   request: express.Request,
-//   securityName: string,
-//   scopes?: string[]
-// ): Promise<any> {
-//   if (securityName === 'api_key') {
-//     let token;
-//     if (request.query && request.query.access_token) {
-//       token = request.query.access_token;
-//     }
-
-//     if (token === 'abc123456') {
-//       return Promise.resolve({
-//         id: 1,
-//         name: 'Ironman',
-//       });
-//     } else {
-//       return Promise.reject({});
-//     }
-//   }
-
-//   if (securityName === 'jwt') {
-//     const token =
-//       request.body.token ||
-//       request.query.token ||
-//       request.headers['x-access-token']||request.cookies.token;
-
-//     return new Promise((resolve, reject) => {
-//       if (!token) {
-//         reject(new Error('No token provided'));
-//       }
-//       jwt.verify(token, '[secret]', function (err: any, decoded: any) {
-//         if (err) {
-//           reject(err);
-//         } else {
-//           // Check if JWT contains all required scopes
-//           for (const scope of scopes) {
-//             if (!decoded.scopes.includes(scope)) {
-//               reject(new Error('JWT does not contain required scope.'));
-//             }
-//           }
-//           resolve(decoded);
-//         }
-//       });
-//     });
-//   }
-// }
-
-//   module.exports = { getAuthorizationUrl, getAccessToken, getUserInfo, getLogoutUrl };

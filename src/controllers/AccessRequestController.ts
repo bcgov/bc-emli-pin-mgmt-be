@@ -6,6 +6,7 @@ import {
     Res,
     Body,
     SuccessResponse,
+    Middlewares,
 } from 'tsoa';
 import {
     serverErrorType,
@@ -17,7 +18,9 @@ import {
 import logger from '../middleware/logger';
 import { createRequest } from '../db/AccessRequest.db';
 import { TypeORMError } from 'typeorm';
+import { authenticate } from '../middleware/authentication';
 
+@Middlewares(authenticate)
 @Route('user-requests')
 export class AccessRequestController extends Controller {
     @SuccessResponse('201', 'Created')

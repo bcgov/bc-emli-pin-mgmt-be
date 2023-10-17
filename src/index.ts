@@ -16,16 +16,17 @@ declare module 'express-session' {
         user: { [key: string]: any };
     }
 }
-
+const FE_APP_URL = process.env.FE_APP_URL || '';
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
     ? parseInt(process.env.SERVER_PORT as string)
     : 3000;
-
+// TO-DO: update after testing in dev
+const setHeaderURL = FE_APP_URL?.includes('localhost') ? '*' : FE_APP_URL;
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', `${process.env.FE_APP_URL}`);
+    res.setHeader('Access-Control-Allow-Origin', setHeaderURL);
 
     // Request methods you wish to allow
     res.setHeader(
@@ -62,9 +63,14 @@ const corsOptions = {
     credentials: true,
 };
 
+const corsOptionsLocal = {
+    credentials: true,
+    origin: true,
+};
+
 console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
 if (process.env.FE_APP_URL?.includes('localhost')) {
-    app.use(cors());
+    app.use(cors(corsOptionsLocal));
 } else {
     app.use(cors(corsOptions));
 }
