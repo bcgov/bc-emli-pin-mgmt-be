@@ -1,3 +1,4 @@
+import { ActivePin } from '../entity/ActivePin';
 import logger from '../middleware/logger';
 
 /**
@@ -53,4 +54,26 @@ export function pidStringSort(pids: string): string {
         if (i < sortedArray.length - 1) returnString += '|';
     }
     return returnString;
+}
+
+/**
+ * Sorts the details results into seperate arrays with land title and land title district
+ */
+export function sortActivePinResults(input: ActivePin[]) {
+    const titleSet = new Set();
+    const output: any = {};
+    for (const prop of input) {
+        const titleAndDistrict =
+            prop.titleNumber + '|' + prop.landTitleDistrict;
+        if (titleSet.has(titleAndDistrict)) {
+            // Add to existing title
+            output[titleAndDistrict].push(prop);
+        } else {
+            // Create a new entry
+            titleSet.add(titleAndDistrict);
+            output[titleAndDistrict] = [];
+            output[titleAndDistrict].push(prop);
+        }
+    }
+    return output;
 }

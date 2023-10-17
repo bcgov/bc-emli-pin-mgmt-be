@@ -1,4 +1,8 @@
-import { createPinRequestBody } from '../helpers/types';
+import {
+    createPinRequestBody,
+    gcNotifyError,
+    serviceBCCreateRequestBody,
+} from '../helpers/types';
 
 // API Responses to mock (sorry, this is a real response and it's long)
 export const geocodeAddressAPIResponse = {
@@ -608,6 +612,13 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
+};
+
+export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
+    phoneNumber: '19021234567',
+    email: 'example@example.com',
+    livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
 };
 
 export const validCreatePinBodyName: createPinRequestBody = {
@@ -621,6 +632,7 @@ export const validCreatePinBodyName: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
@@ -634,7 +646,29 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
+
+export const invalidCreatePinBodySinglePid: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    lastName_1: 'None',
+    email: 'example@example.com',
+    pids: '1234',
+    incorporationNumber: '91011',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+    numberOfOwners: 7,
+};
+
+export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
+    {
+        phoneNumber: '19021234567',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
 
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     phoneNumber: '19021234567',
@@ -646,6 +680,7 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     city: 'Vancouver',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
@@ -657,6 +692,7 @@ export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
@@ -668,6 +704,7 @@ export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
@@ -679,6 +716,7 @@ export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
     addressLine_1: '123 example st',
     addressLine_2: 'Unit 100A',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
@@ -691,6 +729,7 @@ export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     provinceAbbreviation: 'BZ',
     country: 'Canada',
+    numberOfOwners: 1,
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
@@ -704,6 +743,7 @@ export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
         addressLine_2: 'Unit 100A',
         provinceAbbreviation: 'BZ',
         country: 'Canada',
+        numberOfOwners: 1,
     };
 
 export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
@@ -718,7 +758,15 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
+
+export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody =
+    {
+        phoneNumber: '88234',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
 
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     pids: '1234|5678',
@@ -729,6 +777,7 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
@@ -741,6 +790,7 @@ export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyPinLength: createPinRequestBody = {
@@ -756,7 +806,17 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
+
+export const invalidCreatePinBodyPinLengthServiceBC: serviceBCCreateRequestBody =
+    {
+        pinLength: 0,
+        allowedChars: 'A',
+        phoneNumber: '19021234567',
+        email: 'example@example.com',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    };
 
 export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     phoneNumber: '19021234567',
@@ -768,6 +828,7 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     country: 'Canada',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
@@ -779,6 +840,7 @@ export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
     city: 'Vancouver',
     provinceAbbreviation: 'BC',
     postalCode: 'V1V1V1',
+    numberOfOwners: 1,
 };
 
 export const AuditLogMultiResponse = [
@@ -819,3 +881,36 @@ export const AuditLogMultiResponse = [
         titleStatus: undefined,
     },
 ];
+
+export const GCNotifyEmailSuccessResponse = {
+    status: 200,
+    data: {
+        id: '73307f99-4bba-4a24-a8dd-e270d07509a0',
+        reference: null,
+        uri: 'https://api.notification.canada.ca/v2/notifications/73307f99-4bba-4a24-a8dd-e270d07509a0',
+        template: {
+            id: 'cf430240-e5b6-4224-bd71-a02e098cc6e8', // this isn't one of our actual template ids, I've edited the response
+            version: 1,
+            uri: 'https://api.notification.canada.ca/services/bf3f9c9f-fcfe-45e3-aea9-bae75f93d741/templates/cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        },
+        scheduled_for: null,
+        content: {
+            from_email: 'noreply_hers@notification.canada.ca',
+            body: 'This is a test.\r\n' + 'This should work',
+            subject: 'BC VHERS Create PIN',
+        },
+    },
+};
+
+export const GCNotifyEmailErrorResponse: gcNotifyError = {
+    response: {
+        status: 400,
+        statusText: 'Bad Request',
+        data: {
+            status_code: 400,
+            errors: [
+                { error: 'BadRequestError', message: 'Template not found' },
+            ],
+        },
+    },
+};

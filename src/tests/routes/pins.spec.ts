@@ -13,7 +13,11 @@ import {
     Like,
     TypeORMError,
 } from 'typeorm';
-import { emailPhone, expirationReason } from '../../helpers/types';
+import {
+    emailPhone,
+    expirationReason,
+    serviceBCCreateRequestBody,
+} from '../../helpers/types';
 import {
     ActivePINMultiResponse,
     invalidCreatePinBodyWrongPhone,
@@ -26,7 +30,14 @@ import {
     validCreatePinBodyNameAddLineProvLongOnly,
     validCreatePinBodyNameAddLineCountry,
     validCreatePinBodyNameAddLinePostalCode,
+    validCreatePinBodyIncServiceBC,
+    invalidCreatePinBodyPinLengthServiceBC,
+    invalidCreatePinBodyWrongPhoneServiceBC,
+    validCreatePinBodySinglePidServiceBC,
+    invalidCreatePinBodySinglePid,
 } from '../commonResponses';
+import { PINController } from '../../controllers/pinController';
+import { NotFoundError } from '../../helpers/NotFoundError';
 
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
@@ -34,9 +45,9 @@ jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
 
 describe('Pin endpoints', () => {
     /*
-	  /create endpoint tests
+	  /vhers-create endpoint tests
 	*/
-    test('create should return a unique pin', async () => {
+    test('vhers-create should return a unique pin', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -80,16 +91,17 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
+        // jest.spyOn()
 
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234|5678');
     });
 
-    test('create should return a unique pin with a singular pid', async () => {
+    test('vhers-create should return a unique pin with a singular pid', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -133,16 +145,16 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234');
     });
 
-    test('create on request body validation fail returns 422', async () => {
+    test('vhers-create on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -152,14 +164,74 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (inc) returns 422', async () => {
+    test('vhers-create on request body with wrong number of owners returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+
+                if ((where as any).pids instanceof FindOperator)
+                    return result as ActivePin[];
+                return [];
+            },
+        );
+
+        const reqBody = invalidCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
+        );
+    });
+
+    test('vhers-create on pin with no postal code or city returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                const result = [pin1];
+
+                if ((where as any).pids instanceof FindOperator)
+                    return result as ActivePin[];
+                return [];
+            },
+        );
+
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
+        );
+    });
+
+    test('vhers-create on request body on no updatable results (inc) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
             },
         );
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -169,14 +241,14 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (name) returns 422', async () => {
+    test('vhers-create on request body on no updatable results (name) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -187,14 +259,14 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (province abbreviation) returns 422', async () => {
+    test('vhers-create on request body on no updatable results (province abbreviation) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvAbbrev;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -205,14 +277,14 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (country) returns 422', async () => {
+    test('vhers-create on request body on no updatable results (country) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
             },
         );
         const reqBody = validCreatePinBodyNameAddLineCountry;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -223,14 +295,14 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (postal code) returns 422', async () => {
+    test('vhers-create on request body on no updatable results (postal code) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
             },
         );
         const reqBody = validCreatePinBodyNameAddLinePostalCode;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -241,7 +313,7 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no updatable results (last name 2) returns 422', async () => {
+    test('vhers-create on request body on no updatable results (last name 2) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
@@ -249,7 +321,7 @@ describe('Pin endpoints', () => {
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
         reqBody.lastName_2 = 'Appleseed';
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -260,7 +332,7 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('create on request body on no batch update returns 422', async () => {
+    test('vhers-create on request body on no batch update returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -304,6 +376,145 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
+        expect(res.body.faults.length).toBe(1);
+        expect(res.body.faults[0]).toBe(
+            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
+        );
+    });
+
+    test('vhers-create with guaranteed repeated pin returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                (pin1.givenName = 'John'), (pin1.lastName_1 = 'Smith');
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+
+                if ((where as any).pids instanceof FindOperator)
+                    return result as ActivePin[];
+                return [];
+            },
+        );
+        const requBody = invalidCreatePinBodyPinLength;
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(requBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe('PIN must be of length 1 or greater');
+    });
+
+    test('vhers-create pin with unknown error returns 500', async () => {
+        // Without mocking things, we should get a metadata error
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `Cannot read properties of undefined (reading 'metadata')`,
+        );
+    });
+    /*
+		/create endpoint tests
+	*/
+    test('create should return a unique pin', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234|5678';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+                return result as ActivePin[];
+            },
+        );
+        jest.spyOn(PINGenerator.prototype, 'create').mockImplementationOnce(
+            async (
+                pinLength?: number | undefined,
+                allowedChars?: string | undefined,
+            ) => {
+                return { pin: 'ABCD1234' };
+            },
+        );
+        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+            async (
+                updatedPins: ActivePin[],
+                sendToInfo: emailPhone,
+                requesterUsername?: string,
+            ) => {
+                if (updatedPins[0].pin === 'ABCD1234') return [];
+                return [
+                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                ];
+            },
+        );
+
+        const reqBody = validCreatePinBodyIncServiceBC;
+        const res = await request(app).post('/pins/create').send(reqBody);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].pin).toBe('ABCD1234');
+        expect(res.body[0].pids).toBe('1234|5678');
+    });
+
+    test('create on request body on no batch update returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+                return result as ActivePin[];
+            },
+        );
+        jest.spyOn(PINGenerator.prototype, 'create').mockImplementationOnce(
+            async (
+                pinLength?: number | undefined,
+                allowedChars?: string | undefined,
+            ) => {
+                return { pin: 'ABCD1234' };
+            },
+        );
+        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+            async (
+                updatedPins: ActivePin[],
+                sendToInfo: emailPhone,
+                requesterName?: string,
+                requesterUsername?: string,
+            ) => {
+                return [
+                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                ];
+            },
+        );
+
+        const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
@@ -328,21 +539,32 @@ describe('Pin endpoints', () => {
                 pin1.country = 'Canada';
                 pin1.postalCode = 'V1V1V1';
                 const result = [pin1];
-
-                if ((where as any).pids instanceof FindOperator)
-                    return result as ActivePin[];
-                return [];
+                return result as ActivePin[];
             },
         );
-        const reqBody = invalidCreatePinBodyPinLength;
+        const reqBody = invalidCreatePinBodyPinLengthServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
 
+    test('create on NotFoundError returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                return [];
+            },
+        );
+        const reqBody = validCreatePinBodyIncServiceBC;
+        const res = await request(app).post('/pins/create').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Active Pin with livePinId cf430240-e5b6-4224-bd71-a02e098cc6e8 not found in database.',
+        );
+    });
+
     test('create pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
-        const reqBody = validCreatePinBodySinglePid;
+        const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
@@ -350,9 +572,9 @@ describe('Pin endpoints', () => {
         );
     });
     /*
-		/regenerate endpoint tests
+		/vhers-regenerate endpoint tests
 	*/
-    test('regenerate should return a unique pin', async () => {
+    test('vhers-regenerate should return a unique pin', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -398,16 +620,20 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234|5678');
     });
 
-    test('regenerate on request body validation fail returns 422', async () => {
+    test('vhers-regenerate on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -417,7 +643,7 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('regenerate on request body on no updatable results (last name 2) returns 422', async () => {
+    test('vhers-regenerate on request body on no updatable results (last name 2) returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 return [] as ActivePin[];
@@ -425,7 +651,9 @@ describe('Pin endpoints', () => {
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
         reqBody.lastName_2 = 'Appleseed';
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -436,7 +664,7 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('regenerate with guaranteed repeated pin returns 422', async () => {
+    test('vhers-regenerate with guaranteed repeated pin returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -458,14 +686,128 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = invalidCreatePinBodyPinLength;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe('PIN must be of length 1 or greater');
+    });
+
+    test('vhers-regenerate pin with unknown error returns 500', async () => {
+        // Without mocking things, we should get a metadata error
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `Cannot read properties of undefined (reading 'metadata')`,
+        );
+    });
+    /*
+		/regenerate endpoint tests
+	*/
+    test('regenerate should return a unique pin', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234|5678';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                pin1.lastName_1 = 'None';
+                pin1.incorporationNumber = '91011';
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+                return result as ActivePin[];
+            },
+        );
+        jest.spyOn(PINGenerator.prototype, 'create').mockImplementationOnce(
+            async (
+                pinLength?: number | undefined,
+                allowedChars?: string | undefined,
+            ) => {
+                return { pin: 'ABCD1234' };
+            },
+        );
+        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+            async (
+                updatedPins: ActivePin[],
+                sendToInfo: emailPhone,
+                requesterUsername?: string,
+            ) => {
+                if (updatedPins[0].pin === 'ABCD1234') return [];
+                return [
+                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                ];
+            },
+        );
+
+        const reqBody = validCreatePinBodyIncServiceBC;
+        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].pin).toBe('ABCD1234');
+        expect(res.body[0].pids).toBe('1234|5678');
+    });
+
+    test('regenerate on request body validation fail returns 422', async () => {
+        const reqBody = invalidCreatePinBodyWrongPhoneServiceBC;
+        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Validation Error(s) occured in createPin request body:',
+        );
+        expect(res.body.faults[0]).toBe(
+            'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
+        );
+    });
+
+    test('regenerate with guaranteed repeated pin returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                const pin1 = new ActivePin();
+                pin1.pids = '1234';
+                pin1.titleNumber = 'EFGH';
+                pin1.landTitleDistrict = 'BC';
+                pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+                (pin1.givenName = 'John'), (pin1.lastName_1 = 'Smith');
+                pin1.addressLine_1 = '123 example st';
+                pin1.city = 'Vancouver';
+                pin1.provinceAbbreviation = 'BC';
+                pin1.country = 'Canada';
+                pin1.postalCode = 'V1V1V1';
+                const result = [pin1];
+                return result as ActivePin[];
+            },
+        );
+        const reqBody = invalidCreatePinBodyPinLengthServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
 
+    test('regenerate on NotFoundError returns 422', async () => {
+        jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
+            async (select?: object | undefined, where?: object | undefined) => {
+                return [];
+            },
+        );
+        const reqBody = validCreatePinBodyIncServiceBC;
+        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Active Pin with livePinId cf430240-e5b6-4224-bd71-a02e098cc6e8 not found in database.',
+        );
+    });
+
     test('regenerate pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
-        const reqBody = validCreatePinBodySinglePid;
+        const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
@@ -617,5 +959,58 @@ describe('Pin endpoints', () => {
         });
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occured');
+    });
+
+    /*
+		/verify endpoint tests
+	*/
+    test('verify PIN should return true', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: 'abcdefgh',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.verified).toBeTruthy;
+    });
+
+    test('verify PIN on verification error returns 401', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([]);
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: '12345678',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(401);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('NotFoundError');
+        expect(res.body.reason.errorMessage).toBe(
+            'PIN was unable to be verified',
+        );
+    });
+
+    test('verify PIN on generic error returns 500', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                throw new Error('An unknown error occured');
+            });
+        const res = await request(app).post('/pins/verify').send({
+            pin: '12345678',
+            pids: '1234',
+        });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('Error');
+        expect(res.body.reason.errorMessage).toBe('An unknown error occured');
     });
 });
