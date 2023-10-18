@@ -2,6 +2,7 @@
 import { findUser, findPermissionByRole } from '../db/Users.db';
 // import { TypeORMError } from 'typeorm';
 
+// TODO: Incorporate error handling after testing
 export const checkActiveUser = async (userGuid: any) => {
     let userPermissions;
     const where = { userGuid: userGuid, isActive: true };
