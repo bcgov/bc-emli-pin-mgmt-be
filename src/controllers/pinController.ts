@@ -58,7 +58,6 @@ export class PINController extends Controller {
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
-        console.log(requestBody.phoneNumber);
         if (!requestBody.phoneNumber && !requestBody.email) {
             faults.push('Phone number OR email required');
         }
