@@ -80,6 +80,8 @@ pinsRouter.post('/verify', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
+        () => {},
         req.body,
     );
     return res.send(response);

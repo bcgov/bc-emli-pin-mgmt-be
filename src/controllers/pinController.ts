@@ -8,6 +8,7 @@ import {
     TsoaResponse,
     Res,
     Body,
+    Security,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -27,6 +28,8 @@ import {
     serviceBCCreateRequestBody,
     verifyPinRequestBody,
     verifyPinResponse,
+    UnauthorizedErrorResponse,
+    InvalidTokenErrorResponse,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -1137,8 +1140,19 @@ export class PINController extends Controller {
      * @param requestBody The body for the request. Note that pids should be seperated by a vertical bar (|)
      * @returns verified as true if verification was successful, and false otherwise along with a reason
      */
+    @Security('vhers_api_key')
     @Post('verify')
     public async verifyPin(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
         @Res() verificationErrorResponse: TsoaResponse<403, verifyPinResponse>,
         @Res() notFoundErrorResponse: TsoaResponse<404, verifyPinResponse>,
         @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,

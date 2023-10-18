@@ -650,6 +650,38 @@
 					}
 				}
 			},
+			"InvalidTokenErrorResponse": {
+				"description": "The response given when the api key provided in a request is invalid",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Invalid Token"
+				}
+			},
+			"UnauthorizedErrorResponse": {
+				"description": "The response given when an api key is not provided in a request that requires it",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Access Denied"
+				}
+			},
 			"verifyPinRequestBody": {
 				"description": "The information needed to verify a pin from the VHERS side.\nNote that the pids are seperated by a vertical bar (|)",
 				"properties": {
@@ -903,7 +935,18 @@
 				"type": "string"
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"vhers_api_key": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "x-api-key",
+				"schema": {
+					"type": "string",
+					"format": "uuid"
+				},
+				"required": true
+			}
+		}
 	},
 	"info": {
 		"title": "bc-emli-pin-mgmt-be",
@@ -1377,6 +1420,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"403": {
 						"description": "",
 						"content": {
@@ -1409,7 +1472,11 @@
 					}
 				},
 				"description": "Verifies the user given a PIN and the pid(s) associated with the title",
-				"security": [],
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)",
