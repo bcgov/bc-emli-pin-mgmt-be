@@ -64,10 +64,10 @@ export class PINController extends Controller {
         if (
             requestBody.phoneNumber &&
             !(
-                (requestBody.phoneNumber.startsWith('+1') &&
-                    requestBody.phoneNumber.length === 12) ||
-                (requestBody.phoneNumber.startsWith('1') &&
-                    requestBody.phoneNumber.length === 11)
+                (requestBody.phoneNumber?.startsWith('+1') &&
+                    requestBody.phoneNumber?.length === 12) ||
+                (requestBody.phoneNumber?.startsWith('1') &&
+                    requestBody.phoneNumber?.length === 11)
             )
         ) {
             faults.push(
