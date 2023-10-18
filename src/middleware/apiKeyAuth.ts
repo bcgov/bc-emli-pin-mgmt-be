@@ -2,14 +2,13 @@ import 'dotenv/config';
 import { Request } from 'express';
 import { AuthenticationError } from './AuthenticationError';
 
-const VHERS_API_KEY = process.env.VHERS_API_KEY || '';
-
 export function expressAuthentication(
     req: Request,
     securityName: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     scopes?: string[],
 ): Promise<any> {
+    const VHERS_API_KEY = process.env.VHERS_API_KEY || '';
     if (securityName === 'vhers_api_key') {
         // Extract api key from the request header.
         const apiKey = req.header('x-api-key');
