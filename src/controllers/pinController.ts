@@ -1159,7 +1159,6 @@ export class PINController extends Controller {
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
         try {
-            console.log('here');
             const response = await findPin(
                 { pin: true, pids: true },
                 { pin: requestBody.pin },
@@ -1168,9 +1167,7 @@ export class PINController extends Controller {
                 // we don't have a match
                 throw new NotFoundError('PIN not found');
             } else {
-                console.log('here');
                 const sortedPids = pidStringSplitAndSort(requestBody.pids);
-                console.log('here');
                 let isMatch = false;
                 outerLoop: for (const result of response) {
                     const sortedResultPids = pidStringSplitAndSort(result.pids);

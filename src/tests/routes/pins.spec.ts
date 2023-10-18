@@ -991,8 +991,6 @@ describe('Pin endpoints', () => {
         if (key[key.length - 1] === 'f') lastCharChange = '1';
         else lastCharChange = 'f';
         const extraKey = key.substring(0, key.length - 1) + lastCharChange;
-        console.log(key);
-        console.log(extraKey);
         const res = await request(app)
             .post('/pins/verify')
             .send({
