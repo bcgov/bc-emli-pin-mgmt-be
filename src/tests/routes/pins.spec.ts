@@ -778,6 +778,16 @@ describe('Pin endpoints', () => {
     });
 
     test('regenerate on request body validation fail returns 422', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
         const reqBody = invalidCreatePinBodyWrongPhoneServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(422);
@@ -850,6 +860,16 @@ describe('Pin endpoints', () => {
     });
 
     test('initial create with too few pins returns 422', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
         const res = await request(app)
             .get('/pins/initial-create')
             .query({ quantity: 0 });

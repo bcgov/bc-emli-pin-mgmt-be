@@ -63,13 +63,13 @@ export class PINController extends Controller {
         }
         if (requestBody.phoneNumber) {
             if (
-                (requestBody.phoneNumber.startsWith('+1') &&
-                    requestBody.phoneNumber.length === 12) ||
-                (requestBody.phoneNumber.startsWith('1') &&
-                    requestBody.phoneNumber.length === 11)
+                !(
+                    (requestBody.phoneNumber.startsWith('+1') &&
+                        requestBody.phoneNumber.length === 12) ||
+                    (requestBody.phoneNumber.startsWith('1') &&
+                        requestBody.phoneNumber.length === 11)
+                )
             ) {
-                faults.push('');
-            } else {
                 faults.push(
                     'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
                 );
