@@ -42,8 +42,11 @@ import { NotFoundError } from '../../helpers/NotFoundError';
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
 );
-
+const key = 'cf430240-e5b6-4224-bd71-a02e098cc6e8'; // don't use this as the actual key...
 describe('Pin endpoints', () => {
+    beforeAll(() => {
+        process.env.VHERS_API_KEY = key;
+    });
     /*
 	  /vhers-create endpoint tests
 	*/
@@ -968,33 +971,86 @@ describe('Pin endpoints', () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
-                return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+                return Promise.resolve([
+                    ActivePINMultiResponse[0] as ActivePin,
+                ]);
             });
-        const res = await request(app).post('/pins/verify').send({
-            pin: 'abcdefgh',
-            pids: '1234',
-        });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: 'abcdefgh',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.verified).toBeTruthy;
     });
 
-    test('verify PIN on verification error returns 401', async () => {
-        const spy = jest
-            .spyOn(ActivePIN, 'findPin')
-            .mockImplementationOnce(async () => {
-                return Promise.resolve([]);
-            });
+    test('verify PIN on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('verify PIN on no API key provided returns 401', async () => {
         const res = await request(app).post('/pins/verify').send({
             pin: '12345678',
             pids: '1234',
         });
         expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
+    test('verify PIN on not matching pin error returns 403', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([
+                    ActivePINMultiResponse[0] as ActivePin,
+                ]);
+            });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '9101112',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(403);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('NonMatchingPidError');
+        expect(res.body.reason.errorMessage).toBe('PIN and PID do not match');
+    });
+
+    test('verify PIN on not found error returns 404', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([]);
+            });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(404);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
-        expect(res.body.reason.errorMessage).toBe(
-            'PIN was unable to be verified',
-        );
+        expect(res.body.reason.errorMessage).toBe('PIN not found');
     });
 
     test('verify PIN on generic error returns 500', async () => {
@@ -1003,10 +1059,13 @@ describe('Pin endpoints', () => {
             .mockImplementationOnce(async () => {
                 throw new Error('An unknown error occured');
             });
-        const res = await request(app).post('/pins/verify').send({
-            pin: '12345678',
-            pids: '1234',
-        });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
