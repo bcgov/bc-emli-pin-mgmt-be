@@ -616,6 +616,7 @@ export const validCreatePinBodyInc: createPinRequestBody = {
 };
 
 export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
+    phoneNumber: '14162345678',
     email: 'example@example.com',
     livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
     propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',

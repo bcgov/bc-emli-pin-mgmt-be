@@ -480,6 +480,7 @@ describe('Pin endpoints', () => {
 
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
+        console.log(res);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
