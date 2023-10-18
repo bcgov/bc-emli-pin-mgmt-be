@@ -1,3 +1,4 @@
+import { checkActiveUser } from './userTokenHelper';
 import axios from 'axios';
 import { stringify } from 'qs';
 import 'dotenv/config';
@@ -34,7 +35,7 @@ export const decodingJWT = (token: string) => {
     };
 };
 
-const prepareTokenInfo = (tokenPayload: any) => {
+const prepareTokenInfo = async (tokenPayload: any) => {
     const tokenDetails: any = {};
     tokenDetails.sid = tokenPayload.sid;
     tokenDetails.idir_user_guid = tokenPayload.idir_user_guid;
@@ -46,6 +47,13 @@ const prepareTokenInfo = (tokenPayload: any) => {
     tokenDetails.display_name = tokenPayload.display_name;
     tokenDetails.family_name = tokenPayload.family_name;
     tokenDetails.email = tokenPayload.email;
+
+    const activeUser = await checkActiveUser(tokenDetails.idir_user_guid);
+    console.log(activeUser);
+    if (activeUser.roleType !== null && activeUser.permissions !== null) {
+        tokenDetails.role = activeUser.roleType;
+        tokenDetails.permissions = activeUser.permissions;
+    }
 
     return tokenDetails;
 };
@@ -110,7 +118,7 @@ export const getAccessToken = async ({ code }: any) => {
     const { access_token } = data;
 
     const userInfo = decodingJWT(access_token);
-    const tokenDetails = prepareTokenInfo(userInfo?.payload);
+    const tokenDetails = await prepareTokenInfo(userInfo?.payload);
     const signedToken = jwt.sign(tokenDetails, JWT_SECRET, {
         expiresIn: tokenExpiry,
     });
