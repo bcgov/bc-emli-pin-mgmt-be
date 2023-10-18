@@ -79,6 +79,7 @@ pinsRouter.post('/verify', async (req: Request, res: Response) => {
     const response = await controller.verifyPin(
         () => {},
         () => {},
+        () => {},
         req.body,
     );
     return res.send(response);

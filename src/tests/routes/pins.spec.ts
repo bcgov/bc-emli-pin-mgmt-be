@@ -968,7 +968,9 @@ describe('Pin endpoints', () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
-                return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+                return Promise.resolve([
+                    ActivePINMultiResponse[0] as ActivePin,
+                ]);
             });
         const res = await request(app).post('/pins/verify').send({
             pin: 'abcdefgh',
@@ -978,7 +980,7 @@ describe('Pin endpoints', () => {
         expect(res.body.verified).toBeTruthy;
     });
 
-    test('verify PIN on verification error returns 401', async () => {
+    test('verify PIN on not found error returns 404', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -988,13 +990,11 @@ describe('Pin endpoints', () => {
             pin: '12345678',
             pids: '1234',
         });
-        expect(res.statusCode).toBe(401);
+        expect(res.statusCode).toBe(404);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
-        expect(res.body.reason.errorMessage).toBe(
-            'PIN was unable to be verified',
-        );
+        expect(res.body.reason.errorMessage).toBe('PIN not found');
     });
 
     test('verify PIN on generic error returns 500', async () => {

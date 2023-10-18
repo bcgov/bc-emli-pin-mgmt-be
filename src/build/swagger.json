@@ -1377,7 +1377,17 @@
 							}
 						}
 					},
-					"401": {
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"404": {
 						"description": "",
 						"content": {
 							"application/json": {
