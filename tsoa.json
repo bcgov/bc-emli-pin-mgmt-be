@@ -3,11 +3,24 @@
 	"noImplicitAdditionalProperties": "throw-on-extras",
 	"spec": {
 	  "outputDirectory": "src/build",
-	  "specVersion": 3
+	  "specVersion": 3,
+	  "securityDefinitions": {
+		"vhers_api_key": {
+			"type": "apiKey",
+			"in": "header",
+			"name": "x-api-key",
+			"schema": {
+				"type": "string",
+				"format": "uuid"
+			},
+			"required": true
+		}
+	}
 	},
 	"controllerPathGlobs": ["src/controllers/*.ts"],
 	"routes": {
-		"routesDir": "src/build"
+		"routesDir": "src/build",
+		"authenticationModule": "src/middleware/apiKeyAuth.ts"
 	}
 }
   

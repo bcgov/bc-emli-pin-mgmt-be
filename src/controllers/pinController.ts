@@ -8,6 +8,7 @@ import {
     TsoaResponse,
     Res,
     Body,
+    Security,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -27,6 +28,8 @@ import {
     serviceBCCreateRequestBody,
     verifyPinRequestBody,
     verifyPinResponse,
+    UnauthorizedErrorResponse,
+    InvalidTokenErrorResponse,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -34,7 +37,6 @@ import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
 import { EntityNotFoundError, Like, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
 import {
-    pidStringSort,
     pidStringSplitAndSort,
     sortActivePinResults,
 } from '../helpers/pidHelpers';
@@ -43,6 +45,7 @@ import 'string_score';
 import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -1137,26 +1140,63 @@ export class PINController extends Controller {
      * @param requestBody The body for the request. Note that pids should be seperated by a vertical bar (|)
      * @returns verified as true if verification was successful, and false otherwise along with a reason
      */
+    @Security('vhers_api_key')
     @Post('verify')
     public async verifyPin(
-        @Res() verificationErrorResponse: TsoaResponse<401, verifyPinResponse>,
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() verificationErrorResponse: TsoaResponse<403, verifyPinResponse>,
+        @Res() notFoundErrorResponse: TsoaResponse<404, verifyPinResponse>,
         @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
         try {
-            const sortedPids = pidStringSort(requestBody.pids); // ensure the pids are sorted for an exact string match
             const response = await findPin(
                 { pin: true, pids: true },
-                { pin: requestBody.pin, pids: Like(`%` + sortedPids + `%`) },
+                { pin: requestBody.pin },
             );
             if (response.length < 1) {
                 // we don't have a match
-                throw new NotFoundError('PIN was unable to be verified');
+                throw new NotFoundError('PIN not found');
+            } else {
+                const sortedPids = pidStringSplitAndSort(requestBody.pids);
+                let isMatch = false;
+                outerLoop: for (const result of response) {
+                    const sortedResultPids = pidStringSplitAndSort(result.pids);
+                    for (const resultPid of sortedResultPids) {
+                        for (const dbPid of sortedPids) {
+                            if (resultPid === dbPid) {
+                                isMatch = true;
+                                break outerLoop; // we have a match, can stop checking
+                            }
+                        }
+                    }
+                }
+                if (isMatch === false)
+                    throw new NonMatchingPidError('PIN and PID do not match');
             }
         } catch (err) {
+            if (err instanceof NonMatchingPidError) {
+                logger.warn(`Encountered error in verifyPin: ${err.message}`);
+                return verificationErrorResponse(403, {
+                    verified: false,
+                    reason: {
+                        errorType: 'NonMatchingPidError',
+                        errorMessage: err.message,
+                    },
+                });
+            }
             if (err instanceof NotFoundError) {
                 logger.warn(`Encountered error in verifyPin: ${err.message}`);
-                return verificationErrorResponse(401, {
+                return notFoundErrorResponse(404, {
                     verified: false,
                     reason: {
                         errorType: 'NotFoundError',
