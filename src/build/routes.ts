@@ -170,8 +170,9 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "livePinId": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
-            "phoneNumber": {"dataType":"string","required":true},
+            "email": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
+            "propertyAddress": {"dataType":"string","required":true},
             "pinLength": {"dataType":"double"},
             "allowedChars": {"dataType":"string"},
             "requesterUsername": {"dataType":"string"},

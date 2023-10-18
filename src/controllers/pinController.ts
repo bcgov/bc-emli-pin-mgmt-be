@@ -43,6 +43,9 @@ import 'string_score';
 import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
+import GCNotifyCaller from '../helpers/GCNotifyCaller';
+
+const gCNotifyCaller = new GCNotifyCaller();
 
 @Route('pins')
 export class PINController extends Controller {
@@ -55,6 +58,7 @@ export class PINController extends Controller {
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
+        console.log(requestBody.phoneNumber);
         if (!requestBody.phoneNumber && !requestBody.email) {
             faults.push('Phone number OR email required');
         }
@@ -765,7 +769,30 @@ export class PINController extends Controller {
             livePinId: pinResult[0].livePinId,
         };
         result.push(toPush);
-        // TODO: Add GCNotify to send the email / text
+
+        const personalisation = {
+            property_address: requestBody.propertyAddress,
+            pin: pin.pin,
+        };
+
+        if (requestBody.email) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = await gCNotifyCaller.sendEmailNotification(
+                process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!,
+                requestBody.email,
+                personalisation,
+            );
+        }
+
+        if (requestBody.phoneNumber) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = await gCNotifyCaller.sendPhoneNotification(
+                process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!,
+                requestBody.phoneNumber,
+                personalisation,
+            );
+        }
+
         return result;
     }
 

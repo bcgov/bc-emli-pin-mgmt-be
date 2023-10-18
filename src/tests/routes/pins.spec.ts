@@ -38,6 +38,11 @@ import {
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
+import GCNotifyCaller from '../../helpers/GCNotifyCaller';
+import {
+    GCNotifyEmailSuccessResponse,
+    GCNotifyPhoneSuccessResponse,
+} from '../commonResponses';
 
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
@@ -466,6 +471,16 @@ describe('Pin endpoints', () => {
             },
         );
 
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyPhoneSuccessResponse);
+
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(200);
@@ -746,6 +761,16 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyPhoneSuccessResponse);
 
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);

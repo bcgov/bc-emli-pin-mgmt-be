@@ -619,6 +619,7 @@ export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
     phoneNumber: '19021234567',
     email: 'example@example.com',
     livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
 };
 
 export const validCreatePinBodyName: createPinRequestBody = {
@@ -668,6 +669,7 @@ export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
         phoneNumber: '19021234567',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
@@ -766,6 +768,7 @@ export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody
         phoneNumber: '88234',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
@@ -816,6 +819,7 @@ export const invalidCreatePinBodyPinLengthServiceBC: serviceBCCreateRequestBody 
         phoneNumber: '19021234567',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
@@ -911,6 +915,25 @@ export const GCNotifyEmailErrorResponse: gcNotifyError = {
             errors: [
                 { error: 'BadRequestError', message: 'Template not found' },
             ],
+        },
+    },
+};
+
+export const GCNotifyPhoneSuccessResponse = {
+    status: 200,
+    data: {
+        id: '73307f99-4bba-4a24-a8dd-e270d07509a0',
+        reference: null,
+        uri: 'https://api.notification.canada.ca/v2/notifications/73307f99-4bba-4a24-a8dd-e270d07509a0',
+        template: {
+            id: 'cf430240-e5b6-4224-bd71-a02e098cc6e8', // this isn't one of our actual template ids, I've edited the response
+            version: 1,
+            uri: 'https://api.notification.canada.ca/services/bf3f9c9f-fcfe-45e3-aea9-bae75f93d741/templates/cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        },
+        scheduled_for: null,
+        content: {
+            from_email: '+11234567890',
+            body: 'This is a test.\r\n' + 'This should work',
         },
     },
 };
