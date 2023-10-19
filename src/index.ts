@@ -10,22 +10,24 @@ import 'dotenv/config';
 import { AppDataSource } from './data-source';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { AuthenticationError } from './middleware/AuthenticationError';
 
 declare module 'express-session' {
     export interface SessionData {
         user: { [key: string]: any };
     }
 }
-
+const FE_APP_URL = process.env.FE_APP_URL || '';
 const app: Express = express();
 const port: number = process.env.SERVER_PORT
     ? parseInt(process.env.SERVER_PORT as string)
     : 3000;
-
+// TO-DO: update after testing in dev
+const setHeaderURL = FE_APP_URL?.includes('localhost') ? '*' : FE_APP_URL;
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', `${process.env.FE_APP_URL}`);
+    res.setHeader('Access-Control-Allow-Origin', setHeaderURL);
 
     // Request methods you wish to allow
     res.setHeader(
@@ -62,9 +64,14 @@ const corsOptions = {
     credentials: true,
 };
 
+const corsOptionsLocal = {
+    credentials: true,
+    origin: true,
+};
+
 console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
 if (process.env.FE_APP_URL?.includes('localhost')) {
-    app.use(cors());
+    app.use(cors(corsOptionsLocal));
 } else {
     app.use(cors(corsOptions));
 }
@@ -90,16 +97,23 @@ app.use(function notFoundHandler(_req, res: Response) {
         message: 'Not Found',
     });
 });
-
 app.use(function errorHandler(
     err: unknown,
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
 ): Response | void {
+    if (err instanceof AuthenticationError) {
+        logger.warn(
+            `Caught Authentication Error for ${_req.path}: ${err.status} ${err.message}`,
+        );
+        return res.status(err.status).json({
+            message: err.message,
+        });
+    }
     if (err instanceof ValidateError) {
         logger.warn(
-            `Caught Validation Error for ${req.path}: ${JSON.stringify(
+            `Caught Validation Error for ${_req.path}: ${JSON.stringify(
                 err?.fields,
             )}`,
         );
@@ -110,7 +124,7 @@ app.use(function errorHandler(
     }
     if (err instanceof Error) {
         logger.warn(
-            `Encountered unknown Internal Server Error for ${req.path}: ${err.message}`,
+            `Encountered unknown Internal Server Error for ${_req.path}: ${err.message}`,
         );
         return res.status(500).json({
             message: 'Internal Server Error',

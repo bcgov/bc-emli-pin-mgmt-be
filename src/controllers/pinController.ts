@@ -8,6 +8,7 @@ import {
     TsoaResponse,
     Res,
     Body,
+    Security,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -25,6 +26,10 @@ import {
     updatedPIN,
     addressMatchScore,
     serviceBCCreateRequestBody,
+    verifyPinRequestBody,
+    verifyPinResponse,
+    UnauthorizedErrorResponse,
+    InvalidTokenErrorResponse,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -37,9 +42,10 @@ import {
 } from '../helpers/pidHelpers';
 import { NotFoundError } from '../helpers/NotFoundError';
 import 'string_score';
-import { BorderlineResultError } from '../helpers/BordelineResultError';
+import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -1127,5 +1133,87 @@ export class PINController extends Controller {
             }
         }
         return deletedPin;
+    }
+
+    /**
+     * Verifies the user given a PIN and the pid(s) associated with the title
+     * @param requestBody The body for the request. Note that pids should be seperated by a vertical bar (|)
+     * @returns verified as true if verification was successful, and false otherwise along with a reason
+     */
+    @Security('vhers_api_key')
+    @Post('verify')
+    public async verifyPin(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() verificationErrorResponse: TsoaResponse<403, verifyPinResponse>,
+        @Res() notFoundErrorResponse: TsoaResponse<404, verifyPinResponse>,
+        @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
+        @Body() requestBody: verifyPinRequestBody,
+    ): Promise<verifyPinResponse> {
+        try {
+            const response = await findPin(
+                { pin: true, pids: true },
+                { pin: requestBody.pin },
+            );
+            if (response.length < 1) {
+                // we don't have a match
+                throw new NotFoundError('PIN not found');
+            } else {
+                const sortedPids = pidStringSplitAndSort(requestBody.pids);
+                let isMatch = false;
+                outerLoop: for (const result of response) {
+                    const sortedResultPids = pidStringSplitAndSort(result.pids);
+                    for (const resultPid of sortedResultPids) {
+                        for (const dbPid of sortedPids) {
+                            if (resultPid === dbPid) {
+                                isMatch = true;
+                                break outerLoop; // we have a match, can stop checking
+                            }
+                        }
+                    }
+                }
+                if (isMatch === false)
+                    throw new NonMatchingPidError('PIN and PID do not match');
+            }
+        } catch (err) {
+            if (err instanceof NonMatchingPidError) {
+                logger.warn(`Encountered error in verifyPin: ${err.message}`);
+                return verificationErrorResponse(403, {
+                    verified: false,
+                    reason: {
+                        errorType: 'NonMatchingPidError',
+                        errorMessage: err.message,
+                    },
+                });
+            }
+            if (err instanceof NotFoundError) {
+                logger.warn(`Encountered error in verifyPin: ${err.message}`);
+                return notFoundErrorResponse(404, {
+                    verified: false,
+                    reason: {
+                        errorType: 'NotFoundError',
+                        errorMessage: err.message,
+                    },
+                });
+            }
+            if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in verifyPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, {
+                    verified: false,
+                    reason: { errorType: err.name, errorMessage: err.message },
+                });
+            }
+        }
+        return { verified: true };
     }
 }
