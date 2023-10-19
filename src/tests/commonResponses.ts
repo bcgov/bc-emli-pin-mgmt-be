@@ -939,6 +939,14 @@ export const createOrRecreatePinServiceBCSuccessResponse = [
     },
 ];
 
+export const createOrRecreatePinServiceBCSuccessResponseSinglePid = [
+    {
+        pin: 'ABCD1234',
+        pids: '1234',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    },
+];
+
 export const createOrRecreatePinServiceBCFailureResponse = {
     message: 'Error(s) occured in batchUpdatePin: ',
     faults: [

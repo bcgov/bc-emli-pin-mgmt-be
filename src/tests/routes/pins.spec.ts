@@ -37,6 +37,7 @@ import {
     invalidCreatePinBodySinglePid,
     createOrRecreatePinServiceBCSuccessResponse,
     createOrRecreatePinServiceBCFailureResponse,
+    createOrRecreatePinServiceBCSuccessResponseSinglePid,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
@@ -110,6 +111,11 @@ describe('Pin endpoints', () => {
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
+
         const reqBody = validCreatePinBodyInc;
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
         expect(res.statusCode).toBe(200);
@@ -170,6 +176,13 @@ describe('Pin endpoints', () => {
             GCNotifyCaller.prototype as any,
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(
+            createOrRecreatePinServiceBCSuccessResponseSinglePid,
+        );
 
         const reqBody = validCreatePinBodySinglePid;
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
@@ -676,6 +689,11 @@ describe('Pin endpoints', () => {
             GCNotifyCaller.prototype as any,
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyInc;
         const res = await request(app)
