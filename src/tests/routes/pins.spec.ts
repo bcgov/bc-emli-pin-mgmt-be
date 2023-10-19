@@ -99,7 +99,16 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
-        // jest.spyOn()
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         const reqBody = validCreatePinBodyInc;
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
@@ -151,6 +160,16 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         const reqBody = validCreatePinBodySinglePid;
         const res = await request(app).post('/pins/vhers-create').send(reqBody);
@@ -647,6 +666,16 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         const reqBody = validCreatePinBodyInc;
         const res = await request(app)

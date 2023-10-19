@@ -613,6 +613,7 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
@@ -634,6 +635,7 @@ export const validCreatePinBodyName: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
@@ -648,6 +650,7 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodySinglePid: createPinRequestBody = {
@@ -662,6 +665,7 @@ export const invalidCreatePinBodySinglePid: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 7,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
@@ -682,6 +686,7 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     city: 'Vancouver',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
@@ -694,6 +699,7 @@ export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
@@ -706,6 +712,7 @@ export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
@@ -718,6 +725,7 @@ export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
@@ -731,6 +739,7 @@ export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
     provinceAbbreviation: 'BZ',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
@@ -745,6 +754,7 @@ export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
         provinceAbbreviation: 'BZ',
         country: 'Canada',
         numberOfOwners: 1,
+        propertyAddress: '123 example street',
     };
 
 export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
@@ -760,6 +770,7 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody =
@@ -780,6 +791,7 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
@@ -793,6 +805,7 @@ export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyPinLength: createPinRequestBody = {
@@ -809,6 +822,7 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyPinLengthServiceBC: serviceBCCreateRequestBody =
@@ -831,6 +845,7 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
@@ -843,6 +858,7 @@ export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const AuditLogMultiResponse = [

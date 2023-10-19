@@ -706,7 +706,30 @@ export class PINController extends Controller {
             };
             result.push(toPush);
         }
-        // TODO: Add GCNotify to send the email / text
+
+        const personalisation = {
+            property_address: requestBody.propertyAddress,
+            pin: pin.pin,
+        };
+
+        if (requestBody.email) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = await gCNotifyCaller.sendEmailNotification(
+                process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!,
+                requestBody.email,
+                personalisation,
+            );
+        }
+
+        if (requestBody.phoneNumber) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = await gCNotifyCaller.sendPhoneNotification(
+                process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!,
+                requestBody.phoneNumber,
+                personalisation,
+            );
+        }
+
         return result;
     }
 

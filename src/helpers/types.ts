@@ -337,6 +337,7 @@ export interface createPinRequestBody {
     country?: string;
     postalCode?: string;
     requesterUsername?: string;
+    propertyAddress: string;
 }
 
 /**

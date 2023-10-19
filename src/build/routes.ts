@@ -162,6 +162,7 @@ const models: TsoaRoute.Models = {
             "country": {"dataType":"string"},
             "postalCode": {"dataType":"string"},
             "requesterUsername": {"dataType":"string"},
+            "propertyAddress": {"dataType":"string"}
         },
         "additionalProperties": false,
     },
