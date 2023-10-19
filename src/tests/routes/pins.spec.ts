@@ -35,6 +35,7 @@ import {
     invalidCreatePinBodyWrongPhoneServiceBC,
     validCreatePinBodySinglePidServiceBC,
     invalidCreatePinBodySinglePid,
+    createOrRecreatePinServiceBCResponse,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
@@ -483,6 +484,11 @@ describe('Pin endpoints', () => {
             'pinRequestBodyValidate',
         ).mockResolvedValueOnce([]);
 
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePinServiceBC',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCResponse);
+
         const reqBody = validCreatePinBodyIncServiceBC;
         console.log('hello');
 
@@ -781,6 +787,11 @@ describe('Pin endpoints', () => {
             PINController.prototype as any,
             'pinRequestBodyValidate',
         ).mockResolvedValueOnce([]);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePinServiceBC',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCResponse);
 
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);

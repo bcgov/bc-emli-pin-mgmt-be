@@ -916,3 +916,13 @@ export const GCNotifyEmailErrorResponse: gcNotifyError = {
         },
     },
 };
+
+export const createOrRecreatePinServiceBCResponse = {
+    status: 200,
+    body: [
+        {
+            pin: 'ABCD1234',
+            pids: '1234|5678',
+        },
+    ],
+};
