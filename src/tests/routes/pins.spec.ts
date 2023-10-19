@@ -47,8 +47,12 @@ import { GCNotifyEmailSuccessResponse } from '../commonResponses';
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
 );
-
+const key = 'cf430240-e5b6-4224-bd71-a02e098cc6e8'; // don't use this as the actual key...
 describe('Pin endpoints', () => {
+    beforeAll(() => {
+        process.env.VHERS_API_KEY = key;
+    });
+
     afterEach(() => {
         jest.clearAllMocks();
         jest.restoreAllMocks();
@@ -117,7 +121,10 @@ describe('Pin endpoints', () => {
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
@@ -185,16 +192,43 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234');
     });
 
+    test('vhers-create on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('vhers-create on no API key provided returns 401', async () => {
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
     test('vhers-create on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -228,7 +262,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = invalidCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
@@ -257,7 +294,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
@@ -271,7 +311,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -288,7 +331,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -306,7 +352,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvAbbrev;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -324,7 +373,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineCountry;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -342,7 +394,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLinePostalCode;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -361,7 +416,10 @@ describe('Pin endpoints', () => {
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
         reqBody.lastName_2 = 'Appleseed';
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -416,7 +474,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
@@ -449,7 +510,8 @@ describe('Pin endpoints', () => {
         const requBody = invalidCreatePinBodyPinLength;
         const res = await request(app)
             .post('/pins/vhers-create')
-            .send(requBody);
+            .send(requBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -457,7 +519,10 @@ describe('Pin endpoints', () => {
     test('vhers-create pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         // expect(res.body.message).toBe(
         //     `Cannot read properties of undefined (reading 'metadata')`,
@@ -698,18 +763,43 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodyInc;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234|5678');
     });
 
+    test('vhers-regenerate on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody)
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('vhers-regenerate on no API key provided returns 401', async () => {
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
     test('vhers-regenerate on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -729,7 +819,8 @@ describe('Pin endpoints', () => {
         reqBody.lastName_2 = 'Appleseed';
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -764,7 +855,8 @@ describe('Pin endpoints', () => {
         const reqBody = invalidCreatePinBodyPinLength;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -774,7 +866,8 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePid;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         // expect(res.body.message).toBe(
         //     `Cannot read properties of undefined (reading 'metadata')`,
@@ -1084,33 +1177,86 @@ describe('Pin endpoints', () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
-                return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+                return Promise.resolve([
+                    ActivePINMultiResponse[0] as ActivePin,
+                ]);
             });
-        const res = await request(app).post('/pins/verify').send({
-            pin: 'abcdefgh',
-            pids: '1234',
-        });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: 'abcdefgh',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.verified).toBeTruthy;
     });
 
-    test('verify PIN on verification error returns 401', async () => {
-        const spy = jest
-            .spyOn(ActivePIN, 'findPin')
-            .mockImplementationOnce(async () => {
-                return Promise.resolve([]);
-            });
+    test('verify PIN on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('verify PIN on no API key provided returns 401', async () => {
         const res = await request(app).post('/pins/verify').send({
             pin: '12345678',
             pids: '1234',
         });
         expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
+    test('verify PIN on not matching pin error returns 403', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([
+                    ActivePINMultiResponse[0] as ActivePin,
+                ]);
+            });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '9101112',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(403);
+        expect(res.body.verified).toBeFalsy;
+        expect(res.body.reason).toBeDefined();
+        expect(res.body.reason.errorType).toBe('NonMatchingPidError');
+        expect(res.body.reason.errorMessage).toBe('PIN and PID do not match');
+    });
+
+    test('verify PIN on not found error returns 404', async () => {
+        const spy = jest
+            .spyOn(ActivePIN, 'findPin')
+            .mockImplementationOnce(async () => {
+                return Promise.resolve([]);
+            });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(404);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
-        expect(res.body.reason.errorMessage).toBe(
-            'PIN was unable to be verified',
-        );
+        expect(res.body.reason.errorMessage).toBe('PIN not found');
     });
 
     test('verify PIN on generic error returns 500', async () => {
@@ -1119,10 +1265,13 @@ describe('Pin endpoints', () => {
             .mockImplementationOnce(async () => {
                 throw new Error('An unknown error occured');
             });
-        const res = await request(app).post('/pins/verify').send({
-            pin: '12345678',
-            pids: '1234',
-        });
+        const res = await request(app)
+            .post('/pins/verify')
+            .send({
+                pin: '12345678',
+                pids: '1234',
+            })
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();

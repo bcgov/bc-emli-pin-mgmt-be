@@ -26,6 +26,8 @@ pinsRouter.post('/vhers-create', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
+        () => {},
         req.body as createPinRequestBody,
     );
     return res.send(response);
@@ -33,6 +35,8 @@ pinsRouter.post('/vhers-create', async (req: Request, res: Response) => {
 
 pinsRouter.post('/vhers-regenerate', async (req: Request, res: Response) => {
     const response = await controller.recreatePin(
+        () => {},
+        () => {},
         () => {},
         () => {},
         () => {},
@@ -77,6 +81,9 @@ pinsRouter.post('/expire', async (req: Request, res: Response) => {
 
 pinsRouter.post('/verify', async (req: Request, res: Response) => {
     const response = await controller.verifyPin(
+        () => {},
+        () => {},
+        () => {},
         () => {},
         () => {},
         req.body,

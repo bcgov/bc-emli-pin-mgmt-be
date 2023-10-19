@@ -554,3 +554,23 @@ interface verifyPinErrorType {
     errorType?: string;
     errorMessage: string;
 }
+
+/**
+ * The response given when an api key is not provided in a request that requires it
+ * @example {
+	 "message": "Access Denied"
+   }
+ */
+export interface UnauthorizedErrorResponse {
+    message: string;
+}
+
+/**
+* The response given when the api key provided in a request is invalid
+* @example {
+	"message": "Invalid Token"
+  }
+*/
+export interface InvalidTokenErrorResponse {
+    message: string;
+}
