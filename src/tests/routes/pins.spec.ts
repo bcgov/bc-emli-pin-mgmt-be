@@ -478,6 +478,11 @@ describe('Pin endpoints', () => {
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
+        jest.spyOn(
+            PINController.prototype as any,
+            'pinRequestBodyValidate',
+        ).mockResolvedValueOnce([]);
+
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         console.log(res);
@@ -769,6 +774,11 @@ describe('Pin endpoints', () => {
             GCNotifyCaller.prototype as any,
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'pinRequestBodyValidate',
+        ).mockResolvedValueOnce([]);
 
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
