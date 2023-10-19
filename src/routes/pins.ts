@@ -26,6 +26,8 @@ pinsRouter.post('/vhers-create', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
+        () => {},
         req.body as createPinRequestBody,
     );
     return res.send(response);

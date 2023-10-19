@@ -30,7 +30,7 @@ export class Users {
     email: string;
 
     @Column('character varying', {
-        name: 'user_name',
+        name: 'username',
         nullable: true,
         length: 100,
     })
