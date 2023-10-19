@@ -484,6 +484,8 @@ describe('Pin endpoints', () => {
         ).mockResolvedValueOnce([]);
 
         const reqBody = validCreatePinBodyIncServiceBC;
+        console.log('hello');
+
         const res = await request(app).post('/pins/create').send(reqBody);
         console.log(res);
         expect(res.statusCode).toBe(200);
