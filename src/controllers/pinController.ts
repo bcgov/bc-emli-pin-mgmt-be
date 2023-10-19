@@ -53,7 +53,7 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
-    public pinRequestBodyValidate(
+    private pinRequestBodyValidate(
         requestBody: createPinRequestBody | serviceBCCreateRequestBody,
     ): string[] {
         const faults: string[] = [];
