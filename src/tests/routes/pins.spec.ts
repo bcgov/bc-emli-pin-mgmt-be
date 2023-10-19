@@ -98,9 +98,12 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -167,9 +170,12 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -464,11 +470,14 @@ describe('Pin endpoints', () => {
             async (
                 updatedPins: ActivePin[],
                 sendToInfo: emailPhone,
-                requesterName?: string,
                 requesterUsername?: string,
             ) => {
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -564,9 +573,12 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -631,11 +643,14 @@ describe('Pin endpoints', () => {
             async (
                 updatedPins: ActivePin[],
                 sendToInfo: emailPhone,
-                requesterName?: string,
                 requesterUsername?: string,
             ) => {
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -738,9 +753,12 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -909,9 +927,12 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );

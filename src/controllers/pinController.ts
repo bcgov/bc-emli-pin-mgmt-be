@@ -507,7 +507,6 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
-        regenerateOrCreate: string,
     ): Promise<updatedPIN[]> {
         const gen: PINGenerator = new PINGenerator();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -689,11 +688,15 @@ export class PINController extends Controller {
         };
 
         // Insert into DB
-        const errors = await batchUpdatePin(
+        const batchUpdatePinResponse = await batchUpdatePin(
             [resultToUpdate],
             emailPhone,
             requestBody.requesterUsername, // TODO: Get info from token
         );
+
+        const errors = batchUpdatePinResponse[0];
+        const regenerateOrCreate = batchUpdatePinResponse[1];
+
         if (errors.length >= 1) {
             throw new AggregateError(
                 errors,
@@ -755,7 +758,6 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePinServiceBC(
         requestBody: serviceBCCreateRequestBody,
-        regenerateOrCreate: string,
     ): Promise<updatedPIN[]> {
         const result: any[] = [];
 
@@ -791,11 +793,16 @@ export class PINController extends Controller {
             email: requestBody.email,
             phoneNumber: requestBody.phoneNumber,
         };
-        const errors = await batchUpdatePin(
+
+        const batchUpdatePinResponse = await batchUpdatePin(
             [pinResult[0]],
             emailPhone,
             requestBody.requesterUsername, // TODO: Get info from token
         );
+
+        const errors = batchUpdatePinResponse[0];
+        const regenerateOrCreate = batchUpdatePinResponse[1];
+
         if (errors.length >= 1) {
             throw new AggregateError(
                 errors,
@@ -890,7 +897,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePin(requestBody, 'create');
+            res = await this.createOrRecreatePin(requestBody);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -963,7 +970,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePin(requestBody, 'regenerate');
+            res = await this.createOrRecreatePin(requestBody);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -1026,10 +1033,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(
-                requestBody,
-                'create',
-            );
+            res = await this.createOrRecreatePinServiceBC(requestBody);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -1092,10 +1096,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(
-                requestBody,
-                'regenerate',
-            );
+            res = await this.createOrRecreatePinServiceBC(requestBody);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
