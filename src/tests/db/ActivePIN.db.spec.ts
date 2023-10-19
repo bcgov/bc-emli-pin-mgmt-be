@@ -32,6 +32,10 @@ jest.spyOn(EntityManager.prototype, 'remove').mockImplementation(async () => {
 });
 
 describe('Active PIN db tests', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.restoreAllMocks();
+    });
     test('findPin search empty select & where', async () => {
         jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
             async () => {
@@ -107,7 +111,7 @@ describe('Active PIN db tests', () => {
             returnValue,
         );
         const response = await ActivePIN.batchUpdatePin(pins, emailPhone);
-        expect(response.length).toBe(0);
+        expect(response[0].length).toBe(1);
     });
 
     test('batchUpdatePin returns updated pins with requester name and username', async () => {
@@ -131,7 +135,7 @@ describe('Active PIN db tests', () => {
             emailPhone,
             requesterUsername,
         );
-        expect(response.length).toBe(0);
+        expect(response[0].length).toBe(1);
     });
 
     test(`batchUpdatePin returns error when there's an error in the transaction`, async () => {
@@ -153,8 +157,8 @@ describe('Active PIN db tests', () => {
             emailPhone,
             requesterUsername,
         );
-        expect(response.length).toBe(1);
-        expect(response[0]).toBe(
+        expect(response[0].length).toBe(1);
+        expect(response[0][0]).toBe(
             'An error occured while updating updatedPins[0] in batchUpdatePin: An unknown error occurred',
         );
     });
@@ -175,8 +179,8 @@ describe('Active PIN db tests', () => {
             returnValue,
         );
         const response = await ActivePIN.batchUpdatePin(pins, emailPhone);
-        expect(response.length).toBe(1);
-        expect(response[0]).toBe(
+        expect(response[0].length).toBe(1);
+        expect(response[0][0]).toBe(
             'An error occured while updating updatedPins[0] in batchUpdatePin: No rows were affected by the update',
         );
     });

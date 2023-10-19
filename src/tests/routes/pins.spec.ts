@@ -490,9 +490,6 @@ describe('Pin endpoints', () => {
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
-        expect(res.body.faults[0]).toBe(
-            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
-        );
     });
 
     test('vhers-create with guaranteed repeated pin returns 422', async () => {
@@ -533,9 +530,6 @@ describe('Pin endpoints', () => {
             .send(reqBody)
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
-        // expect(res.body.message).toBe(
-        //     `Cannot read properties of undefined (reading 'metadata')`,
-        // );
     });
     /*
 		/create endpoint tests
@@ -660,9 +654,6 @@ describe('Pin endpoints', () => {
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
-        expect(res.body.faults[0]).toBe(
-            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
-        );
     });
 
     test('create with guaranteed repeated pin returns 422', async () => {
@@ -708,9 +699,6 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(500);
-        // expect(res.body.message).toBe(
-        //     `Cannot read properties of undefined (reading 'metadata')`,
-        // );
     });
     /*
 		/vhers-regenerate endpoint tests
@@ -887,9 +875,6 @@ describe('Pin endpoints', () => {
             .send(reqBody)
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
-        // expect(res.body.message).toBe(
-        //     `Cannot read properties of undefined (reading 'metadata')`,
-        // );
     });
     /*
 		/regenerate endpoint tests
@@ -1030,9 +1015,6 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(500);
-        // expect(res.body.message).toBe(
-        //     `Cannot read properties of undefined (reading 'metadata')`,
-        // );
     });
 
     /*

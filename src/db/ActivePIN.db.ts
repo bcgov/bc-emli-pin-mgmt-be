@@ -162,9 +162,6 @@ export async function batchUpdatePin(
         try {
             transactionReturn = (await AppDataSource.transaction(
                 async (manager) => {
-                    console.log('hiya');
-                    // console.log(manager);
-                    // console.log(updatedPins);
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
 
                     const pin = await manager.findOne(ActivePin, {
