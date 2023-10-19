@@ -490,11 +490,14 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/pins/vhers-regenerate',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.recreatePin)),
 
             function PINController_recreatePin(request: any, response: any, next: any) {
             const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},

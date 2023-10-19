@@ -39,6 +39,8 @@ pinsRouter.post('/vhers-regenerate', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
+        () => {},
         req.body as createPinRequestBody,
     );
     return res.send(response);
