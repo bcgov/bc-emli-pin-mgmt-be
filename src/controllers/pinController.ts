@@ -861,8 +861,19 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Security('vhers_api_key')
     @Post('vhers-regenerate')
     public async recreatePin(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()

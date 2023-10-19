@@ -1166,6 +1166,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1188,7 +1208,11 @@
 					}
 				},
 				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
-				"security": [],
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
