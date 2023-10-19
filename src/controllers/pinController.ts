@@ -504,6 +504,7 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
+        regenerateOrCreate: string,
     ): Promise<updatedPIN[]> {
         const gen: PINGenerator = new PINGenerator();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -712,10 +713,23 @@ export class PINController extends Controller {
             pin: pin.pin,
         };
 
+        let emailTemplateId: string;
+        let phoneTemplateId: string;
+
+        regenerateOrCreate == 'create'
+            ? (emailTemplateId =
+                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
+              (phoneTemplateId =
+                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
+            : (emailTemplateId =
+                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
+              (phoneTemplateId =
+                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
+
         if (requestBody.email) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const response = await gCNotifyCaller.sendEmailNotification(
-                process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!,
+                emailTemplateId!,
                 requestBody.email,
                 personalisation,
             );
@@ -724,7 +738,7 @@ export class PINController extends Controller {
         if (requestBody.phoneNumber) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const response = await gCNotifyCaller.sendPhoneNotification(
-                process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!,
+                phoneTemplateId!,
                 requestBody.phoneNumber,
                 personalisation,
             );
@@ -738,6 +752,7 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePinServiceBC(
         requestBody: serviceBCCreateRequestBody,
+        regenerateOrCreate: string,
     ): Promise<updatedPIN[]> {
         const result: any[] = [];
 
@@ -798,10 +813,23 @@ export class PINController extends Controller {
             pin: pin.pin,
         };
 
+        let emailTemplateId: string;
+        let phoneTemplateId: string;
+
+        regenerateOrCreate == 'create'
+            ? (emailTemplateId =
+                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
+              (phoneTemplateId =
+                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
+            : (emailTemplateId =
+                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
+              (phoneTemplateId =
+                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
+
         if (requestBody.email) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const response = await gCNotifyCaller.sendEmailNotification(
-                process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!,
+                emailTemplateId!,
                 requestBody.email,
                 personalisation,
             );
@@ -810,7 +838,7 @@ export class PINController extends Controller {
         if (requestBody.phoneNumber) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const response = await gCNotifyCaller.sendPhoneNotification(
-                process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!,
+                phoneTemplateId!,
                 requestBody.phoneNumber,
                 personalisation,
             );
@@ -844,7 +872,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePin(requestBody);
+            res = await this.createOrRecreatePin(requestBody, 'create');
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -906,7 +934,7 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePin(requestBody);
+            res = await this.createOrRecreatePin(requestBody, 'regenerate');
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -969,7 +997,10 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(
+                requestBody,
+                'create',
+            );
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -1032,7 +1063,10 @@ export class PINController extends Controller {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(
+                requestBody,
+                'regenerate',
+            );
         } catch (err) {
             if (
                 err instanceof NotFoundError ||

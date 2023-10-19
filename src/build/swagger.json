@@ -395,7 +395,8 @@
 					"numberOfOwners",
 					"pids",
 					"lastName_1",
-					"addressLine_1"
+					"addressLine_1",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
