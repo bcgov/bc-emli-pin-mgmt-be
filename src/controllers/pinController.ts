@@ -775,6 +775,10 @@ export class PINController extends Controller {
     /**
      * Used to create a single, unique PIN, checking against the DB to do so.
      * Expected error codes and messages:
+     * - `400`
+     * -- `Invalid Token`
+     * - `401`
+     * -- `Access Denied`
      * - `422`
      * -- `PIN must be of length 1 or greater`
      * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
@@ -784,8 +788,19 @@ export class PINController extends Controller {
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Security('vhers_api_key')
     @Post('vhers-create')
     public async createPin(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
