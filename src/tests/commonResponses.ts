@@ -917,12 +917,17 @@ export const GCNotifyEmailErrorResponse: gcNotifyError = {
     },
 };
 
-export const createOrRecreatePinServiceBCResponse = {
-    status: 200,
-    body: [
-        {
-            pin: 'ABCD1234',
-            pids: '1234|5678',
-        },
+export const createOrRecreatePinServiceBCSuccessResponse = [
+    {
+        pin: 'ABCD1234',
+        pids: '1234|5678',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    },
+];
+
+export const createOrRecreatePinServiceBCFailureResponse = {
+    message: 'Error(s) occured in batchUpdatePin: ',
+    faults: [
+        'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
     ],
 };

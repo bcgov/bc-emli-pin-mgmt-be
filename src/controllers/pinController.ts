@@ -759,6 +759,7 @@ export class PINController extends Controller {
             requestBody.requesterUsername, // TODO: Get info from token
         );
         if (errors.length >= 1) {
+            console.log('in if errors');
             throw new AggregateError(
                 errors,
                 `Error(s) occured in batchUpdatePin: `,
