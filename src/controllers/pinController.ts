@@ -56,14 +56,12 @@ export class PINController extends Controller {
     public pinRequestBodyValidate(
         requestBody: createPinRequestBody | serviceBCCreateRequestBody,
     ): string[] {
-        console.log('Inside pinRequestBodyValidate');
         const faults: string[] = [];
         // Phone / email checks
         if (!requestBody.phoneNumber && !requestBody.email) {
             faults.push('Phone number OR email required');
         }
         if (requestBody.phoneNumber) {
-            console.log(requestBody.phoneNumber);
             if (
                 !(
                     (requestBody.phoneNumber?.startsWith('+1') &&
@@ -72,7 +70,6 @@ export class PINController extends Controller {
                         requestBody.phoneNumber?.length === 11)
                 )
             ) {
-                console.log('before faults.push');
                 faults.push(
                     'Phone number must be a valid, 10 digit North American phone number prefixed with 1 or +1',
                 );
@@ -759,7 +756,6 @@ export class PINController extends Controller {
             requestBody.requesterUsername, // TODO: Get info from token
         );
         if (errors.length >= 1) {
-            console.log('in if errors');
             throw new AggregateError(
                 errors,
                 `Error(s) occured in batchUpdatePin: `,

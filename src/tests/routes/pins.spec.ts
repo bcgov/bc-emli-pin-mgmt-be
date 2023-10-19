@@ -495,13 +495,9 @@ describe('Pin endpoints', () => {
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyIncServiceBC;
-        console.log('hello');
 
         const res = await request(app).post('/pins/create').send(reqBody);
-        console.log(res);
         expect(res.statusCode).toBe(200);
-        console.log('hiya: ', res.body.length);
-        console.log('hiya: ', res.body);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234|5678');
