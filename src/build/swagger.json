@@ -386,6 +386,9 @@
 					},
 					"requesterUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
 					}
 				},
 				"required": [

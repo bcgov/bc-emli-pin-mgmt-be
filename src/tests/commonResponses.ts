@@ -602,7 +602,6 @@ export const ActivePINMultiResponse = [
 ];
 
 export const validCreatePinBodyInc: createPinRequestBody = {
-    phoneNumber: '19021234567',
     email: 'example@example.com',
     lastName_1: 'None',
     pids: '1234|5678',
@@ -639,7 +638,6 @@ export const validCreatePinBodyName: createPinRequestBody = {
 };
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
-    phoneNumber: '19021234567',
     lastName_1: 'None',
     email: 'example@example.com',
     pids: '1234',
