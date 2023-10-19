@@ -66,10 +66,10 @@ export class PINController extends Controller {
             console.log(requestBody.phoneNumber);
             if (
                 !(
-                    (requestBody.phoneNumber.startsWith('+1') &&
-                        requestBody.phoneNumber.length === 12) ||
-                    (requestBody.phoneNumber.startsWith('1') &&
-                        requestBody.phoneNumber.length === 11)
+                    (requestBody.phoneNumber?.startsWith('+1') &&
+                        requestBody.phoneNumber?.length === 12) ||
+                    (requestBody.phoneNumber?.startsWith('1') &&
+                        requestBody.phoneNumber?.length === 11)
                 )
             ) {
                 console.log('before faults.push');
