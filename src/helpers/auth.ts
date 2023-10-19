@@ -37,19 +37,27 @@ export const decodingJWT = (token: string) => {
 
 const prepareTokenInfo = async (tokenPayload: any) => {
     const tokenDetails: any = {};
+    const identityType = tokenPayload.identity_provider;
     tokenDetails.sid = tokenPayload.sid;
-    tokenDetails.idir_user_guid = tokenPayload.idir_user_guid;
+    tokenDetails.user_guid =
+        identityType === 'idir'
+            ? tokenPayload.idir_user_guid
+            : tokenPayload.bceid_user_guid;
     tokenDetails.identity_provider = tokenPayload.identity_provider;
-    tokenDetails.idir_username = tokenPayload.idir_username;
-    tokenDetails.email_verified = tokenPayload.email_verified;
+    tokenDetails.username =
+        identityType === 'idir'
+            ? tokenPayload.idir_username
+            : tokenPayload.bceid_username;
     tokenDetails.preferred_username = tokenPayload.preferred_username;
     tokenDetails.given_name = tokenPayload.given_name;
     tokenDetails.display_name = tokenPayload.display_name;
     tokenDetails.family_name = tokenPayload.family_name;
     tokenDetails.email = tokenPayload.email;
+    if (identityType === 'bceidbusiness') {
+        tokenDetails.bceid_business_name = tokenPayload.bceid_business_name;
+    }
 
-    const activeUser = await checkActiveUser(tokenDetails.idir_user_guid);
-    console.log(activeUser);
+    const activeUser = await checkActiveUser(tokenDetails.user_guid);
     if (activeUser.roleType !== null && activeUser.permissions !== null) {
         tokenDetails.role = activeUser.roleType;
         tokenDetails.permissions = activeUser.permissions;
@@ -118,6 +126,7 @@ export const getAccessToken = async ({ code }: any) => {
     const { access_token } = data;
 
     const userInfo = decodingJWT(access_token);
+    console.log(userInfo);
     const tokenDetails = await prepareTokenInfo(userInfo?.payload);
     const signedToken = jwt.sign(tokenDetails, JWT_SECRET, {
         expiresIn: tokenExpiry,
