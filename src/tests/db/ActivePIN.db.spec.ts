@@ -97,9 +97,8 @@ describe('Active PIN db tests', () => {
 
     test('batchUpdatePin returns updated pins with no requester name or username', async () => {
         const logInfo = { affected: 1 } as UpdateResult;
-        const returnValue = {
-            logInfo: logInfo,
-        };
+        const regenerateOrCreate = 'create' as string;
+        const returnValue = [logInfo, regenerateOrCreate];
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
         const emailPhone = { email: 'email@example.com' };
@@ -111,14 +110,13 @@ describe('Active PIN db tests', () => {
             returnValue,
         );
         const response = await ActivePIN.batchUpdatePin(pins, emailPhone);
-        expect(response[0].length).toBe(1);
+        expect(response[0].length).toBe(0);
     });
 
     test('batchUpdatePin returns updated pins with requester name and username', async () => {
         const logInfo = { affected: 1 } as UpdateResult;
-        const returnValue = {
-            logInfo: logInfo,
-        };
+        const regenerateOrCreate = 'create' as string;
+        const returnValue = [logInfo, regenerateOrCreate];
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
         const emailPhone = { email: 'email@example.com' };
@@ -135,7 +133,7 @@ describe('Active PIN db tests', () => {
             emailPhone,
             requesterUsername,
         );
-        expect(response[0].length).toBe(1);
+        expect(response[0].length).toBe(0);
     });
 
     test(`batchUpdatePin returns error when there's an error in the transaction`, async () => {

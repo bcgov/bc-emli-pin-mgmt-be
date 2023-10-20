@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-useless-escape */
 import { app } from '../../index';
 import request from 'supertest';
 import * as ActivePIN from '../../db/ActivePIN.db';
@@ -470,9 +471,9 @@ describe('Pin endpoints', () => {
             async (
                 updatedPins: ActivePin[],
                 sendToInfo: emailPhone,
+                requesterName?: string,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
                     [
                         `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
@@ -490,6 +491,9 @@ describe('Pin endpoints', () => {
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
+        expect(res.body.faults[0]).toBe(
+            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
+        );
     });
 
     test('vhers-create with guaranteed repeated pin returns 422', async () => {
@@ -497,7 +501,7 @@ describe('Pin endpoints', () => {
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
                 pin1.pids = '1234';
-                pin1.titleNumber = 'EFGH';
+                pin1.titleNumber = 'EFGHf';
                 pin1.landTitleDistrict = 'BC';
                 pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
                 (pin1.givenName = 'John'), (pin1.lastName_1 = 'Smith');
@@ -530,6 +534,9 @@ describe('Pin endpoints', () => {
             .send(reqBody)
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `No metadata for \"ActivePin\" was found.`,
+        );
     });
     /*
 		/create endpoint tests
@@ -567,7 +574,6 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
                     [
                         `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
@@ -586,11 +592,6 @@ describe('Pin endpoints', () => {
             GCNotifyCaller.prototype as any,
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            PINController.prototype as any,
-            'pinRequestBodyValidate',
-        ).mockResolvedValueOnce([]);
 
         jest.spyOn(
             PINController.prototype as any,
@@ -639,7 +640,6 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
                     [
                         `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
@@ -654,6 +654,9 @@ describe('Pin endpoints', () => {
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
+        expect(res.body.faults[0]).toBe(
+            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
+        );
     });
 
     test('create with guaranteed repeated pin returns 422', async () => {
@@ -699,6 +702,9 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `No metadata for \"ActivePin\" was found.`,
+        );
     });
     /*
 		/vhers-regenerate endpoint tests
@@ -875,6 +881,9 @@ describe('Pin endpoints', () => {
             .send(reqBody)
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `No metadata for \"ActivePin\" was found.`,
+        );
     });
     /*
 		/regenerate endpoint tests
@@ -1015,6 +1024,9 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePidServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(
+            `No metadata for \"ActivePin\" was found.`,
+        );
     });
 
     /*
