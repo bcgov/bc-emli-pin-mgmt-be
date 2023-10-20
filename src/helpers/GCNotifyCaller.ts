@@ -23,9 +23,11 @@ export default class GCNotifyCaller {
         email: string,
         personalisation?: object,
     ) {
-        return await (notifyClient as any).sendEmail(templateId, email, {
-            personalisation: personalisation,
-        });
+        return await (notifyClient as any).sendEmail(
+            templateId,
+            email,
+            personalisation,
+        );
     }
 
     private async sendSms(
@@ -34,9 +36,11 @@ export default class GCNotifyCaller {
         phone: string,
         personalisation?: object,
     ) {
-        return await (notifyClient as any).sendSms(templateId, phone, {
-            personalisation: personalisation,
-        });
+        return await (notifyClient as any).sendSms(
+            templateId,
+            phone,
+            personalisation,
+        );
     }
 
     /**
