@@ -12,8 +12,16 @@ import { join } from 'path';
 export const AppDataSource = new DataSource({
     type: 'postgres',
     schema: process.env.NODE_ENV === 'test' ? 'test' : 'public',
-    host: process.env.DB_HOST ? process.env.DB_HOST : '127.0.0.1',
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT as string) : 5432,
+    host:
+        typeof process.env.DB_HOST === 'undefined' ||
+        process.env.DB_HOST === '127.0.0.1'
+            ? '127.0.0.1'
+            : process.env.DB_HOST,
+    port:
+        typeof process.env.DB_PORT === 'undefined' ||
+        process.env.DB_PORT === '5432'
+            ? 5432
+            : parseInt(process.env.DB_PORT as string),
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
