@@ -10,7 +10,7 @@
     "build": "tsoa spec-and-routes && tsc",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "prepare": "husky install",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "jest",
     "start": "node dist/index.js",
     "migration:create": "npm run build && typeorm migration:create ./src/migration",
     "db:migrate": "typeorm-ts-node-commonjs migration:run -d ./src/data-source.ts",
@@ -71,7 +71,6 @@
     "winston": "^3.10.0"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.3",
