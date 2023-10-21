@@ -7,20 +7,21 @@ import { requestStatusType, accessRequestResponseBody } from '../helpers/types';
 export async function createRequest(
     accessRequestInfo: accessRequestResponseBody,
 ): Promise<any | undefined> {
+    const params = {
+        userGuid: accessRequestInfo.userGuid,
+        identityType: accessRequestInfo.identityType,
+        requestedRole: accessRequestInfo.requestedRole,
+        organization: accessRequestInfo.organization,
+        email: accessRequestInfo.email,
+        userName: accessRequestInfo.userName,
+        firstName: accessRequestInfo.firstName,
+        lastName: accessRequestInfo.lastName,
+        requestReason: accessRequestInfo.requestReason,
+        requestStatus: requestStatusType.NotGranted,
+    };
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
-            const newRequest = await manager.create(AccessRequest, {
-                userGuid: accessRequestInfo.userGuid,
-                identityType: accessRequestInfo.identityType,
-                requestedRole: accessRequestInfo.requestedRole,
-                organization: accessRequestInfo.organization,
-                email: accessRequestInfo.email,
-                userName: accessRequestInfo.userName,
-                firstName: accessRequestInfo.firstName,
-                lastName: accessRequestInfo.lastName,
-                requestReason: accessRequestInfo.requestReason,
-                requestStatus: requestStatusType.NotGranted,
-            });
+            const newRequest = await manager.create(AccessRequest, params);
             const createdRequest = await manager.insert(
                 AccessRequest,
                 newRequest,
@@ -35,7 +36,7 @@ export async function createRequest(
             transactionReturn.createdRequest.identifiers !== null
         ) {
             logger.debug(
-                `Successfully created a access request with id  '${transactionReturn.createdRequest.identifiers}'`,
+                `Successfully created an access request with id  '${transactionReturn.createdRequest.identifiers}'`,
             );
             return transactionReturn.createdRequest.identifiers;
         }

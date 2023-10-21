@@ -1,4 +1,5 @@
 import {
+    accessRequestResponseBody,
     createPinRequestBody,
     gcNotifyError,
     serviceBCCreateRequestBody,
@@ -913,4 +914,16 @@ export const GCNotifyEmailErrorResponse: gcNotifyError = {
             ],
         },
     },
+};
+
+export const AccessRequestBody: accessRequestResponseBody = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Admin',
+    organization: 'Bc Service',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    firstName: 'John',
+    lastName: 'Doe',
+    requestReason: 'To get access to site',
 };
