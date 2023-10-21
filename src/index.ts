@@ -17,11 +17,15 @@ declare module 'express-session' {
         user: { [key: string]: any };
     }
 }
-const FE_APP_URL = process.env.FE_APP_URL || '';
+const FE_APP_URL =
+    process.env.FE_APP_URL && process.env.FE_APP_URL !== ''
+        ? process.env.FE_APP_URL
+        : '';
 const app: Express = express();
-const port: number = process.env.SERVER_PORT
-    ? parseInt(process.env.SERVER_PORT as string)
-    : 3000;
+const port: number =
+    process.env.SERVER_PORT !== '3000'
+        ? parseInt(process.env.SERVER_PORT as string)
+        : 3000;
 // TO-DO: update after testing in dev
 const setHeaderURL = FE_APP_URL?.includes('localhost') ? '*' : FE_APP_URL;
 // Add headers before the routes are defined
@@ -51,14 +55,16 @@ app.use(function (req, res, next) {
 
 const corsDomain = [process.env.FE_APP_URL];
 
+const origin = (origin: any, callback: any) => {
+    if (!origin || corsDomain.indexOf(origin) !== -1) {
+        callback(null, true);
+    } else {
+        callback(new Error('Not allowed by CORS'));
+    }
+};
+
 const corsOptions = {
-    origin(origin: any, callback: any) {
-        if (!origin || corsDomain.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin,
     optionsSuccessStatus: 200,
     exposedHeaders: ['Set-Cookie'],
     credentials: true,
@@ -97,7 +103,8 @@ app.use(function notFoundHandler(_req, res: Response) {
         message: 'Not Found',
     });
 });
-app.use(function errorHandler(
+
+const errorHandler = function (
     err: unknown,
     _req: Request,
     res: Response,
@@ -130,9 +137,10 @@ app.use(function errorHandler(
             message: 'Internal Server Error',
         });
     }
-
     next();
-});
+};
+
+app.use(errorHandler);
 
 app.disable('x-powered-by');
 
@@ -145,4 +153,4 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-export { app, AppDataSource };
+export { app, AppDataSource, origin, errorHandler };

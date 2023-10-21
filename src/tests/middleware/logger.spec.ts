@@ -3,7 +3,7 @@ import logger from '../../middleware/logger';
 
 describe('logger tests', () => {
     test('logger uses different levels in development', () => {
-        expect(logger.isDebugEnabled()).toBeTruthy;
+        expect(logger.isSillyEnabled()).toBeTruthy;
     });
     afterAll(() => {
         process.env.NODE_ENV = 'test';
