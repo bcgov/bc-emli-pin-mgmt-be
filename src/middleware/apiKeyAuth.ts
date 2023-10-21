@@ -8,7 +8,10 @@ export function expressAuthentication(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     scopes?: string[],
 ): Promise<any> {
-    const VHERS_API_KEY = process.env.VHERS_API_KEY || '';
+    const VHERS_API_KEY =
+        process.env.VHERS_API_KEY && process.env.VHERS_API_KEY !== ''
+            ? process.env.VHERS_API_KEY
+            : '';
     if (securityName === 'vhers_api_key') {
         // Extract api key from the request header.
         const apiKey = req.header('x-api-key');
@@ -25,5 +28,8 @@ export function expressAuthentication(
             return Promise.reject(
                 new AuthenticationError('Invalid Token', 400),
             );
-    } else return Promise.reject(new AuthenticationError('Invalid Token', 400));
+    } else
+        return Promise.reject(
+            new AuthenticationError('Invalid Security Name', 400),
+        );
 }
