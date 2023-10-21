@@ -80,8 +80,24 @@ export default class PINGenerator {
                 'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
             );
         }
+        return this.createPINDictionary(length, characters, quantity, false);
+    }
+
+    /*
+	 Seperated to allow for full jest coverage (with escape function)
+	 Otherwise, we cannot guarantee we will end up 
+	*/
+    private createPINDictionary(
+        length: number,
+        characters: string,
+        quantity: number,
+        escape?: boolean,
+    ): PINDictionary {
         const PINDictionary: PINDictionary = {};
+        let escapeCount = 0;
         for (let i: number = 0; i < quantity; i += 1) {
+            if (escape === true && escapeCount >= quantity)
+                return PINDictionary;
             const newPIN: PIN = cryptoRandomString({
                 length: length,
                 characters: characters,
@@ -89,6 +105,7 @@ export default class PINGenerator {
             if (PINDictionary[newPIN]) {
                 // pin already exists
                 i -= 1;
+                escapeCount += 1;
                 continue; // try again
             } else {
                 PINDictionary[newPIN] = 1; // add PIN to object / dictionary
