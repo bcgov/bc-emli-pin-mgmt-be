@@ -923,7 +923,22 @@ export const AccessRequestBody: accessRequestResponseBody = {
     organization: 'Bc Service',
     email: 'abc@gov.ca',
     userName: 'johndoe',
-    firstName: 'John',
+    givenName: 'John',
     lastName: 'Doe',
     requestReason: 'To get access to site',
 };
+
+export const UsersMultiResponse = [
+    {
+        userID: '',
+        userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        identityType: 'idir',
+        role: 'Admin',
+        organization: 'Bc Service',
+        email: 'abc@gov.ca',
+        userName: 'johndoe',
+        givenName: 'John',
+        lastName: 'Doe',
+        requestReason: 'To get access to site',
+    },
+];

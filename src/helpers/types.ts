@@ -146,7 +146,7 @@ export interface PINDictionary {
  *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
- *     "givenName": "firstname",
+ *     "givenName": "givenName",
  *     "lastName_1": "lastname",
  *     "lastName_2": null,
  *     "incorporationNumber": null,
@@ -441,7 +441,7 @@ export enum requestStatusType {
     "organization": "Bc Service",
     "email": "abc@gov.ca",
     "userName": "johndoe",
-    "firstName": "John",
+    "givenName": "John",
     "lastName": "Doe",
     "requestReason": "To get access to site"
   }
@@ -453,7 +453,7 @@ export interface accessRequestResponseBody {
     organization: string;
     email: string;
     userName: string;
-    firstName: string;
+    givenName: string;
     lastName: string;
     requestReason: string;
 }

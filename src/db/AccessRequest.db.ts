@@ -14,7 +14,7 @@ export async function createRequest(
         organization: accessRequestInfo.organization,
         email: accessRequestInfo.email,
         userName: accessRequestInfo.userName,
-        firstName: accessRequestInfo.firstName,
+        givenName: accessRequestInfo.givenName,
         lastName: accessRequestInfo.lastName,
         requestReason: accessRequestInfo.requestReason,
         requestStatus: requestStatusType.NotGranted,
