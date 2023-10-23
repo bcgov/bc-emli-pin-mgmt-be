@@ -67,7 +67,6 @@ export default class GCNotifyCaller {
                 );
                 return true;
             } catch (err) {
-                console.log((err as any).response);
                 let message =
                     `Error(s) sending GCNotify email - ` +
                     (err as gcNotifyError).response.status +
