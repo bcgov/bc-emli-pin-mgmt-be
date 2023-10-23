@@ -364,7 +364,7 @@
 				}
 			},
 			"createPinRequestBody": {
-				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address, hence the need\nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
+				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address. The property address is required to send the\nGCNotify email / text message to the recipient.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
 				"properties": {
 					"pinLength": {
 						"type": "number",
@@ -433,7 +433,7 @@
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"phoneNumber": "19021234567",
+					"email": "example@test.com",
 					"pids": "1234|5678",
 					"numberOfOwners": 2,
 					"givenName": "Jane",
@@ -444,11 +444,12 @@
 					"city": "Vancouver",
 					"provinceAbbreviation": "BC",
 					"country": "Canada",
-					"postalCode": "V1V1V1"
+					"postalCode": "V1V1V1",
+					"propertyAddress": "8765 Willow Way, Chilliwack, BC"
 				}
 			},
 			"serviceBCCreateRequestBody": {
-				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request",
+				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request. The property address is for sending the\nGCNotify email/ text message, and is not used for verification.",
 				"properties": {
 					"livePinId": {
 						"type": "string"
@@ -1127,7 +1128,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the \nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
@@ -1204,7 +1205,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the \nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
@@ -1261,7 +1262,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -1314,7 +1315,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human. \nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
