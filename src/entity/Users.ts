@@ -13,7 +13,7 @@ export class Users {
     @Column('character varying', { name: 'user_guid', length: 36 })
     userGuid: string;
 
-    @Column('character varying', { name: 'identity_type', length: 10 })
+    @Column('character varying', { name: 'identity_type', length: 20 })
     identityType: string;
 
     @Column('enum', { name: 'role', enum: ['Standard', 'Admin', 'SuperAdmin'] })
@@ -22,7 +22,7 @@ export class Users {
     @Column('character varying', {
         name: 'organization',
         nullable: true,
-        length: 50,
+        length: 100,
     })
     organization: string | null;
 
@@ -34,7 +34,7 @@ export class Users {
         nullable: true,
         length: 100,
     })
-    username: string | null;
+    userName: string | null;
 
     @Column('character varying', { name: 'given_name', length: 50 })
     givenName: string;

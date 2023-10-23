@@ -146,7 +146,7 @@ export interface PINDictionary {
  *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
- *     "givenName": "firstname",
+ *     "givenName": "givenName",
  *     "lastName_1": "lastname",
  *     "lastName_2": null,
  *     "incorporationNumber": null,
@@ -297,15 +297,15 @@ export interface expireRequestBody {
 /**
  * The request body for a pin creation / recreation request.
  * The address fields given are for a mailing address, which is
- * not necessarily the same as the property address, hence the need
- * for the pid as well.
+ * not necessarily the same as the property address. The property address is required to send the
+ * GCNotify email / text message to the recipient.
  * Certain combinations of fields are required in addition to always required fields:
  * - (givenName & lastName_1/lastName_2) OR incorporationNumber
  * - phoneNumber AND/OR email
  * - requesterName and requesterUsername are required if an employee is requesting the creation,
  *  rather than self serve
  * @example {
-  "phoneNumber": "19021234567",
+  "email": "example@test.com",
   "pids": "1234|5678",
   "numberOfOwners": 2,
   "givenName": "Jane",
@@ -316,7 +316,8 @@ export interface expireRequestBody {
   "city": "Vancouver",
   "provinceAbbreviation": "BC",
   "country": "Canada",
-  "postalCode": "V1V1V1"
+  "postalCode": "V1V1V1",
+  "propertyAddress": "8765 Willow Way, Chilliwack, BC"
   }
  */
 export interface createPinRequestBody {
@@ -442,7 +443,7 @@ export enum requestStatusType {
     "organization": "Bc Service",
     "email": "abc@gov.ca",
     "userName": "johndoe",
-    "firstName": "John",
+    "givenName": "John",
     "lastName": "Doe",
     "requestReason": "To get access to site"
   }
@@ -454,7 +455,7 @@ export interface accessRequestResponseBody {
     organization: string;
     email: string;
     userName: string;
-    firstName: string;
+    givenName: string;
     lastName: string;
     requestReason: string;
 }
@@ -477,7 +478,8 @@ export interface addressMatchScore {
 
 /**
  * Since these results are verified by a human, much less information is required
- * than the standard create / recreate request
+ * than the standard create / recreate request. The property address is for sending the
+ * GCNotify email/ text message, and is not used for verification. 
  * @example
  * 	{
   		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",

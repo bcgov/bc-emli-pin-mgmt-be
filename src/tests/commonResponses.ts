@@ -1,4 +1,5 @@
 import {
+    accessRequestResponseBody,
     createPinRequestBody,
     gcNotifyError,
     serviceBCCreateRequestBody,
@@ -953,3 +954,44 @@ export const createOrRecreatePinServiceBCFailureResponse = {
         'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
     ],
 };
+
+export const AccessRequestBody: accessRequestResponseBody = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Admin',
+    organization: 'Bc Service',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    givenName: 'John',
+    lastName: 'Doe',
+    requestReason: 'To get access to site',
+};
+
+export const UsersMultiResponse = [
+    {
+        userID: 'd452065c-d756-4877-8ba3-ab6e6042f422',
+        userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        identityType: 'idir',
+        role: 'Admin',
+        email: 'abc@gov.ca',
+        givenName: 'John',
+        lastName: 'Doe',
+        isActive: true,
+    },
+    {
+        userID: '037544f5-f95a-4169-961b-f229ec1f5c19',
+        userGuid: '88e8c8c3-419b-4902-92fa-4ffbddcd548c',
+        identityType: 'idir',
+        role: 'Admin',
+        email: 'def@gov.ca',
+        givenName: 'Jane',
+        lastName: 'White',
+        isActive: true,
+    },
+];
+
+export const AdminPermissionResponse = [
+    { permission: 'USER_ACCESS' },
+    { permission: 'PROPERTY_SEARCH' },
+    { permission: 'ACCESS_REQUEST' },
+];
