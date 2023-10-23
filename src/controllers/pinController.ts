@@ -859,6 +859,9 @@ export class PINController extends Controller {
 
     /**
      * Used to create a single, unique PIN, checking against the DB to do so.
+     * Note that the address line, province, country and postal code information is that of the
+     * mailing address used for identity verfication. The property address could differ, and will be used
+     * in the GCNotify email / text message that is sent.
      * Expected error codes and messages:
      * - `400`
      * -- `Invalid Token`
@@ -936,6 +939,9 @@ export class PINController extends Controller {
 
     /**
      * Used to recreate a single, unique PIN, checking against the DB to do so.
+     * Note that the address line, province, country and postal code information is that of the
+     * mailing address used for identity verfication. The property address could differ, and will be used
+     * in the GCNotify email / text message that is sent.
      * Expected error codes and messages:
      * - `422`
      * -- `PIN must be of length 1 or greater`
@@ -1010,6 +1016,8 @@ export class PINController extends Controller {
     /**
      * Used to create a single, unique PIN, checking against the DB to do so.
      * This endpoint has minimal validation, as the validation is expected to be performed by a human.
+     * Note that the property address given is just used for the GCNotify email / text message
+     * and is not used for validation.
      * Expected error codes and messages:
      * - `422`
      * -- `PIN must be of length 1 or greater`
@@ -1073,6 +1081,8 @@ export class PINController extends Controller {
     /**
      * Used to recreate a single, unique PIN, checking against the DB to do so.
      * This endpoint has minimal validation, as the validation is expected to be performed by a human.
+     * Note that the property address given is just used for the GCNotify email / text message
+     * and is not used for validation.
      * Expected error codes and messages:
      * - `422`
      * -- `PIN must be of length 1 or greater`
