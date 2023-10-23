@@ -42,7 +42,7 @@ app.use(function (req, res, next) {
     // Request headers you wish to allow
     res.setHeader(
         'Access-Control-Allow-Headers',
-        'X-Requested-With,content-type',
+        'X-Requested-With,content-type,x-api-key',
     );
 
     // Set to true if you need the website to include cookies in the requests sent
@@ -53,7 +53,7 @@ app.use(function (req, res, next) {
     next();
 });
 
-const corsDomain = [process.env.FE_APP_URL];
+const corsDomain = [process.env.FE_APP_URL, process.env.BE_APP_URL];
 
 const origin = (origin: any, callback: any) => {
     if (!origin || corsDomain.indexOf(origin) !== -1) {
