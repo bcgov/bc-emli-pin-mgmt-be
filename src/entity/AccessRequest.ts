@@ -13,7 +13,7 @@ export class AccessRequest {
     @Column('character varying', { name: 'user_guid', length: 36 })
     userGuid: string;
 
-    @Column('character varying', { name: 'identity_type', length: 10 })
+    @Column('character varying', { name: 'identity_type', length: 20 })
     identityType: string;
 
     @Column('enum', {
@@ -22,7 +22,7 @@ export class AccessRequest {
     })
     requestedRole: 'Standard' | 'Admin' | 'SuperAdmin';
 
-    @Column('character varying', { name: 'organization', length: 50 })
+    @Column('character varying', { name: 'organization', length: 100 })
     organization: string;
 
     @Column('citext', { name: 'email' })
@@ -31,8 +31,8 @@ export class AccessRequest {
     @Column('character varying', { name: 'user_name', length: 50 })
     userName: string;
 
-    @Column('character varying', { name: 'first_name', length: 50 })
-    firstName: string;
+    @Column('character varying', { name: 'given_name', length: 50 })
+    givenName: string;
 
     @Column('character varying', { name: 'last_name', length: 75 })
     lastName: string;

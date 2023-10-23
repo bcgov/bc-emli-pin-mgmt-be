@@ -106,4 +106,10 @@ describe('test new function', () => {
         expect(Object.keys(output).length).toBe(1);
         expect(Object.keys(output)[0].length).toBe(2);
     });
+
+    test('createPINDictionary ignores repeats', () => {
+        const proto = Object.getPrototypeOf(gen);
+        const dictionary = proto.createPINDictionary(1, 'A', 4, true);
+        expect(dictionary['A']).toBe(1);
+    });
 });

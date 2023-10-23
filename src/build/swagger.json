@@ -83,7 +83,7 @@
 					"userName": {
 						"type": "string"
 					},
-					"firstName": {
+					"givenName": {
 						"type": "string"
 					},
 					"lastName": {
@@ -100,7 +100,7 @@
 					"organization",
 					"email",
 					"userName",
-					"firstName",
+					"givenName",
 					"lastName",
 					"requestReason"
 				],
@@ -113,7 +113,7 @@
 					"organization": "Bc Service",
 					"email": "abc@gov.ca",
 					"userName": "johndoe",
-					"firstName": "John",
+					"givenName": "John",
 					"lastName": "Doe",
 					"requestReason": "To get access to site"
 				}
@@ -526,11 +526,7 @@
 						"type": "string"
 					},
 					"titleStatus": {
-						"type": "string",
-						"enum": [
-							"R",
-							"C"
-						]
+						"type": "string"
 					},
 					"fromTitleNumber": {
 						"type": "string",
@@ -801,7 +797,7 @@
 							"pids": "1234567",
 							"titleNumber": "12345",
 							"landTitleDistrict": "AB",
-							"givenName": "firstname",
+							"givenName": "givenName",
 							"lastName_1": "lastname",
 							"lastName_2": null,
 							"incorporationNumber": null,

@@ -28,11 +28,6 @@ export async function findPermissionByRole(role: UserRoles): Promise<any> {
         select: { permission: true },
         where: { role: role },
     };
-    let result;
-    if (query.where === undefined && query.select === undefined) {
-        result = await permissionRepo.find();
-    } else {
-        result = await permissionRepo.find(query);
-    }
+    const result = await permissionRepo.find(query);
     return result;
 }
