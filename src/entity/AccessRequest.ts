@@ -31,7 +31,7 @@ export class AccessRequest {
     @Column('character varying', { name: 'user_name', length: 50 })
     userName: string;
 
-    @Column('character varying', { name: 'first_name', length: 50 })
+    @Column('character varying', { name: 'given_name', length: 50 })
     firstName: string;
 
     @Column('character varying', { name: 'last_name', length: 75 })
