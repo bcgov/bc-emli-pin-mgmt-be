@@ -1,4 +1,4 @@
-import { Like, UpdateResult } from 'typeorm';
+import { IsNull, Like, Not, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
@@ -145,9 +145,10 @@ export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
     requesterUsername?: string,
-): Promise<string[]> {
+): Promise<[string[], string]> {
     const errors = [];
-    let expireUsername: string, reason: expirationReason, logInfo;
+    const regenerateOrCreate = '';
+    let expireUsername: string, reason: expirationReason, logInfo: UpdateResult;
     if (!requesterUsername) {
         expireUsername = 'self';
         reason = expirationReason.OnlineReset;
@@ -162,6 +163,21 @@ export async function batchUpdatePin(
             transactionReturn = (await AppDataSource.transaction(
                 async (manager) => {
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
+
+                    const pin = await manager.findOne(ActivePin, {
+                        where: {
+                            livePinId: updatedPins[i].livePinId,
+                            pin: Not(IsNull()),
+                        },
+                    });
+
+                    let regenerateOrCreate: string;
+                    if (pin) {
+                        regenerateOrCreate = 'regenerate';
+                    } else {
+                        regenerateOrCreate = 'create';
+                    }
+
                     // Update the log with the correct info
                     const log = await manager.findOneOrFail(PinAuditLog, {
                         order: {
@@ -189,9 +205,9 @@ export async function batchUpdatePin(
                         { logId: log.logId },
                         updateInfo,
                     );
-                    return { logInfo };
+                    return [logInfo, regenerateOrCreate];
                 },
-            )) as { logInfo: UpdateResult };
+            )) as [logInfo: UpdateResult, regenerateOrCreate: string];
         } catch (err) {
             if (err instanceof Error) {
                 const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: ${err.message}`;
@@ -203,10 +219,10 @@ export async function batchUpdatePin(
 
         if (
             typeof transactionReturn != 'undefined' &&
-            typeof transactionReturn.logInfo != 'undefined' &&
-            transactionReturn.logInfo &&
-            transactionReturn.logInfo.affected &&
-            transactionReturn.logInfo.affected !== 0
+            typeof transactionReturn[0] != 'undefined' &&
+            transactionReturn[0] &&
+            transactionReturn[0].affected &&
+            transactionReturn[0].affected !== 0
         ) {
             logger.debug(
                 `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}'`,
@@ -217,5 +233,5 @@ export async function batchUpdatePin(
             errors.push(message);
         }
     }
-    return errors;
+    return [errors, regenerateOrCreate];
 }

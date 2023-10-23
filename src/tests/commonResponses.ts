@@ -603,7 +603,6 @@ export const ActivePINMultiResponse = [
 ];
 
 export const validCreatePinBodyInc: createPinRequestBody = {
-    phoneNumber: '19021234567',
     email: 'example@example.com',
     lastName_1: 'None',
     pids: '1234|5678',
@@ -614,12 +613,14 @@ export const validCreatePinBodyInc: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyIncServiceBC: serviceBCCreateRequestBody = {
-    phoneNumber: '19021234567',
+    phoneNumber: '14162345678',
     email: 'example@example.com',
     livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
 };
 
 export const validCreatePinBodyName: createPinRequestBody = {
@@ -634,10 +635,10 @@ export const validCreatePinBodyName: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodySinglePid: createPinRequestBody = {
-    phoneNumber: '19021234567',
     lastName_1: 'None',
     email: 'example@example.com',
     pids: '1234',
@@ -648,6 +649,7 @@ export const validCreatePinBodySinglePid: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodySinglePid: createPinRequestBody = {
@@ -662,13 +664,14 @@ export const invalidCreatePinBodySinglePid: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 7,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodySinglePidServiceBC: serviceBCCreateRequestBody =
     {
-        phoneNumber: '19021234567',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
@@ -682,6 +685,7 @@ export const validCreatePinBodyNameAddLineProvLong: createPinRequestBody = {
     city: 'Vancouver',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
@@ -694,6 +698,7 @@ export const validCreatePinBodyNameAddLineCountry: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
@@ -706,6 +711,7 @@ export const validCreatePinBodyNameAddLinePostalCode: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
@@ -718,6 +724,7 @@ export const validCreatePinBodyNameAddLineProvLongOnly: createPinRequestBody = {
     addressLine_2: 'Unit 100A',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
@@ -731,6 +738,7 @@ export const validCreatePinBodyNameAddLineProvAbbrev: createPinRequestBody = {
     provinceAbbreviation: 'BZ',
     country: 'Canada',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
@@ -745,6 +753,7 @@ export const validCreatePinBodyNameAddLineProvAbbrevLong: createPinRequestBody =
         provinceAbbreviation: 'BZ',
         country: 'Canada',
         numberOfOwners: 1,
+        propertyAddress: '123 example street',
     };
 
 export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
@@ -760,6 +769,7 @@ export const invalidCreatePinBodyWrongPhone: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody =
@@ -767,6 +777,7 @@ export const invalidCreatePinBodyWrongPhoneServiceBC: serviceBCCreateRequestBody
         phoneNumber: '88234',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
@@ -779,6 +790,7 @@ export const invalidCreatePinBodyNoPhoneEmail: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
@@ -792,6 +804,7 @@ export const invalidCreatePinBodyIncorrectPhone: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyPinLength: createPinRequestBody = {
@@ -808,15 +821,16 @@ export const invalidCreatePinBodyPinLength: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyPinLengthServiceBC: serviceBCCreateRequestBody =
     {
         pinLength: 0,
         allowedChars: 'A',
-        phoneNumber: '19021234567',
         email: 'example@example.com',
         livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+        propertyAddress: '123 example st, Vancouver, BC, Canada, V1V1V1',
     };
 
 export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
@@ -830,6 +844,7 @@ export const invalidCreatePinBodyWrongLastName1: createPinRequestBody = {
     country: 'Canada',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
@@ -842,6 +857,7 @@ export const invalidCreatePinBodyNoCountry: createPinRequestBody = {
     provinceAbbreviation: 'BC',
     postalCode: 'V1V1V1',
     numberOfOwners: 1,
+    propertyAddress: '123 example street',
 };
 
 export const AuditLogMultiResponse = [
@@ -914,6 +930,29 @@ export const GCNotifyEmailErrorResponse: gcNotifyError = {
             ],
         },
     },
+};
+
+export const createOrRecreatePinServiceBCSuccessResponse = [
+    {
+        pin: 'ABCD1234',
+        pids: '1234|5678',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    },
+];
+
+export const createOrRecreatePinServiceBCSuccessResponseSinglePid = [
+    {
+        pin: 'ABCD1234',
+        pids: '1234',
+        livePinId: 'cf430240-e5b6-4224-bd71-a02e098cc6e8',
+    },
+];
+
+export const createOrRecreatePinServiceBCFailureResponse = {
+    message: 'Error(s) occured in batchUpdatePin: ',
+    faults: [
+        'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
+    ],
 };
 
 export const AccessRequestBody: accessRequestResponseBody = {

@@ -418,13 +418,17 @@
 					},
 					"requesterUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"numberOfOwners",
 					"pids",
 					"lastName_1",
-					"addressLine_1"
+					"addressLine_1",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
@@ -455,6 +459,9 @@
 					"phoneNumber": {
 						"type": "string"
 					},
+					"propertyAddress": {
+						"type": "string"
+					},
 					"pinLength": {
 						"type": "number",
 						"format": "double"
@@ -468,16 +475,10 @@
 				},
 				"required": [
 					"livePinId",
-					"email",
-					"phoneNumber"
+					"propertyAddress"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-					"email": "example@example.com",
-					"phoneNumber": "+19021234567"
-				}
+				"additionalProperties": false
 			},
 			"PIN": {
 				"type": "string",
