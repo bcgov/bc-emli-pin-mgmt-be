@@ -58,7 +58,7 @@ const models: TsoaRoute.Models = {
             "organization": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "userName": {"dataType":"string","required":true},
-            "firstName": {"dataType":"string","required":true},
+            "givenName": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "requestReason": {"dataType":"string","required":true},
         },
@@ -120,6 +120,22 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvalidTokenErrorResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UnauthorizedErrorResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "pinRangeErrorType": {
         "dataType": "refObject",
         "properties": {
@@ -165,6 +181,7 @@ const models: TsoaRoute.Models = {
             "country": {"dataType":"string"},
             "postalCode": {"dataType":"string"},
             "requesterUsername": {"dataType":"string"},
+            "propertyAddress": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -173,8 +190,9 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "livePinId": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
-            "phoneNumber": {"dataType":"string","required":true},
+            "email": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
+            "propertyAddress": {"dataType":"string","required":true},
             "pinLength": {"dataType":"double"},
             "allowedChars": {"dataType":"string"},
             "requesterUsername": {"dataType":"string"},
@@ -203,7 +221,7 @@ const models: TsoaRoute.Models = {
             "pids": {"dataType":"string","required":true},
             "titleNumber": {"dataType":"string","required":true},
             "landTitleDistrict": {"dataType":"string","required":true},
-            "titleStatus": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["R"]},{"dataType":"enum","enums":["C"]}],"required":true},
+            "titleStatus": {"dataType":"string","required":true},
             "fromTitleNumber": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "fromLandTitleDistrict": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "givenName": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
@@ -247,22 +265,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "verified": {"dataType":"boolean","required":true},
             "reason": {"ref":"verifyPinErrorType"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "InvalidTokenErrorResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "UnauthorizedErrorResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -458,11 +460,14 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/pins/vhers-create',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.createPin)),
 
             function PINController_createPin(request: any, response: any, next: any) {
             const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
@@ -487,11 +492,14 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/pins/vhers-regenerate',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PINController)),
             ...(fetchMiddlewares<RequestHandler>(PINController.prototype.recreatePin)),
 
             function PINController_recreatePin(request: any, response: any, next: any) {
             const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},

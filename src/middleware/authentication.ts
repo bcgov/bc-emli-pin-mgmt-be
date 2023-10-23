@@ -24,6 +24,5 @@ export async function authenticate(
         next();
     } catch (error: any) {
         return res.status(401).json({ success: false, msg: error.message });
-        // console.error(error);
     }
 }

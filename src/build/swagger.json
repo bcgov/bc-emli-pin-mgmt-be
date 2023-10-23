@@ -83,7 +83,7 @@
 					"userName": {
 						"type": "string"
 					},
-					"firstName": {
+					"givenName": {
 						"type": "string"
 					},
 					"lastName": {
@@ -100,7 +100,7 @@
 					"organization",
 					"email",
 					"userName",
-					"firstName",
+					"givenName",
 					"lastName",
 					"requestReason"
 				],
@@ -113,7 +113,7 @@
 					"organization": "Bc Service",
 					"email": "abc@gov.ca",
 					"userName": "johndoe",
-					"firstName": "John",
+					"givenName": "John",
 					"lastName": "Doe",
 					"requestReason": "To get access to site"
 				}
@@ -272,6 +272,38 @@
 					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
 				}
 			},
+			"InvalidTokenErrorResponse": {
+				"description": "The response given when the api key provided in a request is invalid",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Invalid Token"
+				}
+			},
+			"UnauthorizedErrorResponse": {
+				"description": "The response given when an api key is not provided in a request that requires it",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Access Denied"
+				}
+			},
 			"pinRangeErrorType": {
 				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
 				"properties": {
@@ -386,13 +418,17 @@
 					},
 					"requesterUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"numberOfOwners",
 					"pids",
 					"lastName_1",
-					"addressLine_1"
+					"addressLine_1",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
@@ -423,6 +459,9 @@
 					"phoneNumber": {
 						"type": "string"
 					},
+					"propertyAddress": {
+						"type": "string"
+					},
 					"pinLength": {
 						"type": "number",
 						"format": "double"
@@ -436,16 +475,10 @@
 				},
 				"required": [
 					"livePinId",
-					"email",
-					"phoneNumber"
+					"propertyAddress"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-					"email": "example@example.com",
-					"phoneNumber": "+19021234567"
-				}
+				"additionalProperties": false
 			},
 			"PIN": {
 				"type": "string",
@@ -493,11 +526,7 @@
 						"type": "string"
 					},
 					"titleStatus": {
-						"type": "string",
-						"enum": [
-							"R",
-							"C"
-						]
+						"type": "string"
 					},
 					"fromTitleNumber": {
 						"type": "string",
@@ -650,38 +679,6 @@
 					}
 				}
 			},
-			"InvalidTokenErrorResponse": {
-				"description": "The response given when the api key provided in a request is invalid",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Invalid Token"
-				}
-			},
-			"UnauthorizedErrorResponse": {
-				"description": "The response given when an api key is not provided in a request that requires it",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Access Denied"
-				}
-			},
 			"verifyPinRequestBody": {
 				"description": "The information needed to verify a pin from the VHERS side.\nNote that the pids are seperated by a vertical bar (|)",
 				"properties": {
@@ -800,7 +797,7 @@
 							"pids": "1234567",
 							"titleNumber": "12345",
 							"landTitleDistrict": "AB",
-							"givenName": "firstname",
+							"givenName": "givenName",
 							"lastName_1": "lastname",
 							"lastName_2": null,
 							"incorporationNumber": null,
@@ -1089,6 +1086,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1110,8 +1127,12 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
-				"security": [],
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -1142,6 +1163,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1164,7 +1205,11 @@
 					}
 				},
 				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
-				"security": [],
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,

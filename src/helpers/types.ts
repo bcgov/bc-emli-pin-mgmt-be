@@ -146,7 +146,7 @@ export interface PINDictionary {
  *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
- *     "givenName": "firstname",
+ *     "givenName": "givenName",
  *     "lastName_1": "lastname",
  *     "lastName_2": null,
  *     "incorporationNumber": null,
@@ -337,6 +337,7 @@ export interface createPinRequestBody {
     country?: string;
     postalCode?: string;
     requesterUsername?: string;
+    propertyAddress: string;
 }
 
 /**
@@ -441,7 +442,7 @@ export enum requestStatusType {
     "organization": "Bc Service",
     "email": "abc@gov.ca",
     "userName": "johndoe",
-    "firstName": "John",
+    "givenName": "John",
     "lastName": "Doe",
     "requestReason": "To get access to site"
   }
@@ -453,7 +454,7 @@ export interface accessRequestResponseBody {
     organization: string;
     email: string;
     userName: string;
-    firstName: string;
+    givenName: string;
     lastName: string;
     requestReason: string;
 }
@@ -482,12 +483,14 @@ export interface addressMatchScore {
   		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
   		"email": "example@example.com",
   		"phoneNumber": "+19021234567"
+        "propertyAddress": "123 Main Street, Vancouver, BC"
   	}
  */
 export interface serviceBCCreateRequestBody {
     livePinId: string;
-    email: string;
-    phoneNumber: string;
+    email?: string;
+    phoneNumber?: string;
+    propertyAddress: string;
     pinLength?: number;
     allowedChars?: string;
     requesterUsername?: string;

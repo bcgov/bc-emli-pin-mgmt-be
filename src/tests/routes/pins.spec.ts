@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-useless-escape */
 import { app } from '../../index';
 import request from 'supertest';
 import * as ActivePIN from '../../db/ActivePIN.db';
@@ -35,9 +36,14 @@ import {
     invalidCreatePinBodyWrongPhoneServiceBC,
     validCreatePinBodySinglePidServiceBC,
     invalidCreatePinBodySinglePid,
+    createOrRecreatePinServiceBCSuccessResponse,
+    createOrRecreatePinServiceBCFailureResponse,
+    createOrRecreatePinServiceBCSuccessResponseSinglePid,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
+import GCNotifyCaller from '../../helpers/GCNotifyCaller';
+import { GCNotifyEmailSuccessResponse } from '../commonResponses';
 
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
@@ -46,6 +52,11 @@ const key = 'cf430240-e5b6-4224-bd71-a02e098cc6e8'; // don't use this as the act
 describe('Pin endpoints', () => {
     beforeAll(() => {
         process.env.VHERS_API_KEY = key;
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.restoreAllMocks();
     });
     /*
 	  /vhers-create endpoint tests
@@ -88,16 +99,36 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
-        // jest.spyOn()
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
@@ -140,24 +171,71 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
 
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(
+            createOrRecreatePinServiceBCSuccessResponseSinglePid,
+        );
+
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234');
     });
 
+    test('vhers-create on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('vhers-create on no API key provided returns 401', async () => {
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
     test('vhers-create on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -191,7 +269,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = invalidCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234 does not match the address and name / incorporation number given:\nNone Inc. # 91011\n123 example st\nVancouver, BC, Canada V1V1V1',
@@ -220,7 +301,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
@@ -234,7 +318,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyInc;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -251,7 +338,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -269,7 +359,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineProvAbbrev;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -287,7 +380,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLineCountry;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -305,7 +401,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyNameAddLinePostalCode;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -324,7 +423,10 @@ describe('Pin endpoints', () => {
         );
         const reqBody = validCreatePinBodyNameAddLineProvLong;
         reqBody.lastName_2 = 'Appleseed';
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -373,13 +475,19 @@ describe('Pin endpoints', () => {
                 requesterUsername?: string,
             ) => {
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
 
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
@@ -393,7 +501,7 @@ describe('Pin endpoints', () => {
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
                 pin1.pids = '1234';
-                pin1.titleNumber = 'EFGH';
+                pin1.titleNumber = 'EFGHf';
                 pin1.landTitleDistrict = 'BC';
                 pin1.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
                 (pin1.givenName = 'John'), (pin1.lastName_1 = 'Smith');
@@ -412,7 +520,8 @@ describe('Pin endpoints', () => {
         const requBody = invalidCreatePinBodyPinLength;
         const res = await request(app)
             .post('/pins/vhers-create')
-            .send(requBody);
+            .send(requBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -420,10 +529,13 @@ describe('Pin endpoints', () => {
     test('vhers-create pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
         const reqBody = validCreatePinBodySinglePid;
-        const res = await request(app).post('/pins/vhers-create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/vhers-create')
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
-            `Cannot read properties of undefined (reading 'metadata')`,
+            `No metadata for \"ActivePin\" was found.`,
         );
     });
     /*
@@ -462,14 +574,32 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
 
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePinServiceBC',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
+
         const reqBody = validCreatePinBodyIncServiceBC;
+
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
@@ -508,11 +638,13 @@ describe('Pin endpoints', () => {
             async (
                 updatedPins: ActivePin[],
                 sendToInfo: emailPhone,
-                requesterName?: string,
                 requesterUsername?: string,
             ) => {
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
@@ -571,7 +703,7 @@ describe('Pin endpoints', () => {
         const res = await request(app).post('/pins/create').send(reqBody);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
-            `Cannot read properties of undefined (reading 'metadata')`,
+            `No metadata for \"ActivePin\" was found.`,
         );
     });
     /*
@@ -615,28 +747,71 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
 
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePin',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
+
         const reqBody = validCreatePinBodyInc;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
         expect(res.body[0].pids).toBe('1234|5678');
     });
 
+    test('vhers-regenerate on API key not matching returns 400', async () => {
+        let lastCharChange = '';
+        if (key[key.length - 1] === 'f') lastCharChange = '1';
+        else lastCharChange = 'f';
+        const extraKey = key.substring(0, key.length - 1) + lastCharChange;
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody)
+            .set({ 'x-api-key': extraKey });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('Invalid Token');
+    });
+
+    test('vhers-regenerate on no API key provided returns 401', async () => {
+        const reqBody = validCreatePinBodySinglePid;
+        const res = await request(app)
+            .post('/pins/vhers-regenerate')
+            .send(reqBody);
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('Access Denied');
+    });
+
     test('vhers-regenerate on request body validation fail returns 422', async () => {
         const reqBody = invalidCreatePinBodyWrongPhone;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -656,7 +831,8 @@ describe('Pin endpoints', () => {
         reqBody.lastName_2 = 'Appleseed';
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Pids 1234|5678 does not match the address and name / incorporation number given:' +
@@ -691,7 +867,8 @@ describe('Pin endpoints', () => {
         const reqBody = invalidCreatePinBodyPinLength;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -701,10 +878,11 @@ describe('Pin endpoints', () => {
         const reqBody = validCreatePinBodySinglePid;
         const res = await request(app)
             .post('/pins/vhers-regenerate')
-            .send(reqBody);
+            .send(reqBody)
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
-            `Cannot read properties of undefined (reading 'metadata')`,
+            `No metadata for \"ActivePin\" was found.`,
         );
     });
     /*
@@ -743,12 +921,35 @@ describe('Pin endpoints', () => {
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [];
+                if (updatedPins[0].pin === 'ABCD1234') return [[''], ''];
                 return [
-                    `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    [
+                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                    ],
+                    `create`,
                 ];
             },
         );
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'pinRequestBodyValidate',
+        ).mockResolvedValueOnce([]);
+
+        jest.spyOn(
+            PINController.prototype as any,
+            'createOrRecreatePinServiceBC',
+        ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyIncServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
@@ -759,6 +960,16 @@ describe('Pin endpoints', () => {
     });
 
     test('regenerate on request body validation fail returns 422', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
         const reqBody = invalidCreatePinBodyWrongPhoneServiceBC;
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(422);
@@ -814,7 +1025,7 @@ describe('Pin endpoints', () => {
         const res = await request(app).post('/pins/regenerate').send(reqBody);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
-            `Cannot read properties of undefined (reading 'metadata')`,
+            `No metadata for \"ActivePin\" was found.`,
         );
     });
 
@@ -831,6 +1042,16 @@ describe('Pin endpoints', () => {
     });
 
     test('initial create with too few pins returns 422', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
         const res = await request(app)
             .get('/pins/initial-create')
             .query({ quantity: 0 });
