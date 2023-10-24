@@ -57,7 +57,10 @@ export class PINController extends Controller {
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
     private pinRequestBodyValidate(
-        requestBody: createPinRequestBody | serviceBCCreateRequestBody,
+        requestBody:
+            | createPinRequestBody
+            | serviceBCCreateRequestBody
+            | expireRequestBody,
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
@@ -1219,7 +1222,11 @@ export class PINController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         let deletedPin: ActivePin | undefined;
+
         try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const faults = this.pinRequestBodyValidate(requestBody);
+
             deletedPin = await deletePin(
                 requestBody.livePinId,
                 requestBody.expirationReason,
@@ -1243,6 +1250,36 @@ export class PINController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
+        if (deletedPin) {
+            const personalisation = {
+                property_address: requestBody.propertyAddress,
+                pin: deletedPin.pin,
+            };
+
+            const emailTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+            const phoneTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+
+            if (requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendEmailNotification(
+                    emailTemplateId!,
+                    requestBody.email,
+                    personalisation,
+                );
+            }
+
+            if (requestBody.phoneNumber) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendPhoneNotification(
+                    phoneTemplateId!,
+                    requestBody.phoneNumber,
+                    personalisation,
+                );
+            }
+        }
+
         return deletedPin;
     }
 

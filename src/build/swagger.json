@@ -627,18 +627,30 @@
 					},
 					"expiredByUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"livePinId",
-					"expirationReason"
+					"expirationReason",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
-					"expiredByUsername": "jsmith"
+					"expiredByUsername": "jsmith",
+					"propertyAddress": "123 example st",
+					"email": "test@gmail.com"
 				}
 			},
 			"verifyPinErrorType": {
