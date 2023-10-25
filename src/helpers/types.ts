@@ -284,13 +284,18 @@ export enum roleType {
  * @example {
  	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
   	"expirationReason": "OP",
-   "expiredByUsername": "jsmith"
+    "expiredByUsername": "jsmith",
+    "propertyAddress": "123 example st",
+    "email": "test@gmail.com"
   }
  */
 export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
     expiredByUsername?: string;
+    propertyAddress: string;
+    phoneNumber?: string;
+    email?: string;
 }
 // TODO: Change to look up by GUID??
 

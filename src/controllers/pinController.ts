@@ -56,8 +56,11 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
-    private pinRequestBodyValidate(
-        requestBody: createPinRequestBody | serviceBCCreateRequestBody,
+    public pinRequestBodyValidate(
+        requestBody:
+            | createPinRequestBody
+            | serviceBCCreateRequestBody
+            | expireRequestBody,
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
@@ -1229,8 +1232,10 @@ export class PINController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         let deletedPin: ActivePin | undefined;
+
         try {
             deletedPin = await deletePin(
+                requestBody,
                 requestBody.livePinId,
                 requestBody.expirationReason,
                 expiredUsername,
@@ -1253,6 +1258,36 @@ export class PINController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
+        if (deletedPin) {
+            const personalisation = {
+                property_address: requestBody.propertyAddress,
+                pin: deletedPin.pin,
+            };
+
+            const emailTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+            const phoneTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+
+            if (requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendEmailNotification(
+                    emailTemplateId!,
+                    requestBody.email,
+                    personalisation,
+                );
+            }
+
+            if (requestBody.phoneNumber) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendPhoneNotification(
+                    phoneTemplateId!,
+                    requestBody.phoneNumber,
+                    personalisation,
+                );
+            }
+        }
+
         return deletedPin;
     }
 
