@@ -995,3 +995,25 @@ export const AdminPermissionResponse = [
     { permission: 'PROPERTY_SEARCH' },
     { permission: 'ACCESS_REQUEST' },
 ];
+
+export const DeletePINSuccessResponse = {
+    livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+    pin: '12345678',
+    pids: '1213',
+    titleNumber: '123',
+    landTitleDistrict: '12',
+    titleStatus: 'R',
+    fromTitleNumber: null,
+    fromLandTitleDistrict: null,
+    givenName: 'Jane',
+    lastName_1: 'Purple',
+    lastName_2: null,
+    incorporationNumber: null,
+    addressLine_1: '123 example street',
+    addressLine_2: null,
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
+    provinceLong: null,
+    country: 'Canada',
+    postalCode: null,
+};

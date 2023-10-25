@@ -39,6 +39,7 @@ import {
     createOrRecreatePinServiceBCSuccessResponse,
     createOrRecreatePinServiceBCFailureResponse,
     createOrRecreatePinServiceBCSuccessResponseSinglePid,
+    DeletePINSuccessResponse,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
@@ -1122,15 +1123,18 @@ describe('Pin endpoints', () => {
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
-        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(() => {
-            return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
-        });
+        jest.spyOn(ActivePIN as any, 'deletePin').mockResolvedValueOnce(
+            DeletePINSuccessResponse,
+        );
+
         const res = await request(app).post('/pins/expire').send({
             livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
             expirationReason: expirationReason.ChangeOfOwnership,
             propertyAddress: '123 example st',
             email: 'test@gmail.com',
         });
+
+        console.log(res);
         expect(res.statusCode).toBe(200);
         expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
     });
