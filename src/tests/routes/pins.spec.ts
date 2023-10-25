@@ -1123,6 +1123,11 @@ describe('Pin endpoints', () => {
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
+        jest.spyOn(
+            PINController.prototype as any,
+            'pinRequestBodyValidate',
+        ).mockResolvedValueOnce([]);
+
         jest.spyOn(ActivePIN as any, 'deletePin').mockResolvedValueOnce(
             DeletePINSuccessResponse,
         );

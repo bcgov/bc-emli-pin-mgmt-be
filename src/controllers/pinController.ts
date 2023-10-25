@@ -1234,6 +1234,7 @@ export class PINController extends Controller {
         let deletedPin: ActivePin | undefined;
 
         try {
+            console.log('intry');
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const faults = this.pinRequestBodyValidate(requestBody);
 
@@ -1243,6 +1244,7 @@ export class PINController extends Controller {
                 expiredUsername,
             );
         } catch (err) {
+            console.log('incatch');
             if (err instanceof EntityNotFoundError) {
                 logger.warn(
                     `Encountered Entity Not Found Error in expirePin: ${err.message}`,
@@ -1261,6 +1263,7 @@ export class PINController extends Controller {
             }
         }
         if (deletedPin) {
+            console.log('inhere');
             const personalisation = {
                 property_address: requestBody.propertyAddress,
                 pin: deletedPin.pin,
