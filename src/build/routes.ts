@@ -20,6 +20,24 @@ import type { RequestHandler, Router } from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "forbiddenError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "notFoundError": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GenericTypeORMErrorType": {
         "dataType": "refObject",
         "properties": {
@@ -337,24 +355,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "forbiddenError": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-            "code": {"dataType":"double","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "notFoundError": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-            "code": {"dataType":"double","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "pidNotFound": {
         "dataType": "refObject",
         "properties": {
@@ -362,11 +362,6 @@ const models: TsoaRoute.Models = {
             "code": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "roleType": {
-        "dataType": "refEnum",
-        "enums": ["Admin","SuperAdmin","Standard"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -385,10 +380,13 @@ export function RegisterRoutes(app: Router) {
 
             function AccessRequestController_createAccessRequest(request: any, response: any, next: any) {
             const args = {
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
+                    notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
                     typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"accessRequestResponseBody"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -711,7 +709,7 @@ export function RegisterRoutes(app: Router) {
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     pidNotFoundResponse: {"in":"res","name":"204","required":true,"ref":"pidNotFound"},
                     siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
-                    role: {"in":"query","name":"role","required":true,"ref":"roleType"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

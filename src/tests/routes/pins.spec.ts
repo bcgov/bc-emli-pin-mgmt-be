@@ -39,19 +39,26 @@ import {
     createOrRecreatePinServiceBCSuccessResponse,
     createOrRecreatePinServiceBCFailureResponse,
     createOrRecreatePinServiceBCSuccessResponseSinglePid,
+    SampleSuperAdminTokenPayload,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
 import { NotFoundError } from '../../helpers/NotFoundError';
 import GCNotifyCaller from '../../helpers/GCNotifyCaller';
 import { GCNotifyEmailSuccessResponse } from '../commonResponses';
+import jwt from 'jsonwebtoken';
 
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
     () => ({}) as EntityMetadata,
 );
 const key = 'cf430240-e5b6-4224-bd71-a02e098cc6e8'; // don't use this as the actual key...
+let token: string;
 describe('Pin endpoints', () => {
     beforeAll(() => {
         process.env.VHERS_API_KEY = key;
+        const JWT_SECRET = 'abcd';
+        token = jwt.sign(SampleSuperAdminTokenPayload, JWT_SECRET, {
+            expiresIn: 30 * 60 * 1000,
+        });
     });
 
     afterEach(() => {
@@ -600,7 +607,10 @@ describe('Pin endpoints', () => {
 
         const reqBody = validCreatePinBodyIncServiceBC;
 
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/create')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
@@ -650,7 +660,10 @@ describe('Pin endpoints', () => {
         );
 
         const reqBody = validCreatePinBodySinglePidServiceBC;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/create')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
@@ -678,7 +691,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = invalidCreatePinBodyPinLengthServiceBC;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/create')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -690,7 +706,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyIncServiceBC;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/create')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Active Pin with livePinId cf430240-e5b6-4224-bd71-a02e098cc6e8 not found in database.',
@@ -700,7 +719,10 @@ describe('Pin endpoints', () => {
     test('create pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
         const reqBody = validCreatePinBodySinglePidServiceBC;
-        const res = await request(app).post('/pins/create').send(reqBody);
+        const res = await request(app)
+            .post('/pins/create')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
             `No metadata for \"ActivePin\" was found.`,
@@ -952,7 +974,10 @@ describe('Pin endpoints', () => {
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
 
         const reqBody = validCreatePinBodyIncServiceBC;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/regenerate')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].pin).toBe('ABCD1234');
@@ -971,7 +996,10 @@ describe('Pin endpoints', () => {
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         const reqBody = invalidCreatePinBodyWrongPhoneServiceBC;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/regenerate')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Validation Error(s) occured in createPin request body:',
@@ -1000,7 +1028,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = invalidCreatePinBodyPinLengthServiceBC;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/regenerate')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -1012,7 +1043,10 @@ describe('Pin endpoints', () => {
             },
         );
         const reqBody = validCreatePinBodyIncServiceBC;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/regenerate')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Active Pin with livePinId cf430240-e5b6-4224-bd71-a02e098cc6e8 not found in database.',
@@ -1022,7 +1056,10 @@ describe('Pin endpoints', () => {
     test('regenerate pin with unknown error returns 500', async () => {
         // Without mocking things, we should get a metadata error
         const reqBody = validCreatePinBodySinglePidServiceBC;
-        const res = await request(app).post('/pins/regenerate').send(reqBody);
+        const res = await request(app)
+            .post('/pins/regenerate')
+            .send(reqBody)
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
             `No metadata for \"ActivePin\" was found.`,
@@ -1035,7 +1072,8 @@ describe('Pin endpoints', () => {
     test('initial create should return 2 unique pins', async () => {
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 2 });
+            .query({ quantity: 2 })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(200);
         expect(res.body.pins.length).toBe(2);
         expect(res.body.pins[0]).not.toEqual(res.body.pins[1]);
@@ -1054,7 +1092,9 @@ describe('Pin endpoints', () => {
 
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 0 });
+            .query({ quantity: 0 })
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'The number of PINS created must be greater than 0.',
@@ -1064,7 +1104,9 @@ describe('Pin endpoints', () => {
     test('initial create with guaranteed repeated pin returns 422', async () => {
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 9, pinLength: 3, allowedChars: 'AB' });
+            .query({ quantity: 9, pinLength: 3, allowedChars: 'AB' })
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Quantity of PINs requested too high: guaranteed repeats for the given pin length and character set.',
@@ -1074,7 +1116,9 @@ describe('Pin endpoints', () => {
     test('initial create too short PIN (length < 1) returns 422', async () => {
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 1, pinLength: 0 });
+            .query({ quantity: 1, pinLength: 0 })
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('PIN must be of length 1 or greater');
     });
@@ -1082,14 +1126,19 @@ describe('Pin endpoints', () => {
     test('initial create PIN with no characters in set returns default character set pin', async () => {
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 1, allowedChars: '' });
+            .query({ quantity: 1, allowedChars: '' })
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(200);
         expect(res.body.pins.length).toBe(1);
         expect(res.body.pins[0].length).toEqual(8);
     });
 
     test('initial create PIN with no quantity returns 422', async () => {
-        const res = await request(app).get('/pins/initial-create');
+        const res = await request(app)
+            .get('/pins/initial-create')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe('Validation Failed');
     });
@@ -1103,7 +1152,9 @@ describe('Pin endpoints', () => {
         });
         const res = await request(app)
             .get('/pins/initial-create')
-            .query({ quantity: 1 });
+            .query({ quantity: 1 })
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occurred');
     });
@@ -1117,20 +1168,26 @@ describe('Pin endpoints', () => {
             .mockImplementationOnce(() => {
                 return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
             });
-        const res = await request(app).post('/pins/expire').send({
-            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-            expirationReason: expirationReason.ChangeOfOwnership,
-        });
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.ChangeOfOwnership,
+            })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(200);
         expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
         spy.mockClear();
     });
 
     test('expire PIN should fail without username for non-system expirations', async () => {
-        const res = await request(app).post('/pins/expire').send({
-            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-            expirationReason: expirationReason.CallCenterPinReset,
-        });
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+            })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Must provide an expiration username when expiring a PIN',
@@ -1144,11 +1201,14 @@ describe('Pin endpoints', () => {
                 livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
             });
         });
-        const res = await request(app).post('/pins/expire').send({
-            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-            expirationReason: expirationReason.CallCenterPinReset,
-            expiredByUsername: 'Test',
-        });
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+            })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
@@ -1161,11 +1221,14 @@ describe('Pin endpoints', () => {
                 'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
             );
         });
-        const res = await request(app).post('/pins/expire').send({
-            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-            expirationReason: expirationReason.CallCenterPinReset,
-            expiredByUsername: 'Test',
-        });
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+            })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe(
             'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
@@ -1176,11 +1239,14 @@ describe('Pin endpoints', () => {
         jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
             throw new Error('An unknown error occured');
         });
-        const res = await request(app).post('/pins/expire').send({
-            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-            expirationReason: expirationReason.CallCenterPinReset,
-            expiredByUsername: 'Test',
-        });
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+            })
+            .set('Cookie', `token=${token}`);
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occured');
     });

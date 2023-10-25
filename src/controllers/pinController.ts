@@ -9,6 +9,7 @@ import {
     Res,
     Body,
     Security,
+    Middlewares,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -49,6 +50,7 @@ import GCNotifyCaller from '../helpers/GCNotifyCaller';
 
 const gCNotifyCaller = new GCNotifyCaller();
 import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
+import { authenticate } from '../middleware/authentication';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -1028,6 +1030,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Middlewares(authenticate)
     @Post('create')
     public async serviceBCCreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1093,6 +1096,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Middlewares(authenticate)
     @Post('regenerate')
     public async serviceBCRecreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1158,6 +1162,7 @@ export class PINController extends Controller {
      * generate the pin. Default is A-Z excluding O, and 1-9
      * @returns An object containing an array of the created, unique PINs
      */
+    @Middlewares(authenticate)
     @Get('initial-create')
     public async getInitialPins(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1206,6 +1211,7 @@ export class PINController extends Controller {
      * @param requestBody The body of the request. Note that expiredByUsername is only required for reasons other than "CO" (change of ownership).
      * @returns The deleted pin
      */
+    @Middlewares(authenticate)
     @Post('expire')
     public async expirePin(
         @Res() entityErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,

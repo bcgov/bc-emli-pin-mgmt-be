@@ -16,7 +16,6 @@ export async function authenticate(
                 .status(404)
                 .json({ success: false, msg: 'Token not found' });
         }
-
         const verified = jwt.verify(token, JWT_SECRET);
         if (!verified) {
             return res.json({ result: 'Token verification failed' });

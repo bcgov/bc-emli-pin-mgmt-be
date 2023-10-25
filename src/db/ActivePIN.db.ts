@@ -2,7 +2,7 @@ import { IsNull, Like, Not, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason, roleType } from '../helpers/types';
+import { emailPhone, expirationReason } from '../helpers/types';
 import logger from '../middleware/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,13 +26,13 @@ export async function findPin(
 
 export async function findPropertyDetails(
     pids: string[],
-    role: roleType,
+    permissions: string[],
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
     let where: any[] | object = [];
     if (pids.length === 0) {
-        // error
+        throw new Error(`No pids available for search`);
     }
     if (pids.length === 1) {
         where = { pids: Like(`%` + pids[0] + `%`) };
@@ -42,7 +42,11 @@ export async function findPropertyDetails(
             (where as any[]).push({ pids: Like(`%` + pids[i] + `%`) });
         }
     }
-    if (role === roleType.SuperAdmin) {
+    /*
+     * We don't check the 'PROPERTY_SEARCH' permission here as it is already checked
+     * in the only endpoint that uses this function.
+     */
+    if (permissions.includes('VIEW_PIN')) {
         query = {
             select: {
                 livePinId: true,

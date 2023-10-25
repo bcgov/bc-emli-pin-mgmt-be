@@ -995,3 +995,22 @@ export const AdminPermissionResponse = [
     { permission: 'PROPERTY_SEARCH' },
     { permission: 'ACCESS_REQUEST' },
 ];
+
+export const SampleSuperAdminTokenPayload = {
+    identity_provider: 'idir',
+    sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
+    idir_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
+    idir_username: 'EXAMPLE',
+    preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
+    given_name: 'Test',
+    display_name: 'Test User',
+    family_name: 'User',
+    email: 'example@test.com',
+    role: 'SuperAdmin',
+    permissions: [
+        'USER_ACCESS',
+        'VIEW_PIN',
+        'PROPERTY_SEARCH',
+        'ACCESS_REQUEST',
+    ],
+};
