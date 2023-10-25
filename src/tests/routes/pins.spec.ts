@@ -1111,100 +1111,98 @@ describe('Pin endpoints', () => {
     /* 
 		/expire endpoint tests 
 	*/
-    // test('expire PIN should return expired PIN', async () => {
-    //     jest.spyOn(
-    //         GCNotifyCaller.prototype as any,
-    //         'sendEmail',
-    //     ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+    test('expire PIN should return expired PIN', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
-    //     jest.spyOn(
-    //         GCNotifyCaller.prototype as any,
-    //         'sendSms',
-    //     ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
-    //     jest
-    //         .spyOn(ActivePIN, 'deletePin')
-    //         .mockImplementationOnce(() => {
-    //             return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
-    //         });
-    //     const res = await request(app).post('/pins/expire').send({
-    //         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-    //         expirationReason: expirationReason.ChangeOfOwnership,
-    //         propertyAddress: "123 example st",
-    //         email: "test@gmail.com",
-    //     });
-    //     console.log(res)
-    //     expect(res.statusCode).toBe(200);
-    //     expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
-    //     // spy.mockClear();
-    // });
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(() => {
+            return Promise.resolve(ActivePINMultiResponse[0] as ActivePin);
+        });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+            expirationReason: expirationReason.ChangeOfOwnership,
+            propertyAddress: '123 example st',
+            email: 'test@gmail.com',
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
+    });
 
-    // test('expire PIN should fail without username for non-system expirations', async () => {
-    //     const res = await request(app).post('/pins/expire').send({
-    //         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
-    //         expirationReason: expirationReason.CallCenterPinReset,
-    //         propertyAddress: "123 example st",
-    //         email: "test@gmail.com",
-    //     });
-    //     expect(res.statusCode).toBe(422);
-    //     expect(res.body.message).toBe(
-    //         'Must provide an expiration username when expiring a PIN',
-    //     );
-    // });
+    test('expire PIN should fail without username for non-system expirations', async () => {
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+            expirationReason: expirationReason.CallCenterPinReset,
+            propertyAddress: '123 example st',
+            email: 'test@gmail.com',
+        });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Must provide an expiration username when expiring a PIN',
+        );
+    });
 
-    // test('expire PIN without existing PIN returns 422', async () => {
-    //     jest.clearAllMocks();
-    //     jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
-    //         throw new EntityNotFoundError(ActivePin, {
-    //             livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-    //             propertyAddress: "123 example st",
-    //             email: "test@gmail.com",
-    //         });
-    //     });
-    //     const res = await request(app).post('/pins/expire').send({
-    //         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-    //         expirationReason: expirationReason.CallCenterPinReset,
-    //         expiredByUsername: 'Test',
-    //     });
-    //     expect(res.statusCode).toBe(422);
-    //     expect(res.body.message).toBe(
-    //         'Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
-    //     );
-    // });
+    test('expire PIN without existing PIN returns 422', async () => {
+        jest.clearAllMocks();
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new EntityNotFoundError(ActivePin, {
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            });
+        });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByUsername: 'Test',
+            propertyAddress: '123 example st',
+            email: 'test@gmail.com',
+        });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            `Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae7",\n    "propertyAddress": "123 example st",\n    "email": "test@gmail.com"\n}`,
+        );
+    });
 
-    // test('expire PIN on generic TypeORM Error returns 422', async () => {
-    //     jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
-    //         throw new TypeORMError(
-    //             'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
-    //         );
-    //     });
-    //     const res = await request(app).post('/pins/expire').send({
-    //         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-    //         expirationReason: expirationReason.CallCenterPinReset,
-    //         expiredByUsername: 'Test',
-    //         propertyAddress: "123 example st",
-    //         email: "test@gmail.com",
-    //     });
-    //     expect(res.statusCode).toBe(422);
-    //     expect(res.body.message).toBe(
-    //         'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
-    //     );
-    // });
+    test('expire PIN on generic TypeORM Error returns 422', async () => {
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new TypeORMError(
+                'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
+            );
+        });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByUsername: 'Test',
+            propertyAddress: '123 example st',
+            email: 'test@gmail.com',
+        });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
+        );
+    });
 
-    // test('expire PIN on generic error returns 500', async () => {
-    //     jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
-    //         throw new Error('An unknown error occured');
-    //     });
-    //     const res = await request(app).post('/pins/expire').send({
-    //         livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
-    //         expirationReason: expirationReason.CallCenterPinReset,
-    //         expiredByUsername: 'Test',
-    //         propertyAddress: "123 example st",
-    //         email: "test@gmail.com",
-    //     });
-    //     expect(res.statusCode).toBe(500);
-    //     expect(res.body.message).toBe('An unknown error occured');
-    // });
+    test('expire PIN on generic error returns 500', async () => {
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new Error('An unknown error occured');
+        });
+        const res = await request(app).post('/pins/expire').send({
+            livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+            expirationReason: expirationReason.CallCenterPinReset,
+            expiredByUsername: 'Test',
+            propertyAddress: '123 example st',
+            email: 'test@gmail.com',
+        });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe('An unknown error occured');
+    });
 
     /*
 		/verify endpoint tests
