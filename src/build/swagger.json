@@ -6,50 +6,6 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"forbiddenError": {
-				"description": "Forbidden Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Forbidden error",
-					"code": 403
-				}
-			},
-			"notFoundError": {
-				"description": "Not Found Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Not found error",
-					"code": 404
-				}
-			},
 			"GenericTypeORMErrorType": {
 				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
 				"properties": {
@@ -901,6 +857,50 @@
 					"code": 400
 				}
 			},
+			"forbiddenError": {
+				"description": "Forbidden Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Forbidden error",
+					"code": 403
+				}
+			},
+			"notFoundError": {
+				"description": "Not Found Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Not found error",
+					"code": 404
+				}
+			},
 			"pidNotFound": {
 				"description": "PID Not Found",
 				"properties": {
@@ -956,26 +956,6 @@
 				"responses": {
 					"201": {
 						"description": "Created"
-					},
-					"403": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/forbiddenError"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/notFoundError"
-								}
-							}
-						}
 					},
 					"422": {
 						"description": "",
