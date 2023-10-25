@@ -2,8 +2,14 @@ import { IsNull, Like, Not, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason, roleType } from '../helpers/types';
+import {
+    emailPhone,
+    expirationReason,
+    expireRequestBody,
+    roleType,
+} from '../helpers/types';
 import logger from '../middleware/logger';
+import { PINController } from '../controllers/pinController';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function findPin(
@@ -91,10 +97,14 @@ export async function findPropertyDetails(
 }
 
 export async function deletePin(
+    requestBody: expireRequestBody,
     id: string,
     reason: expirationReason,
     expiredByUsername: string,
 ): Promise<ActivePin | undefined> {
+    const controller = new PINController();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const faults = await controller.pinRequestBodyValidate(requestBody);
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const PINToDelete = await manager.findOneOrFail(ActivePin, {

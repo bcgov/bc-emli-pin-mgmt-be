@@ -56,7 +56,7 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
-    private pinRequestBodyValidate(
+    public pinRequestBodyValidate(
         requestBody:
             | createPinRequestBody
             | serviceBCCreateRequestBody
@@ -1235,10 +1235,9 @@ export class PINController extends Controller {
 
         try {
             console.log('intry');
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const faults = this.pinRequestBodyValidate(requestBody);
 
             deletedPin = await deletePin(
+                requestBody,
                 requestBody.livePinId,
                 requestBody.expirationReason,
                 expiredUsername,
