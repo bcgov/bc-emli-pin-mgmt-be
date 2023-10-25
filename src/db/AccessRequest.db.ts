@@ -26,7 +26,7 @@ export async function createRequest(
                 AccessRequest,
                 newRequest,
             );
-            // TODO integrate GC Notify
+
             return { createdRequest };
         },
     )) as { createdRequest: InsertResult };
