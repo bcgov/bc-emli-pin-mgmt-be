@@ -1261,36 +1261,36 @@ export class PINController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-        // if (deletedPin) {
-        //     console.log('inhere');
-        //     const personalisation = {
-        //         property_address: requestBody.propertyAddress,
-        //         pin: deletedPin.pin,
-        //     };
+        if (deletedPin) {
+            console.log('inhere');
+            const personalisation = {
+                property_address: requestBody.propertyAddress,
+                pin: deletedPin.pin,
+            };
 
-        //     const emailTemplateId: string =
-        //         process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
-        //     const phoneTemplateId: string =
-        //         process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+            const emailTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+            const phoneTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
 
-        //     if (requestBody.email) {
-        //         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //         const response = await gCNotifyCaller.sendEmailNotification(
-        //             emailTemplateId!,
-        //             requestBody.email,
-        //             personalisation,
-        //         );
-        //     }
+            if (requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendEmailNotification(
+                    emailTemplateId!,
+                    requestBody.email,
+                    personalisation,
+                );
+            }
 
-        //     if (requestBody.phoneNumber) {
-        //         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //         const response = await gCNotifyCaller.sendPhoneNotification(
-        //             phoneTemplateId!,
-        //             requestBody.phoneNumber,
-        //             personalisation,
-        //         );
-        //     }
-        // }
+            if (requestBody.phoneNumber) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendPhoneNotification(
+                    phoneTemplateId!,
+                    requestBody.phoneNumber,
+                    personalisation,
+                );
+            }
+        }
 
         return deletedPin;
     }

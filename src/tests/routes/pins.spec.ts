@@ -1115,12 +1115,12 @@ describe('Pin endpoints', () => {
     test('expire PIN should return expired PIN', async () => {
         jest.spyOn(
             GCNotifyCaller.prototype as any,
-            'sendEmail',
+            'sendEmailNotification',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         jest.spyOn(
             GCNotifyCaller.prototype as any,
-            'sendSms',
+            'sendPhoneNotification',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         jest.spyOn(
