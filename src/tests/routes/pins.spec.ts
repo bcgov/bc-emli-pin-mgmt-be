@@ -1123,15 +1123,6 @@ describe('Pin endpoints', () => {
             'sendPhoneNotification',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
-        jest.spyOn(
-            PINController.prototype as any,
-            'pinRequestBodyValidate',
-        ).mockResolvedValueOnce([]);
-
-        jest.spyOn(ActivePIN as any, 'deletePin').mockResolvedValueOnce(
-            DeletePINSuccessResponse,
-        );
-
         const res = await request(app).post('/pins/expire').send({
             livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
             expirationReason: expirationReason.ChangeOfOwnership,
@@ -1139,7 +1130,6 @@ describe('Pin endpoints', () => {
             email: 'test@gmail.com',
         });
 
-        console.log(res);
         expect(res.statusCode).toBe(200);
         expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
     });
