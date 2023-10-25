@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const JWT_SECRET = process.env.JWT_SECRET || '';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function authenticate(
     req: Request,
@@ -16,7 +16,7 @@ export async function authenticate(
                 .status(404)
                 .json({ success: false, msg: 'Token not found' });
         }
-        const verified = jwt.verify(token, JWT_SECRET);
+        const verified = jwt.verify(token, JWT_SECRET as string);
         if (!verified) {
             return res.json({ result: 'Token verification failed' });
         }

@@ -42,7 +42,6 @@ import {
     SampleSuperAdminTokenPayload,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
-import { NotFoundError } from '../../helpers/NotFoundError';
 import GCNotifyCaller from '../../helpers/GCNotifyCaller';
 import { GCNotifyEmailSuccessResponse } from '../commonResponses';
 import jwt from 'jsonwebtoken';
