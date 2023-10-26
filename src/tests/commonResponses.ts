@@ -1014,3 +1014,17 @@ export const SampleSuperAdminTokenPayload = {
         'ACCESS_REQUEST',
     ],
 };
+
+export const SampleBCEIDBUsinessAdminTokenPayload = {
+    identity_provider: 'bceidbusiness',
+    sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
+    bceid_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
+    bceid_username: 'Example',
+    preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
+    given_name: 'Example User',
+    display_name: '',
+    family_name: '',
+    email: 'example@test.com',
+    role: 'Admin',
+    permissions: ['USER_ACCESS', 'PROPERTY_SEARCH', 'ACCESS_REQUEST'],
+};
