@@ -174,18 +174,26 @@ export async function deletePin(
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
-    if (
-        requestBody.phoneNumber &&
-        !gcNotifyPhoneResponse &&
-        gcNotifyEmailResponse
-    ) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        gcNotifyPhoneResponse = await gCNotifyCaller.sendPhoneNotification(
-            phoneTemplateId!,
-            requestBody.phoneNumber,
-            personalisation,
-        );
+    try {
+        if (
+            requestBody.phoneNumber &&
+            !gcNotifyPhoneResponse &&
+            gcNotifyEmailResponse
+        ) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            gcNotifyPhoneResponse = await gCNotifyCaller.sendPhoneNotification(
+                phoneTemplateId!,
+                requestBody.phoneNumber,
+                personalisation,
+            );
+        }
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling gcNotify function 'sendPhoneNotification' while expiring PIN.`;
+            logger.warn(message);
+        }
     }
+
     if (typeof transactionReturn?.logInfo != 'undefined') {
         if (
             transactionReturn.logInfo.affected &&
@@ -281,7 +289,7 @@ export async function batchUpdatePin(
                     let emailTemplateId: string;
                     let phoneTemplateId: string;
 
-                    regenerateOrCreate == 'create'
+                    regenerateOrCreate === 'create'
                         ? (emailTemplateId =
                               process.env
                                   .GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
