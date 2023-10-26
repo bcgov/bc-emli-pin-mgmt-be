@@ -108,6 +108,15 @@ export async function deletePin(
     const controller = new PINController();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const faults = await controller.pinRequestBodyValidate(requestBody);
+
+    let gcNotifyPhoneResponse;
+    let gcNotifyEmailResponse;
+    const emailTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+    const phoneTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+    let personalisation;
+
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const PINToDelete = await manager.findOneOrFail(ActivePin, {
@@ -130,34 +139,27 @@ export async function deletePin(
                 },
             );
 
+            personalisation = {
+                property_address: requestBody.propertyAddress,
+                pin: PINToDelete.pin,
+            };
+
             try {
                 if (PINToDelete) {
-                    const personalisation = {
-                        property_address: requestBody.propertyAddress,
-                        pin: PINToDelete.pin,
-                    };
-
-                    const emailTemplateId: string =
-                        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
-                    const phoneTemplateId: string =
-                        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
-
-                    if (requestBody.phoneNumber) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const gcNotifyResponse =
-                            await gCNotifyCaller.sendPhoneNotification(
-                                phoneTemplateId!,
-                                requestBody.phoneNumber,
-                                personalisation,
-                            );
-                    }
-
                     if (requestBody.email) {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const gcNotifyResponse =
+                        gcNotifyEmailResponse =
                             await gCNotifyCaller.sendEmailNotification(
                                 emailTemplateId!,
                                 requestBody.email,
+                                personalisation,
+                            );
+                    } else if (requestBody.phoneNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        gcNotifyPhoneResponse =
+                            await gCNotifyCaller.sendPhoneNotification(
+                                phoneTemplateId!,
+                                requestBody.phoneNumber,
                                 personalisation,
                             );
                     }
@@ -172,6 +174,18 @@ export async function deletePin(
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
+    if (
+        requestBody.phoneNumber &&
+        !gcNotifyPhoneResponse &&
+        gcNotifyEmailResponse
+    ) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        gcNotifyPhoneResponse = await gCNotifyCaller.sendPhoneNotification(
+            phoneTemplateId!,
+            requestBody.phoneNumber,
+            personalisation,
+        );
+    }
     if (typeof transactionReturn?.logInfo != 'undefined') {
         if (
             transactionReturn.logInfo.affected &&
