@@ -1,4 +1,12 @@
-import { Controller, Get, Query, Res, Route, TsoaResponse } from 'tsoa';
+import {
+    Controller,
+    Get,
+    Middlewares,
+    Query,
+    Res,
+    Route,
+    TsoaResponse,
+} from 'tsoa';
 import logger from '../middleware/logger';
 import { findAuditLog } from '../db/PINAuditLog.db';
 import { TypeORMError } from 'typeorm';
@@ -9,7 +17,9 @@ import {
     auditLogInfo,
     requiredFieldErrorType,
 } from '../helpers/types';
+import { authenticate } from '../middleware/authentication';
 
+@Middlewares(authenticate)
 @Route('audit-trails')
 export class PinAuditLogController extends Controller {
     /**

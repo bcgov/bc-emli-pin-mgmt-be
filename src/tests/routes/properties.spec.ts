@@ -6,76 +6,14 @@ import {
     geocodeParcelAPIResponse_1,
     geocodeParcelAPIResponse_2,
     ActivePINResponse,
+    SampleSuperAdminTokenPayload,
 } from '../commonResponses';
 import { AxiosError } from 'axios';
 import { ActivePin } from '../../entity/ActivePin';
 import * as ActivePIN from '../../db/ActivePIN.db';
+import jwt from 'jsonwebtoken';
 
-describe('Properties endpoints', () => {
-    beforeEach(() => {
-        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
-        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
-    });
-
-    test('/address should return results with valid input', async () => {
-        jest.spyOn(axios, 'get').mockResolvedValueOnce(
-            geocodeAddressAPIResponse,
-        );
-        const res = await request(app).get(
-            '/properties/address/525 Superior Street',
-        );
-        expect(res.statusCode).toBe(200);
-        expect(res.body.results[0].score).toBe(100);
-        expect(res.body.results[0].fullAddress).toBe(
-            '525 Superior St, Victoria, BC',
-        );
-        expect(res.body.results[0].siteID).toBe(
-            'dc9357ba-7f40-4395-9eda-219ca5f475c0',
-        );
-    });
-
-    test('/address with too short search returns 422', async () => {
-        const res = await request(app).get('/properties/address/ab');
-        expect(res.statusCode).toBe(422);
-        expect(res.body.message).toBe(
-            'Search string must be of length 3 or greater',
-        );
-    });
-
-    test('/address with no endpoint in environment returns 422', async () => {
-        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = '';
-        process.env.GEOCODER_API_BASE_URL = '';
-        const res = await request(app).get(
-            '/properties/address/525 Superior Street',
-        );
-        expect(res.statusCode).toBe(422);
-        expect(res.body.message).toBe(
-            `Geocoder API base URL or 'addresses' endpoint URL is undefined.`,
-        );
-    });
-
-    test('/address with axios error returns 500', async () => {
-        jest.spyOn(axios, 'get').mockImplementationOnce(() => {
-            throw new AxiosError('An unknown error occurred.');
-        });
-        const res = await request(app).get(
-            '/properties/address/525 Superior Street',
-        );
-        expect(res.statusCode).toBe(500);
-        expect(res.body.message).toBe(`An unknown error occurred.`);
-    });
-
-    test('/address with no address parameter returns 404', async () => {
-        const res = await request(app).get('/properties/address');
-        expect(res.statusCode).toBe(404);
-        expect(res.body.message).toBe('Not Found');
-    });
-
-    afterEach(() => {
-        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
-        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
-    });
-});
+let token: string;
 
 jest.spyOn(ActivePIN, 'findPropertyDetails').mockImplementation(
     async (pid: string[]): Promise<any> => {
@@ -87,13 +25,88 @@ jest.spyOn(ActivePIN, 'findPropertyDetails').mockImplementation(
 );
 
 describe('Properties endpoints', () => {
+    beforeAll(() => {
+        const JWT_SECRET = 'abcd';
+        token = jwt.sign(SampleSuperAdminTokenPayload, JWT_SECRET, {
+            expiresIn: 30 * 60 * 1000,
+        });
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
+    });
+
+    test('/address should return results with valid input', async () => {
+        jest.spyOn(axios, 'get').mockResolvedValueOnce(
+            geocodeAddressAPIResponse,
+        );
+        const res = await request(app)
+            .get('/properties/address/525 Superior Street')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.results[0].score).toBe(100);
+        expect(res.body.results[0].fullAddress).toBe(
+            '525 Superior St, Victoria, BC',
+        );
+        expect(res.body.results[0].siteID).toBe(
+            'dc9357ba-7f40-4395-9eda-219ca5f475c0',
+        );
+    });
+
+    test('/address with too short search returns 422', async () => {
+        const res = await request(app)
+            .get('/properties/address/ab')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Search string must be of length 3 or greater',
+        );
+    });
+
+    test('/address with no endpoint in environment returns 422', async () => {
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = '';
+        process.env.GEOCODER_API_BASE_URL = '';
+        const res = await request(app)
+            .get('/properties/address/525 Superior Street')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            `Geocoder API base URL or 'addresses' endpoint URL is undefined.`,
+        );
+    });
+
+    test('/address with axios error returns 500', async () => {
+        jest.spyOn(axios, 'get').mockImplementationOnce(() => {
+            throw new AxiosError('An unknown error occurred.');
+        });
+        const res = await request(app)
+            .get('/properties/address/525 Superior Street')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe(`An unknown error occurred.`);
+    });
+
+    test('/address with no address parameter returns 404', async () => {
+        const res = await request(app)
+            .get('/properties/address')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Not Found');
+    });
+
     test('/details should return results with valid input', async () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(
             geocodeParcelAPIResponse_1,
         );
-        const res = await request(app).get(
-            '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c&role=Admin',
-        );
+        const res = await request(app)
+            .get(
+                '/properties/details?siteID=785d65a0-3562-4ba7-a078-e088a7aada7c&role=Admin',
+            )
+            .set('Cookie', `token=${token}`)
+            .send();
 
         const body = await res.body['123|AB'][0];
 
@@ -106,9 +119,10 @@ describe('Properties endpoints', () => {
         jest.spyOn(axios, 'get').mockResolvedValueOnce(
             geocodeParcelAPIResponse_2,
         );
-        const res = await request(app).get(
-            '/properties/details?siteID=123&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
 
         expect(res.statusCode).toBe(204);
     });
@@ -119,9 +133,10 @@ describe('Properties endpoints', () => {
                 status: 401,
             },
         });
-        const res = await request(app).get(
-            '/properties/details?siteID=12&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=12&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(401);
     });
 
@@ -131,9 +146,10 @@ describe('Properties endpoints', () => {
                 status: 400,
             },
         });
-        const res = await request(app).get(
-            '/properties/details?siteID=123&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(400);
     });
 
@@ -143,9 +159,10 @@ describe('Properties endpoints', () => {
                 status: 403,
             },
         });
-        const res = await request(app).get(
-            '/properties/details?siteID=123&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(403);
     });
 
@@ -155,17 +172,24 @@ describe('Properties endpoints', () => {
                 status: 404,
             },
         });
-        const res = await request(app).get(
-            '/properties/details?siteID=123&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(404);
     });
 
     test('/details Throw 500 error', async () => {
         jest.spyOn(axios, 'get').mockRejectedValueOnce(new Error());
-        const res = await request(app).get(
-            '/properties/details?siteID=123&role=Admin',
-        );
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
         expect(res.statusCode).toBe(500);
+    });
+
+    afterEach(() => {
+        process.env.GEOCODER_API_ADDRESSES_ENDPOINT = 'https://google.ca/';
+        process.env.GEOCODER_API_BASE_URL = 'endpoint_name.json';
     });
 });
