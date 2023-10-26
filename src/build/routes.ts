@@ -367,11 +367,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "roleType": {
-        "dataType": "refEnum",
-        "enums": ["Admin","SuperAdmin","Standard"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -714,7 +709,7 @@ export function RegisterRoutes(app: Router) {
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     pidNotFoundResponse: {"in":"res","name":"204","required":true,"ref":"pidNotFound"},
                     siteID: {"in":"query","name":"siteID","required":true,"dataType":"string"},
-                    role: {"in":"query","name":"role","required":true,"ref":"roleType"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

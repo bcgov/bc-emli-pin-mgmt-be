@@ -31,7 +31,6 @@ export class AccessRequestController extends Controller {
     @Post('')
     /**
      * Create a new access request for a user
-     * @param {accessRequestResponseBody} requestBody
      */
     public async createAccessRequest(
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,

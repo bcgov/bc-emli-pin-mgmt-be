@@ -14,7 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 const btoa = (input: string) => Buffer.from(input).toString('base64');
 const tokenExpiry = 30 * 60 * 1000;
 
-const decodeValue = (base64String: string) => {
+export const decodeValue = (base64String: string) => {
     try {
         return JSON.parse(
             Buffer.from(base64String, 'base64').toString('ascii'),
@@ -35,7 +35,7 @@ export const decodingJWT = (token: string) => {
     };
 };
 
-const prepareTokenInfo = async (tokenPayload: any) => {
+export const prepareTokenInfo = async (tokenPayload: any) => {
     const tokenDetails: any = {};
     const identityType = tokenPayload.identity_provider;
     tokenDetails.sid = tokenPayload.sid;
@@ -124,7 +124,6 @@ export const getAccessToken = async ({ code }: any) => {
     const { data } = await axios(config);
 
     const { access_token } = data;
-
     const userInfo = decodingJWT(access_token);
     console.log(userInfo);
     const tokenDetails = await prepareTokenInfo(userInfo?.payload);

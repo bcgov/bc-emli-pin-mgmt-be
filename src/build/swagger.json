@@ -934,15 +934,6 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
-			},
-			"roleType": {
-				"description": "User role types",
-				"enum": [
-					"Admin",
-					"SuperAdmin",
-					"Standard"
-				],
-				"type": "string"
 			}
 		},
 		"securitySchemes": {
@@ -1688,14 +1679,6 @@
 						"required": true,
 						"schema": {
 							"type": "string"
-						}
-					},
-					{
-						"in": "query",
-						"name": "role",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/roleType"
 						}
 					}
 				]
