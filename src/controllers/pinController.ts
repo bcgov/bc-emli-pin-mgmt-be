@@ -45,9 +45,6 @@ import 'string_score';
 import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
-import GCNotifyCaller from '../helpers/GCNotifyCaller';
-
-const gCNotifyCaller = new GCNotifyCaller();
 import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 
 @Route('pins')
@@ -694,11 +691,11 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [resultToUpdate],
             emailPhone,
+            requestBody.propertyAddress,
             requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
-        const regenerateOrCreate = batchUpdatePinResponse[1];
 
         if (errors.length >= 1) {
             throw new AggregateError(
@@ -715,42 +712,6 @@ export class PINController extends Controller {
                 livePinId: resultToUpdate.livePinId,
             };
             result.push(toPush);
-        }
-
-        const personalisation = {
-            property_address: requestBody.propertyAddress,
-            pin: pin.pin,
-        };
-
-        let emailTemplateId: string;
-        let phoneTemplateId: string;
-
-        regenerateOrCreate == 'create'
-            ? (emailTemplateId =
-                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
-            : (emailTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
-
-        if (requestBody.email) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendEmailNotification(
-                emailTemplateId!,
-                requestBody.email,
-                personalisation,
-            );
-        }
-
-        if (requestBody.phoneNumber) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendPhoneNotification(
-                phoneTemplateId!,
-                requestBody.phoneNumber,
-                personalisation,
-            );
         }
 
         return result;
@@ -800,11 +761,11 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [pinResult[0]],
             emailPhone,
+            requestBody.propertyAddress,
             requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
-        const regenerateOrCreate = batchUpdatePinResponse[1];
 
         if (errors.length >= 1) {
             throw new AggregateError(
@@ -820,42 +781,6 @@ export class PINController extends Controller {
             livePinId: pinResult[0].livePinId,
         };
         result.push(toPush);
-
-        const personalisation = {
-            property_address: requestBody.propertyAddress,
-            pin: pin.pin,
-        };
-
-        let emailTemplateId: string;
-        let phoneTemplateId: string;
-
-        regenerateOrCreate == 'create'
-            ? (emailTemplateId =
-                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
-            : (emailTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
-
-        if (requestBody.email) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendEmailNotification(
-                emailTemplateId!,
-                requestBody.email,
-                personalisation,
-            );
-        }
-
-        if (requestBody.phoneNumber) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendPhoneNotification(
-                phoneTemplateId!,
-                requestBody.phoneNumber,
-                personalisation,
-            );
-        }
 
         return result;
     }
@@ -1256,35 +1181,6 @@ export class PINController extends Controller {
                     `Encountered unknown Internal Server Error in expirePin: ${err}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
-            }
-        }
-        if (deletedPin) {
-            const personalisation = {
-                property_address: requestBody.propertyAddress,
-                pin: deletedPin.pin,
-            };
-
-            const emailTemplateId: string =
-                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
-            const phoneTemplateId: string =
-                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
-
-            if (requestBody.email) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendEmailNotification(
-                    emailTemplateId!,
-                    requestBody.email,
-                    personalisation,
-                );
-            }
-
-            if (requestBody.phoneNumber) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendPhoneNotification(
-                    phoneTemplateId!,
-                    requestBody.phoneNumber,
-                    personalisation,
-                );
             }
         }
 

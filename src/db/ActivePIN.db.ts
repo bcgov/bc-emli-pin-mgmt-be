@@ -10,6 +10,9 @@ import {
 } from '../helpers/types';
 import logger from '../middleware/logger';
 import { PINController } from '../controllers/pinController';
+import GCNotifyCaller from '../helpers/GCNotifyCaller';
+
+const gCNotifyCaller = new GCNotifyCaller();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function findPin(
@@ -126,11 +129,50 @@ export async function deletePin(
                     alteredByUsername: expiredByUsername,
                 },
             );
+
+            try {
+                if (PINToDelete) {
+                    const personalisation = {
+                        property_address: requestBody.propertyAddress,
+                        pin: PINToDelete.pin,
+                    };
+
+                    const emailTemplateId: string =
+                        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+                    const phoneTemplateId: string =
+                        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+
+                    if (requestBody.phoneNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const gcNotifyResponse =
+                            await gCNotifyCaller.sendPhoneNotification(
+                                phoneTemplateId!,
+                                requestBody.phoneNumber,
+                                personalisation,
+                            );
+                    }
+
+                    if (requestBody.email) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const gcNotifyResponse =
+                            await gCNotifyCaller.sendEmailNotification(
+                                emailTemplateId!,
+                                requestBody.email,
+                                personalisation,
+                            );
+                    }
+                }
+            } catch {
+                throw new Error(
+                    'Encountered error calling GC Notify for PIN Expiry',
+                );
+            }
+
             // TO DO: Query for User ID???
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
-    if (typeof transactionReturn.logInfo != 'undefined') {
+    if (typeof transactionReturn?.logInfo != 'undefined') {
         if (
             transactionReturn.logInfo.affected &&
             transactionReturn.logInfo.affected === 1
@@ -154,6 +196,7 @@ export async function deletePin(
 export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
+    propertyAddress: string,
     requesterUsername?: string,
 ): Promise<[string[], string]> {
     const errors = [];
@@ -215,6 +258,48 @@ export async function batchUpdatePin(
                         { logId: log.logId },
                         updateInfo,
                     );
+
+                    const personalisation = {
+                        property_address: propertyAddress,
+                        pin: updatedPins[i].pin,
+                    };
+
+                    let emailTemplateId: string;
+                    let phoneTemplateId: string;
+
+                    regenerateOrCreate == 'create'
+                        ? (emailTemplateId =
+                              process.env
+                                  .GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
+                          (phoneTemplateId =
+                              process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
+                        : (emailTemplateId =
+                              process.env
+                                  .GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
+                          (phoneTemplateId =
+                              process.env
+                                  .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
+
+                    if (sendToInfo.phoneNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const gcNotifyResponse =
+                            await gCNotifyCaller.sendPhoneNotification(
+                                phoneTemplateId!,
+                                sendToInfo.phoneNumber,
+                                personalisation,
+                            );
+                    }
+
+                    if (sendToInfo.email) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const gcNotifyResponse =
+                            await gCNotifyCaller.sendEmailNotification(
+                                emailTemplateId!,
+                                sendToInfo.email,
+                                personalisation,
+                            );
+                    }
+
                     return [logInfo, regenerateOrCreate];
                 },
             )) as [logInfo: UpdateResult, regenerateOrCreate: string];

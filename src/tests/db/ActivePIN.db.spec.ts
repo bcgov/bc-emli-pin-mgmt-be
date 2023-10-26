@@ -108,6 +108,7 @@ describe('Active PIN db tests', () => {
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
         const emailPhone = { email: 'email@example.com' };
+        const propertyAddress = '123 Example St';
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
          * mock the whole thing and not the individual db calls within it.
@@ -115,7 +116,11 @@ describe('Active PIN db tests', () => {
         jest.spyOn(DataSource.prototype, 'transaction').mockResolvedValueOnce(
             returnValue,
         );
-        const response = await ActivePIN.batchUpdatePin(pins, emailPhone);
+        const response = await ActivePIN.batchUpdatePin(
+            pins,
+            emailPhone,
+            propertyAddress,
+        );
         expect(response[0].length).toBe(0);
     });
 
@@ -175,6 +180,7 @@ describe('Active PIN db tests', () => {
         const pins: ActivePin[] = [new ActivePin()];
         pins[0].livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
         const emailPhone = { email: 'email@example.com' };
+        const propertyAddress = '123 Example St';
         /*
          * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
          * mock the whole thing and not the individual db calls within it.
@@ -182,7 +188,11 @@ describe('Active PIN db tests', () => {
         jest.spyOn(DataSource.prototype, 'transaction').mockResolvedValueOnce(
             returnValue,
         );
-        const response = await ActivePIN.batchUpdatePin(pins, emailPhone);
+        const response = await ActivePIN.batchUpdatePin(
+            pins,
+            emailPhone,
+            propertyAddress,
+        );
         expect(response[0].length).toBe(1);
         expect(response[0][0]).toBe(
             'An error occured while updating updatedPins[0] in batchUpdatePin: No rows were affected by the update',
