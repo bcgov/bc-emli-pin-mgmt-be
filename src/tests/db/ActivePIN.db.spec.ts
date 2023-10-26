@@ -85,6 +85,12 @@ describe('Active PIN db tests', () => {
             returnValue,
         );
         const deletedPin = await ActivePIN.deletePin(
+            {
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.ChangeOfOwnership,
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            },
             'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
             expirationReason.OptOut,
             'test',
