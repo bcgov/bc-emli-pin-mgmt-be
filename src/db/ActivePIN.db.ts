@@ -231,6 +231,13 @@ export async function batchUpdatePin(
         expireUsername = requesterUsername;
         reason = expirationReason.CallCenterPinReset;
     }
+
+    let gcNotifyPhoneResponse;
+    let gcNotifyEmailResponse;
+    let emailTemplateId: string;
+    let phoneTemplateId: string;
+    let personalisation;
+
     let transactionReturn;
 
     for (let i = 0; i < updatedPins.length; i++) {
@@ -286,9 +293,6 @@ export async function batchUpdatePin(
                         pin: updatedPins[i].pin,
                     };
 
-                    let emailTemplateId: string;
-                    let phoneTemplateId: string;
-
                     regenerateOrCreate === 'create'
                         ? (emailTemplateId =
                               process.env
@@ -302,22 +306,20 @@ export async function batchUpdatePin(
                               process.env
                                   .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
 
-                    if (sendToInfo.phoneNumber) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const gcNotifyResponse =
-                            await gCNotifyCaller.sendPhoneNotification(
-                                phoneTemplateId!,
-                                sendToInfo.phoneNumber,
-                                personalisation,
-                            );
-                    }
-
                     if (sendToInfo.email) {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const gcNotifyResponse =
+                        gcNotifyEmailResponse =
                             await gCNotifyCaller.sendEmailNotification(
                                 emailTemplateId!,
                                 sendToInfo.email,
+                                personalisation,
+                            );
+                    } else if (sendToInfo.phoneNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        gcNotifyPhoneResponse =
+                            await gCNotifyCaller.sendPhoneNotification(
+                                phoneTemplateId!,
+                                sendToInfo.phoneNumber,
                                 personalisation,
                             );
                     }
@@ -331,6 +333,26 @@ export async function batchUpdatePin(
                 logger.warn(message);
                 errors.push(message);
                 continue;
+            }
+        }
+        try {
+            if (
+                sendToInfo.phoneNumber &&
+                !gcNotifyPhoneResponse &&
+                gcNotifyEmailResponse
+            ) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyPhoneResponse =
+                    await gCNotifyCaller.sendPhoneNotification(
+                        phoneTemplateId!,
+                        sendToInfo.phoneNumber,
+                        personalisation,
+                    );
+            }
+        } catch (err) {
+            if (err instanceof Error) {
+                const message = `An error occured while calling gcNotify function 'sendPhoneNotification' inside 'batchUpdatePin'.`;
+                logger.warn(message);
             }
         }
 
