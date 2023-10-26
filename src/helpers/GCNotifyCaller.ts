@@ -62,6 +62,15 @@ export default class GCNotifyCaller {
         // Attempt to send email x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
+                if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+                    (personalisation as any).pin =
+                        ((personalisation as any).pin as string).substring(
+                            0,
+                            4,
+                        ) +
+                        '-' +
+                        ((personalisation as any).pin as string).substring(4);
+                }
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const response = await this.sendEmail(
                     notifyClient,
@@ -110,6 +119,15 @@ export default class GCNotifyCaller {
         // Attempt to send text x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
+                if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+                    (personalisation as any).pin =
+                        ((personalisation as any).pin as string).substring(
+                            0,
+                            4,
+                        ) +
+                        '-' +
+                        ((personalisation as any).pin as string).substring(4);
+                }
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const response = await this.sendSms(
                     notifyClient,
