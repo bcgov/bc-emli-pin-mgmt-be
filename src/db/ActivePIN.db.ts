@@ -251,8 +251,6 @@ export async function batchUpdatePin(
         try {
             transactionReturn = (await AppDataSource.transaction(
                 async (manager) => {
-                    await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
-
                     const pin = await manager.findOne(ActivePin, {
                         where: {
                             livePinId: updatedPins[i].livePinId,
@@ -267,35 +265,75 @@ export async function batchUpdatePin(
                         regenerateOrCreate = 'create';
                     }
 
+                    await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
+
                     // Update the log with the correct info
-                    const log = await manager.findOneOrFail(PinAuditLog, {
-                        order: {
-                            logCreatedAt: 'DESC', // looking for most recent log
-                        },
-                        where: { livePinId: updatedPins[i].livePinId },
-                    });
-                    let updateInfo;
-                    if (log.expiredAt != null) {
+                    let log,
+                        updateInfo = {};
+                    if (regenerateOrCreate === 'create') {
+                        log = await manager.findOneOrFail(PinAuditLog, {
+                            order: {
+                                logCreatedAt: 'DESC', // looking for most recent log
+                            },
+                            where: { livePinId: updatedPins[i].livePinId },
+                        });
                         updateInfo = {
-                            expirationReason: reason,
                             alteredByUsername: expireUsername,
                             alteredByName: expireName,
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };
+                        logInfo = await manager.update(
+                            PinAuditLog,
+                            { logId: log.logId },
+                            updateInfo,
+                        );
                     } else {
-                        updateInfo = {
-                            alteredByUsername: expireUsername,
-                            alteredByName: expireName,
-                            sentToEmail: sendToInfo.email,
-                            sentToPhone: sendToInfo.phoneNumber,
-                        };
+                        log = await manager.find(PinAuditLog, {
+                            order: {
+                                logCreatedAt: 'DESC', // looking for most recent log first
+                            },
+                            where: { livePinId: updatedPins[i].livePinId },
+                            take: 2,
+                        });
+                        if (log.length === 2) {
+                            // put expiration on old pin
+                            updateInfo = {
+                                expirationReason: reason,
+                                expiredAt: new Date(),
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[1].logId },
+                                updateInfo,
+                            );
+                            // put alteration info on the recreation
+                            updateInfo = {
+                                alteredByUsername: expireUsername,
+                                alteredByName: expireName,
+                                sentToEmail: sendToInfo.email,
+                                sentToPhone: sendToInfo.phoneNumber,
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[0].logId },
+                                updateInfo,
+                            );
+                        } else {
+                            // this case shouldn't happen, but in case something weird happens, just update the most recent log
+                            updateInfo = {
+                                alteredByUsername: expireUsername,
+                                alteredByName: expireName,
+                                sentToEmail: sendToInfo.email,
+                                sentToPhone: sendToInfo.phoneNumber,
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[0].logId },
+                                updateInfo,
+                            );
+                        }
                     }
-                    logInfo = await manager.update(
-                        PinAuditLog,
-                        { logId: log.logId },
-                        updateInfo,
-                    );
 
                     personalisation = {
                         property_address: propertyAddress,
