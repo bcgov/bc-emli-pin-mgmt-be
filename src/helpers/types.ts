@@ -146,7 +146,7 @@ export interface PINDictionary {
  *     "pids": "1234567",
  *     "titleNumber": "12345",
  *     "landTitleDistrict": "AB",
- *     "givenName": "firstname",
+ *     "givenName": "givenName",
  *     "lastName_1": "lastname",
  *     "lastName_2": null,
  *     "incorporationNumber": null,
@@ -284,28 +284,33 @@ export enum roleType {
  * @example {
  	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
   	"expirationReason": "OP",
-   "expiredByUsername": "jsmith"
+    "expiredByUsername": "jsmith",
+    "propertyAddress": "123 example st",
+    "email": "test@gmail.com"
   }
  */
 export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
     expiredByUsername?: string;
+    propertyAddress: string;
+    phoneNumber?: string;
+    email?: string;
 }
 // TODO: Change to look up by GUID??
 
 /**
  * The request body for a pin creation / recreation request.
  * The address fields given are for a mailing address, which is
- * not necessarily the same as the property address, hence the need
- * for the pid as well.
+ * not necessarily the same as the property address. The property address is required to send the
+ * GCNotify email / text message to the recipient.
  * Certain combinations of fields are required in addition to always required fields:
  * - (givenName & lastName_1/lastName_2) OR incorporationNumber
  * - phoneNumber AND/OR email
  * - requesterName and requesterUsername are required if an employee is requesting the creation,
  *  rather than self serve
  * @example {
-  "phoneNumber": "19021234567",
+  "email": "example@test.com",
   "pids": "1234|5678",
   "numberOfOwners": 2,
   "givenName": "Jane",
@@ -316,7 +321,8 @@ export interface expireRequestBody {
   "city": "Vancouver",
   "provinceAbbreviation": "BC",
   "country": "Canada",
-  "postalCode": "V1V1V1"
+  "postalCode": "V1V1V1",
+  "propertyAddress": "8765 Willow Way, Chilliwack, BC"
   }
  */
 export interface createPinRequestBody {
@@ -337,6 +343,7 @@ export interface createPinRequestBody {
     country?: string;
     postalCode?: string;
     requesterUsername?: string;
+    propertyAddress: string;
 }
 
 /**
@@ -441,7 +448,7 @@ export enum requestStatusType {
     "organization": "Bc Service",
     "email": "abc@gov.ca",
     "userName": "johndoe",
-    "firstName": "John",
+    "givenName": "John",
     "lastName": "Doe",
     "requestReason": "To get access to site"
   }
@@ -453,7 +460,7 @@ export interface accessRequestResponseBody {
     organization: string;
     email: string;
     userName: string;
-    firstName: string;
+    givenName: string;
     lastName: string;
     requestReason: string;
 }
@@ -508,18 +515,21 @@ export interface addressMatchScore {
 
 /**
  * Since these results are verified by a human, much less information is required
- * than the standard create / recreate request
+ * than the standard create / recreate request. The property address is for sending the
+ * GCNotify email/ text message, and is not used for verification. 
  * @example
  * 	{
   		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
   		"email": "example@example.com",
   		"phoneNumber": "+19021234567"
+        "propertyAddress": "123 Main Street, Vancouver, BC"
   	}
  */
 export interface serviceBCCreateRequestBody {
     livePinId: string;
-    email: string;
-    phoneNumber: string;
+    email?: string;
+    phoneNumber?: string;
+    propertyAddress: string;
     pinLength?: number;
     allowedChars?: string;
     requesterUsername?: string;
@@ -582,4 +592,24 @@ export interface verifyPinResponse {
 interface verifyPinErrorType {
     errorType?: string;
     errorMessage: string;
+}
+
+/**
+ * The response given when an api key is not provided in a request that requires it
+ * @example {
+	 "message": "Access Denied"
+   }
+ */
+export interface UnauthorizedErrorResponse {
+    message: string;
+}
+
+/**
+* The response given when the api key provided in a request is invalid
+* @example {
+	"message": "Invalid Token"
+  }
+*/
+export interface InvalidTokenErrorResponse {
+    message: string;
 }

@@ -1,5 +1,15 @@
 // eslint-disable spaced-comment
-import { Get, Route, Controller, TsoaResponse, Res, Path, Query } from 'tsoa';
+import {
+    Get,
+    Route,
+    Controller,
+    TsoaResponse,
+    Res,
+    Request,
+    Path,
+    Query,
+    Middlewares,
+} from 'tsoa';
 import logger from '../middleware/logger';
 import GeocodeAPICaller from '../helpers/geocodeAPICaller';
 import {
@@ -11,7 +21,6 @@ import {
     pidNotFound,
     pinRangeErrorType,
     propertyDetailsResponse,
-    roleType,
     searchRangeErrorType,
     serverErrorType,
     unauthorizedError,
@@ -19,7 +28,12 @@ import {
 import { findPropertyDetails } from '../db/ActivePIN.db';
 import axios from 'axios';
 import { pidStringSplitAndSort } from '../helpers/pidHelpers';
+import { authenticate } from '../middleware/authentication';
+import { decodingJWT } from '../helpers/auth';
+import { Request as req } from 'express';
+import { AuthenticationError } from '../middleware/AuthenticationError';
 
+@Middlewares(authenticate)
 @Route('properties')
 export class PropertiesController extends Controller {
     /**
@@ -115,7 +129,6 @@ export class PropertiesController extends Controller {
      * @param siteID The siteID of a site
      * @returns An object containing the property owner details
      */
-
     @Get('details')
     public async getPropertyDetails(
         @Res() unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
@@ -125,9 +138,38 @@ export class PropertiesController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res() pidNotFoundResponse: TsoaResponse<204, pidNotFound>,
         @Query() siteID: string,
-        @Query() role: roleType,
+        @Request() req: req,
     ): Promise<Array<propertyDetailsResponse>> {
         let results: Array<propertyDetailsResponse> = [];
+        let permissions: string[] = [];
+        try {
+            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            if (!permissions.includes('PROPERTY_SEARCH')) {
+                throw new AuthenticationError(
+                    `Permission 'PROPERTY_SEARCH' is not available for this user`,
+                    403,
+                );
+            }
+        } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered 403 forbidden error in getPropertyDetails: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
+            if (err instanceof Error) {
+                logger.warn(
+                    `Encountered 404 not found error in getPropertyDetails: ${err.message}`,
+                );
+                return notFoundErrorResponse(404, {
+                    message: err.message,
+                    code: 404,
+                });
+            }
+        }
         try {
             const parcelsApiUrl = `${process.env.GEOCODER_API_BASE_URL}${process.env.GEOCODER_API_PARCELS_ENDPOINT}`;
             const jsonFormat = '.json';
@@ -172,7 +214,7 @@ export class PropertiesController extends Controller {
 
             const pidsData: any = await getPIDs();
             const pids = pidStringSplitAndSort(pidsData.data.pids);
-            const result = await findPropertyDetails(pids, role);
+            const result = await findPropertyDetails(pids, permissions);
             if (result[0] === undefined) {
                 logger.warn(
                     `Encountered a 204 message in getPropertyDetails. The retrieved pid(s) do(es) not exist in the database.`,
@@ -201,7 +243,7 @@ export class PropertiesController extends Controller {
                     message: err.message,
                     code: err.code,
                 });
-            } else if (err.code === 403) {
+            } else if (err.code === 403 || err instanceof AuthenticationError) {
                 logger.warn(
                     `Encountered 403 forbidden error in getPropertyDetails: ${err.message}`,
                 );

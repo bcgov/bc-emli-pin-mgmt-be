@@ -1,9 +1,14 @@
-import { Like, UpdateResult } from 'typeorm';
+import { IsNull, Like, Not, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason, roleType } from '../helpers/types';
+import {
+    emailPhone,
+    expirationReason,
+    expireRequestBody,
+} from '../helpers/types';
 import logger from '../middleware/logger';
+import { PINController } from '../controllers/pinController';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function findPin(
@@ -26,13 +31,13 @@ export async function findPin(
 
 export async function findPropertyDetails(
     pids: string[],
-    role: roleType,
+    permissions: string[],
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
     let where: any[] | object = [];
     if (pids.length === 0) {
-        // error
+        throw new Error(`No pids available for search`);
     }
     if (pids.length === 1) {
         where = { pids: Like(`%` + pids[0] + `%`) };
@@ -42,7 +47,11 @@ export async function findPropertyDetails(
             (where as any[]).push({ pids: Like(`%` + pids[i] + `%`) });
         }
     }
-    if (role === roleType.SuperAdmin) {
+    /*
+     * We don't check the 'PROPERTY_SEARCH' permission here as it is already checked
+     * in the only endpoint that uses this function.
+     */
+    if (permissions.includes('VIEW_PIN')) {
         query = {
             select: {
                 livePinId: true,
@@ -91,10 +100,14 @@ export async function findPropertyDetails(
 }
 
 export async function deletePin(
+    requestBody: expireRequestBody,
     id: string,
     reason: expirationReason,
     expiredByUsername: string,
 ): Promise<ActivePin | undefined> {
+    const controller = new PINController();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const faults = await controller.pinRequestBodyValidate(requestBody);
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const PINToDelete = await manager.findOneOrFail(ActivePin, {
@@ -145,9 +158,10 @@ export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
     requesterUsername?: string,
-): Promise<string[]> {
+): Promise<[string[], string]> {
     const errors = [];
-    let expireUsername: string, reason: expirationReason, logInfo;
+    const regenerateOrCreate = '';
+    let expireUsername: string, reason: expirationReason, logInfo: UpdateResult;
     if (!requesterUsername) {
         expireUsername = 'self';
         reason = expirationReason.OnlineReset;
@@ -162,6 +176,21 @@ export async function batchUpdatePin(
             transactionReturn = (await AppDataSource.transaction(
                 async (manager) => {
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
+
+                    const pin = await manager.findOne(ActivePin, {
+                        where: {
+                            livePinId: updatedPins[i].livePinId,
+                            pin: Not(IsNull()),
+                        },
+                    });
+
+                    let regenerateOrCreate: string;
+                    if (pin) {
+                        regenerateOrCreate = 'regenerate';
+                    } else {
+                        regenerateOrCreate = 'create';
+                    }
+
                     // Update the log with the correct info
                     const log = await manager.findOneOrFail(PinAuditLog, {
                         order: {
@@ -189,9 +218,9 @@ export async function batchUpdatePin(
                         { logId: log.logId },
                         updateInfo,
                     );
-                    return { logInfo };
+                    return [logInfo, regenerateOrCreate];
                 },
-            )) as { logInfo: UpdateResult };
+            )) as [logInfo: UpdateResult, regenerateOrCreate: string];
         } catch (err) {
             if (err instanceof Error) {
                 const message = `An error occured while updating updatedPins[${i}] in batchUpdatePin: ${err.message}`;
@@ -203,10 +232,10 @@ export async function batchUpdatePin(
 
         if (
             typeof transactionReturn != 'undefined' &&
-            typeof transactionReturn.logInfo != 'undefined' &&
-            transactionReturn.logInfo &&
-            transactionReturn.logInfo.affected &&
-            transactionReturn.logInfo.affected !== 0
+            typeof transactionReturn[0] != 'undefined' &&
+            transactionReturn[0] &&
+            transactionReturn[0].affected &&
+            transactionReturn[0].affected !== 0
         ) {
             logger.debug(
                 `Successfully updated ActivePIN with live_pin_id '${updatedPins[i].livePinId}'`,
@@ -217,5 +246,5 @@ export async function batchUpdatePin(
             errors.push(message);
         }
     }
-    return errors;
+    return [errors, regenerateOrCreate];
 }

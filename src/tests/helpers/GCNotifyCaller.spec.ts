@@ -25,7 +25,11 @@ describe('GCNotify Caller tests', () => {
         const response = await caller.sendEmailNotification(
             'cf430240-e5b6-4224-bd71-a02e098cc6e8',
             'example@example.com',
-            { line_1: 'This is a test.', line_2: 'This should work' },
+            {
+                line_1: 'This is a test.',
+                line_2: 'This should work',
+                pin: 'abcdefg',
+            },
         );
         expect(response).toBe(true);
     });

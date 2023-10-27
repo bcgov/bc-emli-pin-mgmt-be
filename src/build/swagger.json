@@ -83,7 +83,7 @@
 					"userName": {
 						"type": "string"
 					},
-					"firstName": {
+					"givenName": {
 						"type": "string"
 					},
 					"lastName": {
@@ -100,7 +100,7 @@
 					"organization",
 					"email",
 					"userName",
-					"firstName",
+					"givenName",
 					"lastName",
 					"requestReason"
 				],
@@ -113,7 +113,7 @@
 					"organization": "Bc Service",
 					"email": "abc@gov.ca",
 					"userName": "johndoe",
-					"firstName": "John",
+					"givenName": "John",
 					"lastName": "Doe",
 					"requestReason": "To get access to site"
 				}
@@ -272,6 +272,38 @@
 					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
 				}
 			},
+			"InvalidTokenErrorResponse": {
+				"description": "The response given when the api key provided in a request is invalid",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Invalid Token"
+				}
+			},
+			"UnauthorizedErrorResponse": {
+				"description": "The response given when an api key is not provided in a request that requires it",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Access Denied"
+				}
+			},
 			"pinRangeErrorType": {
 				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
 				"properties": {
@@ -332,7 +364,7 @@
 				}
 			},
 			"createPinRequestBody": {
-				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address, hence the need\nfor the pid as well.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
+				"description": "The request body for a pin creation / recreation request.\nThe address fields given are for a mailing address, which is\nnot necessarily the same as the property address. The property address is required to send the\nGCNotify email / text message to the recipient.\nCertain combinations of fields are required in addition to always required fields:\n- (givenName & lastName_1/lastName_2) OR incorporationNumber\n- phoneNumber AND/OR email\n- requesterName and requesterUsername are required if an employee is requesting the creation,\n rather than self serve",
 				"properties": {
 					"pinLength": {
 						"type": "number",
@@ -386,18 +418,22 @@
 					},
 					"requesterUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"numberOfOwners",
 					"pids",
 					"lastName_1",
-					"addressLine_1"
+					"addressLine_1",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
-					"phoneNumber": "19021234567",
+					"email": "example@test.com",
 					"pids": "1234|5678",
 					"numberOfOwners": 2,
 					"givenName": "Jane",
@@ -408,11 +444,12 @@
 					"city": "Vancouver",
 					"provinceAbbreviation": "BC",
 					"country": "Canada",
-					"postalCode": "V1V1V1"
+					"postalCode": "V1V1V1",
+					"propertyAddress": "8765 Willow Way, Chilliwack, BC"
 				}
 			},
 			"serviceBCCreateRequestBody": {
-				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request",
+				"description": "Since these results are verified by a human, much less information is required\nthan the standard create / recreate request. The property address is for sending the\nGCNotify email/ text message, and is not used for verification.",
 				"properties": {
 					"livePinId": {
 						"type": "string"
@@ -421,6 +458,9 @@
 						"type": "string"
 					},
 					"phoneNumber": {
+						"type": "string"
+					},
+					"propertyAddress": {
 						"type": "string"
 					},
 					"pinLength": {
@@ -436,16 +476,10 @@
 				},
 				"required": [
 					"livePinId",
-					"email",
-					"phoneNumber"
+					"propertyAddress"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-					"email": "example@example.com",
-					"phoneNumber": "+19021234567"
-				}
+				"additionalProperties": false
 			},
 			"PIN": {
 				"type": "string",
@@ -493,11 +527,7 @@
 						"type": "string"
 					},
 					"titleStatus": {
-						"type": "string",
-						"enum": [
-							"R",
-							"C"
-						]
+						"type": "string"
 					},
 					"fromTitleNumber": {
 						"type": "string",
@@ -598,18 +628,30 @@
 					},
 					"expiredByUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"livePinId",
-					"expirationReason"
+					"expirationReason",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
-					"expiredByUsername": "jsmith"
+					"expiredByUsername": "jsmith",
+					"propertyAddress": "123 example st",
+					"email": "test@gmail.com"
 				}
 			},
 			"verifyPinErrorType": {
@@ -768,7 +810,7 @@
 							"pids": "1234567",
 							"titleNumber": "12345",
 							"landTitleDistrict": "AB",
-							"givenName": "firstname",
+							"givenName": "givenName",
 							"lastName_1": "lastname",
 							"lastName_2": null,
 							"incorporationNumber": null,
@@ -892,18 +934,20 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
-			},
-			"roleType": {
-				"description": "User role types",
-				"enum": [
-					"Admin",
-					"SuperAdmin",
-					"Standard"
-				],
-				"type": "string"
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"vhers_api_key": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "x-api-key",
+				"schema": {
+					"type": "string",
+					"format": "uuid"
+				},
+				"required": true
+			}
+		}
 	},
 	"info": {
 		"title": "bc-emli-pin-mgmt-be",
@@ -1046,6 +1090,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1067,8 +1131,12 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
-				"security": [],
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -1099,6 +1167,26 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1120,8 +1208,12 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
-				"security": [],
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"required": true,
@@ -1173,7 +1265,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -1226,7 +1318,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -1377,7 +1469,37 @@
 							}
 						}
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
 					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"404": {
 						"description": "",
 						"content": {
 							"application/json": {
@@ -1399,7 +1521,11 @@
 					}
 				},
 				"description": "Verifies the user given a PIN and the pid(s) associated with the title",
-				"security": [],
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
 					"description": "The body for the request. Note that pids should be seperated by a vertical bar (|)",
@@ -1553,14 +1679,6 @@
 						"required": true,
 						"schema": {
 							"type": "string"
-						}
-					},
-					{
-						"in": "query",
-						"name": "role",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/roleType"
 						}
 					}
 				]
