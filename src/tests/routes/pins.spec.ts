@@ -37,14 +37,11 @@ import {
     validCreatePinBodySinglePidServiceBC,
     invalidCreatePinBodySinglePid,
     createOrRecreatePinServiceBCSuccessResponse,
-    createOrRecreatePinServiceBCFailureResponse,
     createOrRecreatePinServiceBCSuccessResponseSinglePid,
     SampleSuperAdminTokenPayload,
     DeletePINSuccessResponse,
 } from '../commonResponses';
 import { PINController } from '../../controllers/pinController';
-import GCNotifyCaller from '../../helpers/GCNotifyCaller';
-import { GCNotifyEmailSuccessResponse } from '../commonResponses';
 import jwt from 'jsonwebtoken';
 
 jest.spyOn(DataSource.prototype, 'getMetadata').mockImplementation(
@@ -117,16 +114,6 @@ describe('Pin endpoints', () => {
         );
 
         jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
             PINController.prototype as any,
             'createOrRecreatePin',
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
@@ -187,16 +174,6 @@ describe('Pin endpoints', () => {
                 ];
             },
         );
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
         jest.spyOn(
             PINController.prototype as any,
@@ -591,16 +568,6 @@ describe('Pin endpoints', () => {
         );
 
         jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
             PINController.prototype as any,
             'createOrRecreatePinServiceBC',
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
@@ -780,16 +747,6 @@ describe('Pin endpoints', () => {
         );
 
         jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
             PINController.prototype as any,
             'createOrRecreatePin',
         ).mockResolvedValueOnce(createOrRecreatePinServiceBCSuccessResponse);
@@ -954,16 +911,6 @@ describe('Pin endpoints', () => {
         );
 
         jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
             PINController.prototype as any,
             'pinRequestBodyValidate',
         ).mockResolvedValueOnce([]);
@@ -985,16 +932,6 @@ describe('Pin endpoints', () => {
     });
 
     test('regenerate on request body validation fail returns 422', async () => {
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
         const reqBody = invalidCreatePinBodyWrongPhoneServiceBC;
         const res = await request(app)
             .post('/pins/regenerate')
@@ -1080,16 +1017,6 @@ describe('Pin endpoints', () => {
     });
 
     test('initial create with too few pins returns 422', async () => {
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmail',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendSms',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
         const res = await request(app)
             .get('/pins/initial-create')
             .query({ quantity: 0 })
@@ -1163,16 +1090,6 @@ describe('Pin endpoints', () => {
 		/expire endpoint tests 
 	*/
     test('expire PIN should return expired PIN', async () => {
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendEmailNotification',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
-        jest.spyOn(
-            GCNotifyCaller.prototype as any,
-            'sendPhoneNotification',
-        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
-
         jest.spyOn(
             PINController.prototype as any,
             'pinRequestBodyValidate',

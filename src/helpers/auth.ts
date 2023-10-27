@@ -125,7 +125,6 @@ export const getAccessToken = async ({ code }: any) => {
 
     const { access_token } = data;
     const userInfo = decodingJWT(access_token);
-    console.log(userInfo);
     const tokenDetails = await prepareTokenInfo(userInfo?.payload);
     const signedToken = jwt.sign(tokenDetails, JWT_SECRET, {
         expiresIn: tokenExpiry,

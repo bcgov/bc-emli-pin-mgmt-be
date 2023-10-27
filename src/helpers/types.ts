@@ -383,7 +383,7 @@ export enum pinAuditAction {
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-25T15:12:59.764Z",
     "alteredByUsername": "self",
-	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
+	  "livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "R",
     "logCreatedAt": "2023-08-25T15:12:59.764Z"
   }
@@ -466,7 +466,88 @@ export interface accessRequestResponseBody {
 }
 
 /**
- * A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
+ * Response for access request information
+ * @example
+ * {
+    "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "requestedRole": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "createdAt": ""2023-08-24T15:06:27.269Z",
+    "requestReason": "To get access to site",
+    "rejectionReason": "Information needed"
+  }
+ */
+export interface accessRequest {
+    requestId: string;
+    userGuid: string;
+    identityType: string;
+    requestedRole: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+    requestReason: string;
+    rejectionReason: string;
+    createdAt: string;
+}
+
+/**
+ * Response for access request List information
+ * @example
+ * {
+    "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "requestedRole": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "requestStatus": "NotGranted",
+    "createdAt": ""2023-08-24T15:06:27.269Z",
+    "requestReason": "To get access to site",
+    "rejectionReason": "Information needed"
+  }
+ */
+export interface accessRequestList {
+    requestId: string;
+    userGuid: string;
+    identityType: string;
+    requestedRole: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+    requestReason: string;
+    requestStatus: true;
+    rejectionReason: string;
+    createdAt: string;
+}
+
+/**
+ * Request body for access request updates
+ * @example
+ * {
+    "action": "Granted",
+    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+  }
+ */
+export interface accessRequestUpdateRequestBody {
+    action: requestStatusType;
+    requestIds: string[];
+    rejectionReason?: string;
+}
+
+/* A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
  */
 export interface addressMatchScore {
     weightedAverage: number;
