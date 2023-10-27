@@ -36,8 +36,8 @@ export class PinAuditLog {
     })
     fromLandTitleDistrict: string | null;
 
-    @Column('enum', { name: 'title_status', enum: ['R', 'C'] })
-    titleStatus: 'R' | 'C';
+    @Column('character varying', { name: 'title_status', length: 1 })
+    titleStatus: string;
 
     @Column('timestamp with time zone', { name: 'expired_at', nullable: true })
     expiredAt: Date | null;

@@ -118,6 +118,191 @@
 					"requestReason": "To get access to site"
 				}
 			},
+			"accessRequestList": {
+				"description": "Response for access request List information",
+				"properties": {
+					"requestId": {
+						"type": "string"
+					},
+					"userGuid": {
+						"type": "string"
+					},
+					"identityType": {
+						"type": "string"
+					},
+					"requestedRole": {
+						"$ref": "#/components/schemas/UserRoles"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"requestReason": {
+						"type": "string"
+					},
+					"requestStatus": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"rejectionReason": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"requestId",
+					"userGuid",
+					"identityType",
+					"requestedRole",
+					"organization",
+					"email",
+					"userName",
+					"givenName",
+					"lastName",
+					"requestReason",
+					"requestStatus",
+					"rejectionReason",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"unauthorizedError": {
+				"description": "Unauthorized Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Unauthorized error",
+					"code": 401
+				}
+			},
+			"badRequestError": {
+				"description": "Bad Request Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Bad request error",
+					"code": 400
+				}
+			},
+			"forbiddenError": {
+				"description": "Forbidden Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Forbidden error",
+					"code": 403
+				}
+			},
+			"notFoundError": {
+				"description": "Not Found Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Not found error",
+					"code": 404
+				}
+			},
+			"requestStatusType": {
+				"description": "Enum for status for Request Access",
+				"enum": [
+					"NotGranted",
+					"Granted",
+					"Rejected"
+				],
+				"type": "string"
+			},
+			"accessRequestUpdateRequestBody": {
+				"description": "Request body for access request updates",
+				"properties": {
+					"action": {
+						"$ref": "#/components/schemas/requestStatusType"
+					},
+					"requestIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"rejectionReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"action",
+					"requestIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"HelloWorldResponse": {
 				"properties": {
 					"message": {
@@ -628,18 +813,30 @@
 					},
 					"expiredByUsername": {
 						"type": "string"
+					},
+					"propertyAddress": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"livePinId",
-					"expirationReason"
+					"expirationReason",
+					"propertyAddress"
 				],
 				"type": "object",
 				"additionalProperties": false,
 				"example": {
 					"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
 					"expirationReason": "OP",
-					"expiredByUsername": "jsmith"
+					"expiredByUsername": "jsmith",
+					"propertyAddress": "123 example st",
+					"email": "test@gmail.com"
 				}
 			},
 			"verifyPinErrorType": {
@@ -813,94 +1010,6 @@
 					]
 				}
 			},
-			"unauthorizedError": {
-				"description": "Unauthorized Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Unauthorized error",
-					"code": 401
-				}
-			},
-			"badRequestError": {
-				"description": "Bad Request Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Bad request error",
-					"code": 400
-				}
-			},
-			"forbiddenError": {
-				"description": "Forbidden Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Forbidden error",
-					"code": 403
-				}
-			},
-			"notFoundError": {
-				"description": "Not Found Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Not found error",
-					"code": 404
-				}
-			},
 			"pidNotFound": {
 				"description": "PID Not Found",
 				"properties": {
@@ -922,15 +1031,6 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
-			},
-			"roleType": {
-				"description": "User role types",
-				"enum": [
-					"Admin",
-					"SuperAdmin",
-					"Standard"
-				],
-				"type": "string"
 			}
 		},
 		"securitySchemes": {
@@ -995,6 +1095,145 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/accessRequestResponseBody"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllRequests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/accessRequestList"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/unauthorizedError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "status",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateAccessRequest",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/accessRequestUpdateRequestBody"
 							}
 						}
 					}
@@ -1128,7 +1367,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the \nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
@@ -1205,7 +1444,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the \nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
@@ -1315,7 +1554,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human. \nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nThis endpoint has minimal validation, as the validation is expected to be performed by a human.\nNote that the property address given is just used for the GCNotify email / text message\nand is not used for validation.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -1676,14 +1915,6 @@
 						"required": true,
 						"schema": {
 							"type": "string"
-						}
-					},
-					{
-						"in": "query",
-						"name": "role",
-						"required": true,
-						"schema": {
-							"$ref": "#/components/schemas/roleType"
 						}
 					}
 				]

@@ -23,7 +23,7 @@ const FE_APP_URL =
         : '';
 const app: Express = express();
 const port: number =
-    process.env.SERVER_PORT !== '3000'
+    process.env.SERVER_PORT && process.env.SERVER_PORT !== '3000'
         ? parseInt(process.env.SERVER_PORT as string)
         : 3000;
 // TO-DO: update after testing in dev

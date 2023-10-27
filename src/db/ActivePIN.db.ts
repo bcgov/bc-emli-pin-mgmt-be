@@ -2,8 +2,16 @@ import { IsNull, Like, Not, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { ActivePin } from '../entity/ActivePin';
 import { PinAuditLog } from '../entity/PinAuditLog';
-import { emailPhone, expirationReason, roleType } from '../helpers/types';
+import {
+    emailPhone,
+    expirationReason,
+    expireRequestBody,
+} from '../helpers/types';
 import logger from '../middleware/logger';
+import { PINController } from '../controllers/pinController';
+import GCNotifyCaller from '../helpers/GCNotifyCaller';
+
+const gCNotifyCaller = new GCNotifyCaller();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function findPin(
@@ -26,13 +34,13 @@ export async function findPin(
 
 export async function findPropertyDetails(
     pids: string[],
-    role: roleType,
+    permissions: string[],
 ): Promise<any> {
     const PINRepo = await AppDataSource.getRepository(ActivePin);
     let query = {};
     let where: any[] | object = [];
     if (pids.length === 0) {
-        // error
+        throw new Error(`No pids available for search`);
     }
     if (pids.length === 1) {
         where = { pids: Like(`%` + pids[0] + `%`) };
@@ -42,7 +50,11 @@ export async function findPropertyDetails(
             (where as any[]).push({ pids: Like(`%` + pids[i] + `%`) });
         }
     }
-    if (role === roleType.SuperAdmin) {
+    /*
+     * We don't check the 'PROPERTY_SEARCH' permission here as it is already checked
+     * in the only endpoint that uses this function.
+     */
+    if (permissions.includes('VIEW_PIN')) {
         query = {
             select: {
                 livePinId: true,
@@ -91,10 +103,26 @@ export async function findPropertyDetails(
 }
 
 export async function deletePin(
+    requestBody: expireRequestBody,
     id: string,
     reason: expirationReason,
     expiredByUsername: string,
 ): Promise<ActivePin | undefined> {
+    const controller = new PINController();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const faults = await controller.pinRequestBodyValidate(requestBody);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let gcNotifyPhoneResponse;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let gcNotifyEmailResponse;
+    let gcNotifyEmailAndPhoneResponse;
+    const emailTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+    const phoneTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
+    let personalisation;
+
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const PINToDelete = await manager.findOneOrFail(ActivePin, {
@@ -116,11 +144,56 @@ export async function deletePin(
                     alteredByUsername: expiredByUsername,
                 },
             );
+
+            personalisation = {
+                property_address: requestBody.propertyAddress,
+                pin: PINToDelete.pin,
+            };
+
+            if (requestBody.email && !requestBody.phoneNumber) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyEmailResponse =
+                    await gCNotifyCaller.sendEmailNotification(
+                        emailTemplateId!,
+                        requestBody.email,
+                        personalisation,
+                    );
+            } else if (requestBody.phoneNumber && !requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyPhoneResponse =
+                    await gCNotifyCaller.sendPhoneNotification(
+                        phoneTemplateId!,
+                        requestBody.phoneNumber,
+                        personalisation,
+                    );
+            } else if (requestBody.phoneNumber && requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyEmailAndPhoneResponse =
+                    await gCNotifyCaller.sendEmailAndPhoneNotification(
+                        emailTemplateId!,
+                        phoneTemplateId!,
+                        requestBody.email,
+                        requestBody.phoneNumber,
+                        personalisation,
+                    );
+
+                if (!gcNotifyEmailAndPhoneResponse) {
+                    throw new Error(
+                        'Failed to send email and phone GC Notify Notification.',
+                    );
+                }
+            } else if (!requestBody.phoneNumber && !requestBody.email) {
+                throw new Error(
+                    'Email or phone number is require to send GC Notify Notification',
+                );
+            }
+
             // TO DO: Query for User ID???
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
-    if (typeof transactionReturn.logInfo != 'undefined') {
+
+    if (typeof transactionReturn?.logInfo != 'undefined') {
         if (
             transactionReturn.logInfo.affected &&
             transactionReturn.logInfo.affected === 1
@@ -144,6 +217,7 @@ export async function deletePin(
 export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
+    propertyAddress: string,
     requesterUsername?: string,
 ): Promise<[string[], string]> {
     const errors = [];
@@ -156,6 +230,15 @@ export async function batchUpdatePin(
         expireUsername = requesterUsername;
         reason = expirationReason.CallCenterPinReset;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let gcNotifyPhoneResponse;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let gcNotifyEmailResponse;
+    let emailTemplateId: string;
+    let phoneTemplateId: string;
+    let gcNotifyEmailAndPhoneResponse;
+    let personalisation;
+
     let transactionReturn;
 
     for (let i = 0; i < updatedPins.length; i++) {
@@ -205,6 +288,61 @@ export async function batchUpdatePin(
                         { logId: log.logId },
                         updateInfo,
                     );
+
+                    personalisation = {
+                        property_address: propertyAddress,
+                        pin: updatedPins[i].pin,
+                    };
+
+                    regenerateOrCreate === 'create'
+                        ? (emailTemplateId =
+                              process.env
+                                  .GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
+                          (phoneTemplateId =
+                              process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
+                        : (emailTemplateId =
+                              process.env
+                                  .GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
+                          (phoneTemplateId =
+                              process.env
+                                  .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
+
+                    if (sendToInfo.email && !sendToInfo.phoneNumber) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        gcNotifyEmailResponse =
+                            await gCNotifyCaller.sendEmailNotification(
+                                emailTemplateId!,
+                                sendToInfo.email,
+                                personalisation,
+                            );
+                    } else if (sendToInfo.phoneNumber && !sendToInfo.email) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        gcNotifyPhoneResponse =
+                            await gCNotifyCaller.sendPhoneNotification(
+                                phoneTemplateId!,
+                                sendToInfo.phoneNumber,
+                                personalisation,
+                            );
+                    } else if (sendToInfo.phoneNumber && sendToInfo.email) {
+                        gcNotifyEmailAndPhoneResponse =
+                            await gCNotifyCaller.sendEmailAndPhoneNotification(
+                                emailTemplateId!,
+                                phoneTemplateId!,
+                                sendToInfo.email,
+                                sendToInfo.phoneNumber,
+                                personalisation,
+                            );
+                        if (!gcNotifyEmailAndPhoneResponse) {
+                            throw new Error(
+                                'Failed to send email and phone GC Notify Notification.',
+                            );
+                        }
+                    } else if (!sendToInfo.phoneNumber && !sendToInfo.email) {
+                        throw new Error(
+                            'Email or phone number is require to send GC Notify Notification',
+                        );
+                    }
+
                     return [logInfo, regenerateOrCreate];
                 },
             )) as [logInfo: UpdateResult, regenerateOrCreate: string];

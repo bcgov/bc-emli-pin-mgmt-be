@@ -9,6 +9,7 @@ import {
     Res,
     Body,
     Security,
+    Middlewares,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -45,10 +46,8 @@ import 'string_score';
 import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
-import GCNotifyCaller from '../helpers/GCNotifyCaller';
-
-const gCNotifyCaller = new GCNotifyCaller();
 import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
+import { authenticate } from '../middleware/authentication';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -56,8 +55,11 @@ export class PINController extends Controller {
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
      */
-    private pinRequestBodyValidate(
-        requestBody: createPinRequestBody | serviceBCCreateRequestBody,
+    public pinRequestBodyValidate(
+        requestBody:
+            | createPinRequestBody
+            | serviceBCCreateRequestBody
+            | expireRequestBody,
     ): string[] {
         const faults: string[] = [];
         // Phone / email checks
@@ -691,11 +693,11 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [resultToUpdate],
             emailPhone,
+            requestBody.propertyAddress,
             requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
-        const regenerateOrCreate = batchUpdatePinResponse[1];
 
         if (errors.length >= 1) {
             throw new AggregateError(
@@ -712,42 +714,6 @@ export class PINController extends Controller {
                 livePinId: resultToUpdate.livePinId,
             };
             result.push(toPush);
-        }
-
-        const personalisation = {
-            property_address: requestBody.propertyAddress,
-            pin: pin.pin,
-        };
-
-        let emailTemplateId: string;
-        let phoneTemplateId: string;
-
-        regenerateOrCreate == 'create'
-            ? (emailTemplateId =
-                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
-            : (emailTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
-
-        if (requestBody.email) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendEmailNotification(
-                emailTemplateId!,
-                requestBody.email,
-                personalisation,
-            );
-        }
-
-        if (requestBody.phoneNumber) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendPhoneNotification(
-                phoneTemplateId!,
-                requestBody.phoneNumber,
-                personalisation,
-            );
         }
 
         return result;
@@ -797,11 +763,11 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [pinResult[0]],
             emailPhone,
+            requestBody.propertyAddress,
             requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
-        const regenerateOrCreate = batchUpdatePinResponse[1];
 
         if (errors.length >= 1) {
             throw new AggregateError(
@@ -817,42 +783,6 @@ export class PINController extends Controller {
             livePinId: pinResult[0].livePinId,
         };
         result.push(toPush);
-
-        const personalisation = {
-            property_address: requestBody.propertyAddress,
-            pin: pin.pin,
-        };
-
-        let emailTemplateId: string;
-        let phoneTemplateId: string;
-
-        regenerateOrCreate == 'create'
-            ? (emailTemplateId =
-                  process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
-            : (emailTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
-              (phoneTemplateId =
-                  process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
-
-        if (requestBody.email) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendEmailNotification(
-                emailTemplateId!,
-                requestBody.email,
-                personalisation,
-            );
-        }
-
-        if (requestBody.phoneNumber) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const response = await gCNotifyCaller.sendPhoneNotification(
-                phoneTemplateId!,
-                requestBody.phoneNumber,
-                personalisation,
-            );
-        }
 
         return result;
     }
@@ -1028,6 +958,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Middlewares(authenticate)
     @Post('create')
     public async serviceBCCreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1093,6 +1024,7 @@ export class PINController extends Controller {
      * @param The request body. See 'serviceBCCreateRequestPinBody' in schemas for more details.
      * @returns An object containing the unique PIN
      */
+    @Middlewares(authenticate)
     @Post('regenerate')
     public async serviceBCRecreatePin(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1158,6 +1090,7 @@ export class PINController extends Controller {
      * generate the pin. Default is A-Z excluding O, and 1-9
      * @returns An object containing an array of the created, unique PINs
      */
+    @Middlewares(authenticate)
     @Get('initial-create')
     public async getInitialPins(
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
@@ -1206,6 +1139,7 @@ export class PINController extends Controller {
      * @param requestBody The body of the request. Note that expiredByUsername is only required for reasons other than "CO" (change of ownership).
      * @returns The deleted pin
      */
+    @Middlewares(authenticate)
     @Post('expire')
     public async expirePin(
         @Res() entityErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
@@ -1229,8 +1163,10 @@ export class PINController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         let deletedPin: ActivePin | undefined;
+
         try {
             deletedPin = await deletePin(
+                requestBody,
                 requestBody.livePinId,
                 requestBody.expirationReason,
                 expiredUsername,
@@ -1253,6 +1189,7 @@ export class PINController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
+
         return deletedPin;
     }
 
