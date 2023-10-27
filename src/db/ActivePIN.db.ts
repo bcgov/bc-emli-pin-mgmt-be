@@ -158,15 +158,21 @@ export async function batchUpdatePin(
     updatedPins: ActivePin[],
     sendToInfo: emailPhone,
     requesterUsername?: string,
+    requesterName?: string,
 ): Promise<[string[], string]> {
     const errors = [];
     const regenerateOrCreate = '';
-    let expireUsername: string, reason: expirationReason, logInfo: UpdateResult;
-    if (!requesterUsername) {
-        expireUsername = 'self';
+    let expireUsername: string,
+        expireName: string,
+        reason: expirationReason,
+        logInfo: UpdateResult;
+    if (!requesterUsername || !requesterName) {
+        expireUsername = 'Self';
+        expireName = 'Self Requested';
         reason = expirationReason.OnlineReset;
     } else {
         expireUsername = requesterUsername;
+        expireName = requesterName;
         reason = expirationReason.CallCenterPinReset;
     }
     let transactionReturn;
@@ -202,7 +208,8 @@ export async function batchUpdatePin(
                     if (log.expiredAt != null) {
                         updateInfo = {
                             expirationReason: reason,
-                            alteredByUsername: expireUsername, // TODO: Join on user GUID
+                            alteredByUsername: expireUsername,
+                            alteredByName: expireName,
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };

@@ -108,7 +108,7 @@ export interface createdPIN {
  * }
  */
 export interface updatedPIN {
-    pin: string;
+    pin?: string;
     pids: string;
     livePinId: string;
 }

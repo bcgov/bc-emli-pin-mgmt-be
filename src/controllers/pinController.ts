@@ -10,6 +10,7 @@ import {
     Body,
     Security,
     Middlewares,
+    Request,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -47,10 +48,12 @@ import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
 import GCNotifyCaller from '../helpers/GCNotifyCaller';
-
+import { Request as req } from 'express';
 const gCNotifyCaller = new GCNotifyCaller();
 import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 import { authenticate } from '../middleware/authentication';
+import { AuthenticationError } from '../middleware/AuthenticationError';
+import { decodingJWT } from '../helpers/auth';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -508,7 +511,7 @@ export class PINController extends Controller {
     }
 
     /**
-     * Internal method for creating or recreating a PIN. The process is the same.
+     * Internal method for creating or recreating a PIN for VHERS. The process is the same.
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
@@ -696,7 +699,6 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [resultToUpdate],
             emailPhone,
-            requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
@@ -712,7 +714,6 @@ export class PINController extends Controller {
         // Prepare and return result
         if (resultToUpdate.pin) {
             const toPush: updatedPIN = {
-                pin: resultToUpdate.pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
                 pids: resultToUpdate.pids,
                 livePinId: resultToUpdate.livePinId,
             };
@@ -763,9 +764,34 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePinServiceBC(
         requestBody: serviceBCCreateRequestBody,
+        req: req,
     ): Promise<updatedPIN[]> {
         const result: any[] = [];
-
+        // Validate that there is a requester
+        let payload;
+        try {
+            payload = decodingJWT(req.cookies.token)?.payload;
+        } catch (err) {
+            throw new AuthenticationError(`Unable to decode JWT`, 403);
+        }
+        const username: string =
+            payload.username && payload.username !== '' ? payload.username : '';
+        const name: string =
+            (payload.given_name || payload.family_name) &&
+            (payload.given_name !== '' || payload.family_name !== '')
+                ? payload.given_name + ' ' + payload.family_name
+                : '';
+        if (username === '' || name === '') {
+            throw new AuthenticationError(
+                `Username or given / family name does not exist for requester`,
+                403,
+            );
+        }
+        const permissions: string[] | undefined = payload.permissions;
+        let hasViewPermission = false;
+        if (permissions && permissions.includes('VIEW_PIN')) {
+            hasViewPermission = true;
+        }
         // Validate that the input request has the correct email / phone information
         const faults = this.pinRequestBodyValidate(requestBody);
         if (faults.length > 0) {
@@ -802,7 +828,8 @@ export class PINController extends Controller {
         const batchUpdatePinResponse = await batchUpdatePin(
             [pinResult[0]],
             emailPhone,
-            requestBody.requesterUsername, // TODO: Get info from token
+            username,
+            name,
         );
 
         const errors = batchUpdatePinResponse[0];
@@ -817,7 +844,7 @@ export class PINController extends Controller {
 
         // Prepare and return results
         const toPush: updatedPIN = {
-            pin: pinResult[0].pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
+            pin: hasViewPermission ? pinResult[0].pin : undefined,
             pids: pinResult[0].pids,
             livePinId: pinResult[0].livePinId,
         };
@@ -831,7 +858,7 @@ export class PINController extends Controller {
         let emailTemplateId: string;
         let phoneTemplateId: string;
 
-        regenerateOrCreate == 'create'
+        regenerateOrCreate === 'create'
             ? (emailTemplateId =
                   process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
               (phoneTemplateId =
@@ -848,16 +875,14 @@ export class PINController extends Controller {
                 requestBody.email,
                 personalisation,
             );
-        }
-
-        if (requestBody.phoneNumber) {
+        } else if (requestBody.phoneNumber) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const response = await gCNotifyCaller.sendPhoneNotification(
                 phoneTemplateId!,
                 requestBody.phoneNumber,
                 personalisation,
             );
-        }
+        } // Update once pulling in latest
 
         return result;
     }
@@ -1043,11 +1068,12 @@ export class PINController extends Controller {
         @Res()
         notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
         @Body() requestBody: serviceBCCreateRequestBody,
+        @Request() req: req,
     ): Promise<updatedPIN[]> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
@@ -1109,11 +1135,12 @@ export class PINController extends Controller {
         @Res()
         notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
         @Body() requestBody: serviceBCCreateRequestBody,
+        @Request() req: req,
     ): Promise<updatedPIN[]> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
             if (
                 err instanceof NotFoundError ||
