@@ -156,4 +156,99 @@ export default class GCNotifyCaller {
             }
         }
     }
+
+    /**
+     * Sends a GCNotify email and text to the specified email and phone number.
+     * @param templateId is the templateId for the text message
+     * @param email is the email address you wish to send the email to
+     * @param phone is the phone number you wish to send the text to, in string format
+     * @param personalisation is an object with the parameters that can be customized in the template (ex: name, PIN)
+     * @returns true if GCNotify returns a 2xx response code, or an error otherwise
+     */
+    public async sendEmailAndPhoneNotification(
+        emailTemplateId: string,
+        phoneTemplateId: string,
+        email: string,
+        phone: string,
+        personalisation?: object,
+    ) {
+        const notifyClient = new NotifyClient(
+            process.env.GC_NOTIFY_URL as string,
+            process.env.GC_NOTIFY_API_KEY as string,
+        );
+
+        let phoneResponse;
+        let emailResponse;
+
+        // Attempt to send text x number of times. Throw error otherwise
+        for (let i = 0; i < this.retryLimit; i++) {
+            if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+                (personalisation as any).pin =
+                    ((personalisation as any).pin as string).substring(0, 4) +
+                    '-' +
+                    ((personalisation as any).pin as string).substring(4);
+            }
+
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                emailResponse = await this.sendEmail(
+                    notifyClient,
+                    emailTemplateId,
+                    email,
+                    { personalisation: personalisation },
+                );
+
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                phoneResponse = await this.sendSms(
+                    notifyClient,
+                    phoneTemplateId,
+                    phone,
+                    { personalisation: personalisation },
+                );
+
+                if (emailResponse | phoneResponse) {
+                    return true;
+                }
+            } catch (err) {
+                if (emailResponse) {
+                    return true;
+                } else {
+                    try {
+                        if (!phoneResponse) {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            phoneResponse = await this.sendSms(
+                                notifyClient,
+                                phoneTemplateId,
+                                phone,
+                                { personalisation: personalisation },
+                            );
+                        }
+                        return emailResponse | phoneResponse ? true : false;
+                    } catch {
+                        let message =
+                            `Error(s) sending GCNotify email & text - ` +
+                            (err as gcNotifyError).response.status +
+                            ` ` +
+                            (err as gcNotifyError).response.statusText +
+                            `:`;
+                        for (const error of (err as gcNotifyError).response.data
+                            .errors) {
+                            message =
+                                message +
+                                `\n` +
+                                error.error +
+                                `: ` +
+                                error.message;
+                        }
+                        logger.error(message);
+                        if (i + 1 === this.retryLimit) {
+                            throw new Error(message);
+                        }
+
+                        return emailResponse | phoneResponse ? true : false;
+                    }
+                }
+            }
+        }
+    }
 }

@@ -112,8 +112,11 @@ export async function deletePin(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const faults = await controller.pinRequestBodyValidate(requestBody);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let gcNotifyPhoneResponse;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let gcNotifyEmailResponse;
+    let gcNotifyEmailAndPhoneResponse;
     const emailTemplateId: string =
         process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
     const phoneTemplateId: string =
@@ -147,29 +150,41 @@ export async function deletePin(
                 pin: PINToDelete.pin,
             };
 
-            try {
-                if (PINToDelete) {
-                    if (requestBody.email) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        gcNotifyEmailResponse =
-                            await gCNotifyCaller.sendEmailNotification(
-                                emailTemplateId!,
-                                requestBody.email,
-                                personalisation,
-                            );
-                    } else if (requestBody.phoneNumber) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        gcNotifyPhoneResponse =
-                            await gCNotifyCaller.sendPhoneNotification(
-                                phoneTemplateId!,
-                                requestBody.phoneNumber,
-                                personalisation,
-                            );
-                    }
+            if (requestBody.email && !requestBody.phoneNumber) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyEmailResponse =
+                    await gCNotifyCaller.sendEmailNotification(
+                        emailTemplateId!,
+                        requestBody.email,
+                        personalisation,
+                    );
+            } else if (requestBody.phoneNumber && !requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyPhoneResponse =
+                    await gCNotifyCaller.sendPhoneNotification(
+                        phoneTemplateId!,
+                        requestBody.phoneNumber,
+                        personalisation,
+                    );
+            } else if (requestBody.phoneNumber && requestBody.email) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                gcNotifyEmailAndPhoneResponse =
+                    await gCNotifyCaller.sendEmailAndPhoneNotification(
+                        emailTemplateId!,
+                        phoneTemplateId!,
+                        requestBody.email,
+                        requestBody.phoneNumber,
+                        personalisation,
+                    );
+
+                if (!gcNotifyEmailAndPhoneResponse) {
+                    throw new Error(
+                        'Failed to send email and phone GC Notify Notification.',
+                    );
                 }
-            } catch {
+            } else if (!requestBody.phoneNumber && !requestBody.email) {
                 throw new Error(
-                    'Encountered error calling GC Notify for PIN Expiry',
+                    'Email or phone number is require to send GC Notify Notification',
                 );
             }
 
@@ -177,25 +192,6 @@ export async function deletePin(
             return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
-    try {
-        if (
-            requestBody.phoneNumber &&
-            !gcNotifyPhoneResponse &&
-            gcNotifyEmailResponse
-        ) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            gcNotifyPhoneResponse = await gCNotifyCaller.sendPhoneNotification(
-                phoneTemplateId!,
-                requestBody.phoneNumber,
-                personalisation,
-            );
-        }
-    } catch (err) {
-        if (err instanceof Error) {
-            const message = `An error occured while calling gcNotify function 'sendPhoneNotification' while expiring PIN.`;
-            logger.warn(message);
-        }
-    }
 
     if (typeof transactionReturn?.logInfo != 'undefined') {
         if (
@@ -234,11 +230,13 @@ export async function batchUpdatePin(
         expireUsername = requesterUsername;
         reason = expirationReason.CallCenterPinReset;
     }
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let gcNotifyPhoneResponse;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let gcNotifyEmailResponse;
     let emailTemplateId: string;
     let phoneTemplateId: string;
+    let gcNotifyEmailAndPhoneResponse;
     let personalisation;
 
     let transactionReturn;
@@ -291,7 +289,7 @@ export async function batchUpdatePin(
                         updateInfo,
                     );
 
-                    const personalisation = {
+                    personalisation = {
                         property_address: propertyAddress,
                         pin: updatedPins[i].pin,
                     };
@@ -309,7 +307,7 @@ export async function batchUpdatePin(
                               process.env
                                   .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
 
-                    if (sendToInfo.email) {
+                    if (sendToInfo.email && !sendToInfo.phoneNumber) {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         gcNotifyEmailResponse =
                             await gCNotifyCaller.sendEmailNotification(
@@ -317,7 +315,7 @@ export async function batchUpdatePin(
                                 sendToInfo.email,
                                 personalisation,
                             );
-                    } else if (sendToInfo.phoneNumber) {
+                    } else if (sendToInfo.phoneNumber && !sendToInfo.email) {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         gcNotifyPhoneResponse =
                             await gCNotifyCaller.sendPhoneNotification(
@@ -325,6 +323,24 @@ export async function batchUpdatePin(
                                 sendToInfo.phoneNumber,
                                 personalisation,
                             );
+                    } else if (sendToInfo.phoneNumber && sendToInfo.email) {
+                        gcNotifyEmailAndPhoneResponse =
+                            await gCNotifyCaller.sendEmailAndPhoneNotification(
+                                emailTemplateId!,
+                                phoneTemplateId!,
+                                sendToInfo.email,
+                                sendToInfo.phoneNumber,
+                                personalisation,
+                            );
+                        if (!gcNotifyEmailAndPhoneResponse) {
+                            throw new Error(
+                                'Failed to send email and phone GC Notify Notification.',
+                            );
+                        }
+                    } else if (!sendToInfo.phoneNumber && !sendToInfo.email) {
+                        throw new Error(
+                            'Email or phone number is require to send GC Notify Notification',
+                        );
                     }
 
                     return [logInfo, regenerateOrCreate];
@@ -336,26 +352,6 @@ export async function batchUpdatePin(
                 logger.warn(message);
                 errors.push(message);
                 continue;
-            }
-        }
-        try {
-            if (
-                sendToInfo.phoneNumber &&
-                !gcNotifyPhoneResponse &&
-                gcNotifyEmailResponse
-            ) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                gcNotifyPhoneResponse =
-                    await gCNotifyCaller.sendPhoneNotification(
-                        phoneTemplateId!,
-                        sendToInfo.phoneNumber,
-                        personalisation,
-                    );
-            }
-        } catch (err) {
-            if (err instanceof Error) {
-                const message = `An error occured while calling gcNotify function 'sendPhoneNotification' inside 'batchUpdatePin'.`;
-                logger.warn(message);
             }
         }
 
