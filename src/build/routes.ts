@@ -121,6 +121,21 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "requestStatusType": {
+        "dataType": "refEnum",
+        "enums": ["NotGranted","Granted","Rejected"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "accessRequestUpdateRequestBody": {
+        "dataType": "refObject",
+        "properties": {
+            "action": {"ref":"requestStatusType","required":true},
+            "requestIds": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "rejectionReason": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "HelloWorldResponse": {
         "dataType": "refObject",
         "properties": {
@@ -451,6 +466,37 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.getAllRequests.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/user-requests',
+            ...(fetchMiddlewares<RequestHandler>(AccessRequestController)),
+            ...(fetchMiddlewares<RequestHandler>(AccessRequestController.prototype.updateAccessRequest)),
+
+            function AccessRequestController_updateAccessRequest(request: any, response: any, next: any) {
+            const args = {
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
+                    requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
+                    notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"accessRequestUpdateRequestBody"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new AccessRequestController();
+
+
+              const promise = controller.updateAccessRequest.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 204, next);
             } catch (err) {
                 return next(err);
             }

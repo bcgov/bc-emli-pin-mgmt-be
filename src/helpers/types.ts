@@ -533,6 +533,20 @@ export interface accessRequestList {
     createdAt: string;
 }
 
+/**
+ * Request body for access request updates
+ * @example
+ * {
+    "action": "Granted",
+    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+  }
+ */
+export interface accessRequestUpdateRequestBody {
+    action: requestStatusType;
+    requestIds: string[];
+    rejectionReason?: string;
+}
+
 /* A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
  */
 export interface addressMatchScore {

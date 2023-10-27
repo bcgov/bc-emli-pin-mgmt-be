@@ -271,6 +271,38 @@
 					"code": 404
 				}
 			},
+			"requestStatusType": {
+				"description": "Enum for status for Request Access",
+				"enum": [
+					"NotGranted",
+					"Granted",
+					"Rejected"
+				],
+				"type": "string"
+			},
+			"accessRequestUpdateRequestBody": {
+				"description": "Request body for access request updates",
+				"properties": {
+					"action": {
+						"$ref": "#/components/schemas/requestStatusType"
+					},
+					"requestIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"rejectionReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"action",
+					"requestIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"HelloWorldResponse": {
 				"properties": {
 					"message": {
@@ -1146,6 +1178,66 @@
 						}
 					}
 				]
+			},
+			"put": {
+				"operationId": "UpdateAccessRequest",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/accessRequestUpdateRequestBody"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/helloworld": {

@@ -1,7 +1,10 @@
 import express from 'express';
 import { AccessRequestController } from './../controllers/AccessRequestController';
 import { Request, Response } from 'express';
-import { accessRequestResponseBody } from '../helpers/types';
+import {
+    accessRequestResponseBody,
+    accessRequestUpdateRequestBody,
+} from '../helpers/types';
 
 const accessRequestRouter = express.Router();
 const controller = new AccessRequestController();
@@ -24,6 +27,19 @@ accessRequestRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         req.params.status,
+        req,
+    );
+    return res.send(response);
+});
+
+accessRequestRouter.put('', async (req: Request, res: Response) => {
+    const response = await controller.updateAccessRequest(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body as accessRequestUpdateRequestBody,
         req,
     );
     return res.send(response);
