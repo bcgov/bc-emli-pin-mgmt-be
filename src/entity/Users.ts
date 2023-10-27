@@ -36,7 +36,7 @@ export class Users {
     })
     userName: string | null;
 
-    @Column('character varying', { name: 'given_name', length: 50 })
+    @Column('character varying', { name: 'given_name', length: 125 })
     givenName: string;
 
     @Column('character varying', { name: 'last_name', length: 75 })

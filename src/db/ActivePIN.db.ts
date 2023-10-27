@@ -219,15 +219,21 @@ export async function batchUpdatePin(
     sendToInfo: emailPhone,
     propertyAddress: string,
     requesterUsername?: string,
+    requesterName?: string,
 ): Promise<[string[], string]> {
     const errors = [];
     const regenerateOrCreate = '';
-    let expireUsername: string, reason: expirationReason, logInfo: UpdateResult;
-    if (!requesterUsername) {
-        expireUsername = 'self';
+    let expireUsername: string,
+        expireName: string,
+        reason: expirationReason,
+        logInfo: UpdateResult;
+    if (!requesterUsername || !requesterName) {
+        expireUsername = 'Self';
+        expireName = 'Self Requested';
         reason = expirationReason.OnlineReset;
     } else {
         expireUsername = requesterUsername;
+        expireName = requesterName;
         reason = expirationReason.CallCenterPinReset;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -245,8 +251,6 @@ export async function batchUpdatePin(
         try {
             transactionReturn = (await AppDataSource.transaction(
                 async (manager) => {
-                    await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
-
                     const pin = await manager.findOne(ActivePin, {
                         where: {
                             livePinId: updatedPins[i].livePinId,
@@ -261,33 +265,75 @@ export async function batchUpdatePin(
                         regenerateOrCreate = 'create';
                     }
 
+                    await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
+
                     // Update the log with the correct info
-                    const log = await manager.findOneOrFail(PinAuditLog, {
-                        order: {
-                            logCreatedAt: 'DESC', // looking for most recent log
-                        },
-                        where: { livePinId: updatedPins[i].livePinId },
-                    });
-                    let updateInfo;
-                    if (log.expiredAt != null) {
-                        updateInfo = {
-                            expirationReason: reason,
-                            alteredByUsername: expireUsername, // TODO: Join on user GUID
-                            sentToEmail: sendToInfo.email,
-                            sentToPhone: sendToInfo.phoneNumber,
-                        };
-                    } else {
+                    let log,
+                        updateInfo = {};
+                    if (regenerateOrCreate === 'create') {
+                        log = await manager.findOneOrFail(PinAuditLog, {
+                            order: {
+                                logCreatedAt: 'DESC', // looking for most recent log
+                            },
+                            where: { livePinId: updatedPins[i].livePinId },
+                        });
                         updateInfo = {
                             alteredByUsername: expireUsername,
+                            alteredByName: expireName,
                             sentToEmail: sendToInfo.email,
                             sentToPhone: sendToInfo.phoneNumber,
                         };
+                        logInfo = await manager.update(
+                            PinAuditLog,
+                            { logId: log.logId },
+                            updateInfo,
+                        );
+                    } else {
+                        log = await manager.find(PinAuditLog, {
+                            order: {
+                                logCreatedAt: 'DESC', // looking for most recent log first
+                            },
+                            where: { livePinId: updatedPins[i].livePinId },
+                            take: 2,
+                        });
+                        if (log.length === 2) {
+                            // put expiration on old pin
+                            updateInfo = {
+                                expirationReason: reason,
+                                expiredAt: new Date(),
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[1].logId },
+                                updateInfo,
+                            );
+                            // put alteration info on the recreation
+                            updateInfo = {
+                                alteredByUsername: expireUsername,
+                                alteredByName: expireName,
+                                sentToEmail: sendToInfo.email,
+                                sentToPhone: sendToInfo.phoneNumber,
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[0].logId },
+                                updateInfo,
+                            );
+                        } else {
+                            // this case shouldn't happen, but in case something weird happens, just update the most recent log
+                            updateInfo = {
+                                alteredByUsername: expireUsername,
+                                alteredByName: expireName,
+                                sentToEmail: sendToInfo.email,
+                                sentToPhone: sendToInfo.phoneNumber,
+                            };
+                            logInfo = await manager.update(
+                                PinAuditLog,
+                                { logId: log[0].logId },
+                                updateInfo,
+                            );
+                        }
                     }
-                    logInfo = await manager.update(
-                        PinAuditLog,
-                        { logId: log.logId },
-                        updateInfo,
-                    );
 
                     personalisation = {
                         property_address: propertyAddress,

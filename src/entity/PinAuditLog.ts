@@ -88,9 +88,9 @@ export class PinAuditLog {
     logCreatedAt: Date;
 
     @Column('character varying', {
-        name: 'altered_by_user_guid',
+        name: 'altered_by_name',
         nullable: true,
-        length: 36,
+        length: 201,
     })
-    alteredByUserGuid: string | null;
+    alteredByName: string | null;
 }

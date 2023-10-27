@@ -108,7 +108,7 @@ export interface createdPIN {
  * }
  */
 export interface updatedPIN {
-    pin: string;
+    pin?: string;
     pids: string;
     livePinId: string;
 }
@@ -569,8 +569,8 @@ export interface addressMatchScore {
  * @example
  * 	{
   		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-  		"email": "example@example.com",
-  		"phoneNumber": "+19021234567"
+  		"email": "example@test.com",
+  		"phoneNumber": "+19021234567",
         "propertyAddress": "123 Main Street, Vancouver, BC"
   	}
  */
@@ -581,7 +581,6 @@ export interface serviceBCCreateRequestBody {
     propertyAddress: string;
     pinLength?: number;
     allowedChars?: string;
-    requesterUsername?: string;
 }
 
 /**

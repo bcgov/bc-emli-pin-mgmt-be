@@ -52,7 +52,9 @@ pinsRouter.post('/create', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.body as serviceBCCreateRequestBody,
+        req,
     );
     return res.send(response);
 });
@@ -63,7 +65,9 @@ pinsRouter.post('/regenerate', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.body as serviceBCCreateRequestBody,
+        req,
     );
     return res.send(response);
 });

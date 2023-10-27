@@ -184,7 +184,7 @@ const models: TsoaRoute.Models = {
     "updatedPIN": {
         "dataType": "refObject",
         "properties": {
-            "pin": {"dataType":"string","required":true},
+            "pin": {"dataType":"string"},
             "pids": {"dataType":"string","required":true},
             "livePinId": {"dataType":"string","required":true},
         },
@@ -266,7 +266,6 @@ const models: TsoaRoute.Models = {
             "propertyAddress": {"dataType":"string","required":true},
             "pinLength": {"dataType":"double"},
             "allowedChars": {"dataType":"string"},
-            "requesterUsername": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -624,11 +623,13 @@ export function RegisterRoutes(app: Router) {
 
             function PINController_serviceBCCreatePin(request: any, response: any, next: any) {
             const args = {
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
                     notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"serviceBCCreateRequestBody"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -653,11 +654,13 @@ export function RegisterRoutes(app: Router) {
 
             function PINController_serviceBCRecreatePin(request: any, response: any, next: any) {
             const args = {
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
                     notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"serviceBCCreateRequestBody"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
