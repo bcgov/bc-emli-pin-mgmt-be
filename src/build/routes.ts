@@ -623,6 +623,7 @@ export function RegisterRoutes(app: Router) {
 
             function PINController_serviceBCCreatePin(request: any, response: any, next: any) {
             const args = {
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
@@ -653,6 +654,7 @@ export function RegisterRoutes(app: Router) {
 
             function PINController_serviceBCRecreatePin(request: any, response: any, next: any) {
             const args = {
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},

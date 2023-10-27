@@ -1482,6 +1482,16 @@
 							}
 						}
 					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1531,6 +1541,16 @@
 										"$ref": "#/components/schemas/updatedPIN"
 									},
 									"type": "array"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
 								}
 							}
 						}

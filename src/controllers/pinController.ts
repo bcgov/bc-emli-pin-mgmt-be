@@ -32,6 +32,7 @@ import {
     verifyPinResponse,
     UnauthorizedErrorResponse,
     InvalidTokenErrorResponse,
+    forbiddenError,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -989,6 +990,7 @@ export class PINController extends Controller {
     @Middlewares(authenticate)
     @Post('create')
     public async serviceBCCreatePin(
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
@@ -1003,6 +1005,15 @@ export class PINController extends Controller {
         try {
             res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered authentication error in createPin: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
             if (
                 err instanceof NotFoundError ||
                 err instanceof BorderlineResultError
@@ -1056,6 +1067,7 @@ export class PINController extends Controller {
     @Middlewares(authenticate)
     @Post('regenerate')
     public async serviceBCRecreatePin(
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
@@ -1070,6 +1082,15 @@ export class PINController extends Controller {
         try {
             res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered authentication error in createPin: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
             if (
                 err instanceof NotFoundError ||
                 err instanceof BorderlineResultError
