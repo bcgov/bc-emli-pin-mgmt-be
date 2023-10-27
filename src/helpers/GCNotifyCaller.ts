@@ -245,7 +245,7 @@ export default class GCNotifyCaller {
                             throw new Error(message);
                         }
 
-                        return emailResponse | phoneResponse ? true : false;
+                        continue;
                     }
                 }
             }
