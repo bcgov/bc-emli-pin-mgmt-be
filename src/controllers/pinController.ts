@@ -816,6 +816,59 @@ export class PINController extends Controller {
         return result;
     }
 
+    public async addressScore(@Body() requestBody: createPinRequestBody) {
+        // Validate that the input request is correct
+        const faults = this.pinRequestBodyValidate(requestBody);
+        if (faults.length > 0) {
+            throw new AggregateError(
+                faults,
+                'Validation Error(s) occured in createPin request body:',
+            );
+        }
+
+        // Grab input pid(s)
+        const pids: string[] = pidStringSplitAndSort(requestBody.pids);
+        let where;
+        if (pids.length === 1) {
+            where = { pids: Like(`%` + pids[0] + `%`) };
+        } else {
+            where = [];
+            for (let i = 0; i < pids.length; i++) {
+                where.push({ pids: Like(`%` + pids[i] + `%`) });
+            }
+        }
+
+        // Find Active PIN entry (or entries if more than one pid to insert or update
+        let pinResults = await findPin(undefined, where);
+        pinResults = sortActivePinResults(pinResults);
+
+        // const updateResults = [];
+        // const borderlineResults = [];
+        // const thresholds = (await this.dynamicImportCaller()).thresholds;
+        const pinResultKeys = Object.keys(pinResults);
+        const contactMessages = new Set();
+
+        if (pinResultKeys.length > 0) {
+            for (const key of pinResultKeys) {
+                const titleOwners = pinResults[key].length;
+                for (let i = 0; i < titleOwners; i++) {
+                    const matchScore = await this.pinResultValidate(
+                        requestBody,
+                        pinResults[key][i],
+                        titleOwners,
+                    );
+                    if (!('weightedAverage' in matchScore)) {
+                        // it's a string array
+                        for (const message of matchScore) {
+                            contactMessages.add(message);
+                        }
+                        continue; // bad match, skip
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Used to create a single, unique PIN, checking against the DB to do so.
      * Note that the address line, province, country and postal code information is that of the
