@@ -118,6 +118,159 @@
 					"requestReason": "To get access to site"
 				}
 			},
+			"accessRequestList": {
+				"description": "Response for access request List information",
+				"properties": {
+					"requestId": {
+						"type": "string"
+					},
+					"userGuid": {
+						"type": "string"
+					},
+					"identityType": {
+						"type": "string"
+					},
+					"requestedRole": {
+						"$ref": "#/components/schemas/UserRoles"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"requestReason": {
+						"type": "string"
+					},
+					"requestStatus": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"rejectionReason": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"requestId",
+					"userGuid",
+					"identityType",
+					"requestedRole",
+					"organization",
+					"email",
+					"userName",
+					"givenName",
+					"lastName",
+					"requestReason",
+					"requestStatus",
+					"rejectionReason",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"unauthorizedError": {
+				"description": "Unauthorized Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Unauthorized error",
+					"code": 401
+				}
+			},
+			"badRequestError": {
+				"description": "Bad Request Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Bad request error",
+					"code": 400
+				}
+			},
+			"forbiddenError": {
+				"description": "Forbidden Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Forbidden error",
+					"code": 403
+				}
+			},
+			"notFoundError": {
+				"description": "Not Found Error",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Not found error",
+					"code": 404
+				}
+			},
 			"HelloWorldResponse": {
 				"properties": {
 					"message": {
@@ -825,94 +978,6 @@
 					]
 				}
 			},
-			"unauthorizedError": {
-				"description": "Unauthorized Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Unauthorized error",
-					"code": 401
-				}
-			},
-			"badRequestError": {
-				"description": "Bad Request Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Bad request error",
-					"code": 400
-				}
-			},
-			"forbiddenError": {
-				"description": "Forbidden Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Forbidden error",
-					"code": 403
-				}
-			},
-			"notFoundError": {
-				"description": "Not Found Error",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Not found error",
-					"code": 404
-				}
-			},
 			"pidNotFound": {
 				"description": "PID Not Found",
 				"properties": {
@@ -1002,6 +1067,85 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "GetAllRequests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/accessRequestList"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/unauthorizedError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "status",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/helloworld": {

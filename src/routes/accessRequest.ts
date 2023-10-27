@@ -16,4 +16,17 @@ accessRequestRouter.post('', async (req: Request, res: Response) => {
     return res.send(response);
 });
 
+accessRequestRouter.get('', async (req: Request, res: Response) => {
+    const response = await controller.getAllRequests(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.params.status,
+        req,
+    );
+    return res.send(response);
+});
+
 export default accessRequestRouter;

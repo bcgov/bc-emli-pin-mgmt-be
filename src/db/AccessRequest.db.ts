@@ -49,7 +49,7 @@ database based on the provided status. It takes a `status` parameter of type
 `requestStatusType` and returns a promise that resolves to an array of
 `AccessRequest` entities or any value. */
 export async function getRequestList(
-    status: requestStatusType,
+    where?: object,
 ): Promise<AccessRequest[] | any> {
     const repo = await AppDataSource.getRepository(AccessRequest);
     const query = {
@@ -61,19 +61,23 @@ export async function getRequestList(
             organization: true,
             email: true,
             userName: true,
-            firstName: true,
+            givenName: true,
             lastName: true,
+            requestStatus: true,
             requestReason: true,
             rejectionReason: true,
             createdAt: true,
         },
-        where: {
-            requestStatus: status,
-        },
+        where: where ? where : undefined,
         order: { createdAt: 'ASC' as FindOptionsOrderValue },
     };
 
-    const result = await repo.find(query);
+    let result;
+    if (query.where === undefined) {
+        result = await repo.find({ order: { createdAt: 'ASC' } });
+    } else {
+        result = await repo.find(query);
+    }
 
     return result;
 }
