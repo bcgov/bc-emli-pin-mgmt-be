@@ -266,7 +266,6 @@ const models: TsoaRoute.Models = {
             "propertyAddress": {"dataType":"string","required":true},
             "pinLength": {"dataType":"double"},
             "allowedChars": {"dataType":"string"},
-            "requesterUsername": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
