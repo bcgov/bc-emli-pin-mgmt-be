@@ -6,6 +6,92 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"InvalidTokenErrorResponse": {
+				"description": "The response given when the api key provided in a request is invalid",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Invalid Token"
+				}
+			},
+			"UnauthorizedErrorResponse": {
+				"description": "The response given when an api key is not provided in a request that requires it",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "Access Denied"
+				}
+			},
+			"verifyPinErrorType": {
+				"properties": {
+					"errorType": {
+						"type": "string"
+					},
+					"errorMessage": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"errorMessage"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"verifyPinResponse": {
+				"description": "The response given from a verify pin request.\nIf verified is false, the reason that the PIN was not verified is given.",
+				"properties": {
+					"verified": {
+						"type": "boolean"
+					},
+					"reason": {
+						"$ref": "#/components/schemas/verifyPinErrorType"
+					}
+				},
+				"required": [
+					"verified"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"verified": false,
+					"reason": {
+						"errorType": "NotFoundError",
+						"errorMessage": "PIN was unable to be verified"
+					}
+				}
+			},
+			"DuplicateRequestErrorType": {
+				"description": "The error given when there already exists an access request for a user that has not yet been approved or rejected.",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "There already exists an access request for this user. Please contact your administrator."
+				}
+			},
 			"GenericTypeORMErrorType": {
 				"description": "A generic error given by TypeORM. Often related to invalid syntax for input parameters",
 				"properties": {
@@ -453,38 +539,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"InvalidTokenErrorResponse": {
-				"description": "The response given when the api key provided in a request is invalid",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Invalid Token"
-				}
-			},
-			"UnauthorizedErrorResponse": {
-				"description": "The response given when an api key is not provided in a request that requires it",
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Access Denied"
-				}
-			},
 			"pinRangeErrorType": {
 				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
 				"properties": {
@@ -863,44 +917,6 @@
 					"email": "test@gmail.com"
 				}
 			},
-			"verifyPinErrorType": {
-				"properties": {
-					"errorType": {
-						"type": "string"
-					},
-					"errorMessage": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"errorMessage"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"verifyPinResponse": {
-				"description": "The response given from a verify pin request.\nIf verified is false, the reason that the PIN was not verified is given.",
-				"properties": {
-					"verified": {
-						"type": "boolean"
-					},
-					"reason": {
-						"$ref": "#/components/schemas/verifyPinErrorType"
-					}
-				},
-				"required": [
-					"verified"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"verified": false,
-					"reason": {
-						"errorType": "NotFoundError",
-						"errorMessage": "PIN was unable to be verified"
-					}
-				}
-			},
 			"verifyPinRequestBody": {
 				"description": "The information needed to verify a pin from the VHERS side.\nNote that the pids are seperated by a vertical bar (|)",
 				"properties": {
@@ -1090,6 +1106,46 @@
 					"201": {
 						"description": "Created"
 					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/verifyPinResponse"
+								}
+							}
+						}
+					},
+					"409": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DuplicateRequestErrorType"
+								}
+							}
+						}
+					},
 					"422": {
 						"description": "",
 						"content": {
@@ -1218,6 +1274,26 @@
 				"responses": {
 					"204": {
 						"description": "No content"
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
 					},
 					"403": {
 						"description": "",

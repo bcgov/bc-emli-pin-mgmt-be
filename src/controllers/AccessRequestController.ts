@@ -1,4 +1,10 @@
-import { noPendingRequestFound } from './../helpers/types';
+import {
+    DuplicateRequestErrorType,
+    InvalidTokenErrorResponse,
+    UnauthorizedErrorResponse,
+    noPendingRequestFound,
+    verifyPinResponse,
+} from './../helpers/types';
 import {
     Get,
     Post,
@@ -51,6 +57,19 @@ export class AccessRequestController extends Controller {
      * Create a new access request for a user
      */
     public async createAccessRequest(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() _notFoundErrorResponse: TsoaResponse<404, verifyPinResponse>,
+        @Res()
+        duplicateErrorResponse: TsoaResponse<409, DuplicateRequestErrorType>,
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
         @Res()
         requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
@@ -80,6 +99,17 @@ export class AccessRequestController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         try {
+            const request = await getRequestList({
+                userGuid: requestBody.userGuid,
+                requestStatus: requestStatusType.NotGranted,
+            });
+            if (request.length > 0) {
+                // there is already a request that has not yet been granted
+                const message =
+                    'There already exists an access request for this user. Please contact your administrator.';
+                logger.warn(message);
+                return duplicateErrorResponse(409, { message });
+            }
             await createRequest(requestBody);
             let emailAddresses: any[] = [];
 
@@ -274,6 +304,16 @@ export class AccessRequestController extends Controller {
      * Create a new access request for a user
      */
     public async updateAccessRequest(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
         @Res()
         requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,

@@ -14,6 +14,10 @@ accessRequestRouter.post('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
         req.body as accessRequestResponseBody,
     );
     return res.send(response);
@@ -35,6 +39,8 @@ accessRequestRouter.get('', async (req: Request, res: Response) => {
 
 accessRequestRouter.put('', async (req: Request, res: Response) => {
     const response = await controller.updateAccessRequest(
+        () => {},
+        () => {},
         () => {},
         () => {},
         () => {},
