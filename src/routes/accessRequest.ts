@@ -26,6 +26,7 @@ accessRequestRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.params.status,
         req,
     );

@@ -108,7 +108,7 @@ export interface createdPIN {
  * }
  */
 export interface updatedPIN {
-    pin: string;
+    pin?: string;
     pids: string;
     livePinId: string;
 }
@@ -547,6 +547,18 @@ export interface accessRequestUpdateRequestBody {
     rejectionReason?: string;
 }
 
+/**
+ * No Pending Request Found
+ * @example {
+ * 	 "message": "No pending request found",
+ *   "code": 204
+ * }
+ */
+export interface noPendingRequestFound {
+    message: string;
+    code: number;
+}
+
 /* A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
  */
 export interface addressMatchScore {
@@ -569,8 +581,8 @@ export interface addressMatchScore {
  * @example
  * 	{
   		"livePinId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-  		"email": "example@example.com",
-  		"phoneNumber": "+19021234567"
+  		"email": "example@test.com",
+  		"phoneNumber": "+19021234567",
         "propertyAddress": "123 Main Street, Vancouver, BC"
   	}
  */
@@ -581,7 +593,6 @@ export interface serviceBCCreateRequestBody {
     propertyAddress: string;
     pinLength?: number;
     allowedChars?: string;
-    requesterUsername?: string;
 }
 
 /**

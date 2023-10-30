@@ -615,7 +615,9 @@ describe('Pin endpoints', () => {
             async (
                 updatedPins: ActivePin[],
                 sendToInfo: emailPhone,
+                propertyAddress: string,
                 requesterUsername?: string,
+                requesterName?: string,
             ) => {
                 return [
                     [

@@ -10,6 +10,7 @@ import {
     Body,
     Security,
     Middlewares,
+    Request,
 } from 'tsoa';
 import {
     PINDictionary,
@@ -31,6 +32,7 @@ import {
     verifyPinResponse,
     UnauthorizedErrorResponse,
     InvalidTokenErrorResponse,
+    forbiddenError,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -46,8 +48,11 @@ import 'string_score';
 import { BorderlineResultError } from '../helpers/BorderlineResultError';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { Request as req } from 'express';
 import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 import { authenticate } from '../middleware/authentication';
+import { AuthenticationError } from '../middleware/AuthenticationError';
+import { decodingJWT } from '../helpers/auth';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -505,7 +510,7 @@ export class PINController extends Controller {
     }
 
     /**
-     * Internal method for creating or recreating a PIN. The process is the same.
+     * Internal method for creating or recreating a PIN for VHERS. The process is the same.
      */
     private async createOrRecreatePin(
         @Body() requestBody: createPinRequestBody,
@@ -694,7 +699,6 @@ export class PINController extends Controller {
             [resultToUpdate],
             emailPhone,
             requestBody.propertyAddress,
-            requestBody.requesterUsername, // TODO: Get info from token
         );
 
         const errors = batchUpdatePinResponse[0];
@@ -709,7 +713,6 @@ export class PINController extends Controller {
         // Prepare and return result
         if (resultToUpdate.pin) {
             const toPush: updatedPIN = {
-                pin: resultToUpdate.pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
                 pids: resultToUpdate.pids,
                 livePinId: resultToUpdate.livePinId,
             };
@@ -724,9 +727,34 @@ export class PINController extends Controller {
      */
     private async createOrRecreatePinServiceBC(
         requestBody: serviceBCCreateRequestBody,
+        req: req,
     ): Promise<updatedPIN[]> {
         const result: any[] = [];
-
+        // Validate that there is a requester
+        let payload;
+        try {
+            payload = decodingJWT(req.cookies.token)?.payload;
+        } catch (err) {
+            throw new AuthenticationError(`Unable to decode JWT`, 403);
+        }
+        const username: string =
+            payload.username && payload.username !== '' ? payload.username : '';
+        const name: string =
+            (payload.given_name || payload.family_name) &&
+            (payload.given_name !== '' || payload.family_name !== '')
+                ? payload.given_name + ' ' + payload.family_name
+                : '';
+        if (username === '' || name === '') {
+            throw new AuthenticationError(
+                `Username or given / family name does not exist for requester`,
+                403,
+            );
+        }
+        const permissions: string[] | undefined = payload.permissions;
+        let hasViewPermission = false;
+        if (permissions && permissions.includes('VIEW_PIN')) {
+            hasViewPermission = true;
+        }
         // Validate that the input request has the correct email / phone information
         const faults = this.pinRequestBodyValidate(requestBody);
         if (faults.length > 0) {
@@ -764,7 +792,8 @@ export class PINController extends Controller {
             [pinResult[0]],
             emailPhone,
             requestBody.propertyAddress,
-            requestBody.requesterUsername, // TODO: Get info from token
+            username,
+            name,
         );
 
         const errors = batchUpdatePinResponse[0];
@@ -778,13 +807,236 @@ export class PINController extends Controller {
 
         // Prepare and return results
         const toPush: updatedPIN = {
-            pin: pinResult[0].pin, // TODO: Hide form non-SuperAdmin once GCNotify is integrated
+            pin: hasViewPermission ? pinResult[0].pin : undefined,
             pids: pinResult[0].pids,
             livePinId: pinResult[0].livePinId,
         };
         result.push(toPush);
 
         return result;
+    }
+
+    /**
+     * Shows off the address match score function without actually updating pins.
+     */
+    @Security('vhers_api_key')
+    @Post('score')
+    public async addressScore(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res()
+        aggregateErrorResponse: TsoaResponse<422, aggregateValidationErrorType>,
+        @Res()
+        notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
+        @Body() requestBody: createPinRequestBody,
+    ) {
+        try {
+            // Validate that the input request is correct
+            const faults = this.pinRequestBodyValidate(requestBody);
+            if (faults.length > 0) {
+                throw new AggregateError(
+                    faults,
+                    'Validation Error(s) occured in createPin request body:',
+                );
+            }
+
+            // Grab input pid(s)
+            const pids: string[] = pidStringSplitAndSort(requestBody.pids);
+            let where;
+            if (pids.length === 1) {
+                where = { pids: Like(`%` + pids[0] + `%`) };
+            } else {
+                where = [];
+                for (let i = 0; i < pids.length; i++) {
+                    where.push({ pids: Like(`%` + pids[i] + `%`) });
+                }
+            }
+            const select = {
+                livePinId: true,
+                pids: true,
+                titleNumber: true,
+                landTitleDistrict: true,
+                givenName: true,
+                lastName_1: true,
+                lastName_2: true,
+                incorporationNumber: true,
+                addressLine_1: true,
+                addressLine_2: true,
+                city: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
+                country: true,
+                postalCode: true,
+            };
+            // Find Active PIN entry (or entries if more than one pid to insert or update
+            let pinResults = await findPin(select, where);
+            pinResults = sortActivePinResults(pinResults);
+
+            const updateResults = [];
+            // const borderlineResults = [];
+            // const thresholds = (await this.dynamicImportCaller()).thresholds;
+            const pinResultKeys = Object.keys(pinResults);
+            const contactMessages = new Set();
+
+            if (pinResultKeys.length > 0) {
+                for (const key of pinResultKeys) {
+                    const titleOwners = pinResults[key].length;
+                    for (let i = 0; i < titleOwners; i++) {
+                        const matchScore = await this.pinResultValidate(
+                            requestBody,
+                            pinResults[key][i],
+                            titleOwners,
+                        );
+                        if (!('weightedAverage' in matchScore)) {
+                            // it's a string array
+                            for (const message of matchScore) {
+                                contactMessages.add(message);
+                            }
+                            continue; // bad match, skip
+                        } else {
+                            updateResults.push({
+                                ActivePin: pinResults[key][i],
+                                matchScore,
+                            });
+                        }
+                    }
+                }
+                updateResults.sort(
+                    (a, b) =>
+                        b.matchScore.weightedAverage -
+                        a.matchScore.weightedAverage,
+                );
+            }
+
+            if (updateResults.length > 0) {
+                return updateResults[0];
+            } else {
+                let errMessage;
+                if (contactMessages.size > 0) {
+                    errMessage = '';
+                    for (const message of contactMessages) {
+                        errMessage += message + `\n`;
+                    }
+                    errMessage = errMessage.substring(0, errMessage.length - 1);
+                } else {
+                    errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
+                    let newLineFlag = false;
+                    // Line 1
+                    if (requestBody.givenName)
+                        errMessage += `${requestBody.givenName} `;
+                    errMessage += `${requestBody.lastName_1} `;
+                    if (requestBody.lastName_2)
+                        errMessage += `${requestBody.lastName_2} `;
+                    if (requestBody.incorporationNumber)
+                        errMessage += `Inc. # ${requestBody.incorporationNumber}`;
+                    // Line 2
+                    if (requestBody.addressLine_1)
+                        errMessage += `\n${requestBody.addressLine_1}`;
+                    // Line 3
+                    if (requestBody.addressLine_2)
+                        errMessage += `\n${requestBody.addressLine_2}`;
+                    // Line 4
+                    if (requestBody.city) {
+                        newLineFlag = true;
+                        errMessage += `\n${requestBody.city}`;
+                    }
+                    if (requestBody.provinceAbbreviation) {
+                        if (!newLineFlag) {
+                            newLineFlag = true;
+                            errMessage += `\n${requestBody.provinceAbbreviation}`;
+                        } else {
+                            errMessage += `, ${requestBody.provinceAbbreviation}`;
+                        }
+                    }
+                    if (requestBody.country) {
+                        if (!newLineFlag) {
+                            newLineFlag = true;
+                            errMessage += `\n${requestBody.country}`;
+                        } else {
+                            errMessage += `, ${requestBody.country}`;
+                        }
+                    }
+                    if (requestBody.postalCode) {
+                        if (!newLineFlag)
+                            errMessage += `\n${requestBody.postalCode}`;
+                        else errMessage += ` ${requestBody.postalCode}`;
+                    }
+                }
+                throw new NotFoundError(errMessage);
+            }
+        } catch (err) {
+            if (
+                err instanceof NotFoundError ||
+                err instanceof BorderlineResultError
+            ) {
+                logger.warn(
+                    `Encountered not found error in createPin: ${err.message}`,
+                );
+                return notFoundErrorResponse(422, {
+                    message: err.message,
+                } as EntityNotFoundErrorType);
+            }
+            if (err instanceof AggregateError) {
+                logger.warn(`${err.message} ${err.errors}`);
+                return aggregateErrorResponse(422, {
+                    message: err.message,
+                    faults: err.errors,
+                });
+            }
+            if (err instanceof RangeError) {
+                logger.warn(
+                    `Encountered Range Error in createPin: ${err.message}`,
+                );
+                return rangeErrorResponse(422, {
+                    message: err.message,
+                } as pinRangeErrorType);
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in createPin: ${err.message}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
+    }
+
+    /**
+     * Displays the current weights, thresholds and fuzzy match coefficients used for scoring addresses
+     */
+    @Security('vhers_api_key')
+    @Get('thresholds')
+    public async weightsThresholds(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+    ) {
+        try {
+            const values = await this.dynamicImportCaller();
+            return values;
+        } catch (err) {
+            if (err instanceof Error) {
+                const message = `Error in weightsThresholds: failed to grab thresholds`;
+                logger.warn(message);
+                return serverErrorResponse(500, { message });
+            }
+        }
     }
 
     /**
@@ -961,6 +1213,7 @@ export class PINController extends Controller {
     @Middlewares(authenticate)
     @Post('create')
     public async serviceBCCreatePin(
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
@@ -968,12 +1221,22 @@ export class PINController extends Controller {
         @Res()
         notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
         @Body() requestBody: serviceBCCreateRequestBody,
+        @Request() req: req,
     ): Promise<updatedPIN[]> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered authentication error in createPin: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
             if (
                 err instanceof NotFoundError ||
                 err instanceof BorderlineResultError
@@ -1027,6 +1290,7 @@ export class PINController extends Controller {
     @Middlewares(authenticate)
     @Post('regenerate')
     public async serviceBCRecreatePin(
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() rangeErrorResponse: TsoaResponse<422, pinRangeErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
@@ -1034,12 +1298,22 @@ export class PINController extends Controller {
         @Res()
         notFoundErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
         @Body() requestBody: serviceBCCreateRequestBody,
+        @Request() req: req,
     ): Promise<updatedPIN[]> {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let res: any[] = [];
         try {
-            res = await this.createOrRecreatePinServiceBC(requestBody);
+            res = await this.createOrRecreatePinServiceBC(requestBody, req);
         } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered authentication error in createPin: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
             if (
                 err instanceof NotFoundError ||
                 err instanceof BorderlineResultError

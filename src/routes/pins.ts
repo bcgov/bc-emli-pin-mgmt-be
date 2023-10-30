@@ -52,7 +52,9 @@ pinsRouter.post('/create', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.body as serviceBCCreateRequestBody,
+        req,
     );
     return res.send(response);
 });
@@ -63,7 +65,9 @@ pinsRouter.post('/regenerate', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.body as serviceBCCreateRequestBody,
+        req,
     );
     return res.send(response);
 });
@@ -87,6 +91,28 @@ pinsRouter.post('/verify', async (req: Request, res: Response) => {
         () => {},
         () => {},
         req.body,
+    );
+    return res.send(response);
+});
+
+pinsRouter.post('/score', async (req: Request, res: Response) => {
+    const response = await controller.addressScore(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body,
+    );
+    return res.send(response);
+});
+
+pinsRouter.get('/thresholds', async (req: Request, res: Response) => {
+    const response = await controller.weightsThresholds(
+        () => {},
+        () => {},
+        () => {},
     );
     return res.send(response);
 });
