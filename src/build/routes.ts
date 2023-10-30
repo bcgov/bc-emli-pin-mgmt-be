@@ -190,16 +190,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "updatedPIN": {
-        "dataType": "refObject",
-        "properties": {
-            "pin": {"dataType":"string"},
-            "pids": {"dataType":"string","required":true},
-            "livePinId": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvalidTokenErrorResponse": {
         "dataType": "refObject",
         "properties": {
@@ -262,6 +252,16 @@ const models: TsoaRoute.Models = {
             "postalCode": {"dataType":"string"},
             "requesterUsername": {"dataType":"string"},
             "propertyAddress": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "updatedPIN": {
+        "dataType": "refObject",
+        "properties": {
+            "pin": {"dataType":"string"},
+            "pids": {"dataType":"string","required":true},
+            "livePinId": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -557,6 +557,66 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getAuditLogs.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/score',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.addressScore)),
+
+            function PINController_addressScore(request: any, response: any, next: any) {
+            const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
+                    rangeErrorResponse: {"in":"res","name":"422","required":true,"ref":"pinRangeErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    aggregateErrorResponse: {"in":"res","name":"422","required":true,"ref":"aggregateValidationErrorType"},
+                    notFoundErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"createPinRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.addressScore.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/pins/thresholds',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.weightsThresholds)),
+
+            function PINController_weightsThresholds(request: any, response: any, next: any) {
+            const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.weightsThresholds.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
