@@ -121,6 +121,15 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "noPendingRequestFound": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "requestStatusType": {
         "dataType": "refEnum",
         "enums": ["NotGranted","Granted","Rejected"],
@@ -450,6 +459,7 @@ export function RegisterRoutes(app: Router) {
                     forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    noPendingRequestFoundResponse: {"in":"res","name":"204","required":true,"ref":"noPendingRequestFound"},
                     status: {"in":"query","name":"status","required":true,"dataType":"string"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };

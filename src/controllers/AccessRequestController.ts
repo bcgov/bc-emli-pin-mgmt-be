@@ -1,3 +1,4 @@
+import { noPendingRequestFound } from './../helpers/types';
 import {
     Get,
     Post,
@@ -160,6 +161,8 @@ export class AccessRequestController extends Controller {
         @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res()
+        noPendingRequestFoundResponse: TsoaResponse<204, noPendingRequestFound>,
         @Query() status: string,
         @Request() req: req,
     ): Promise<Array<accessRequestList>> {
@@ -208,11 +211,16 @@ export class AccessRequestController extends Controller {
             const requestList = await getRequestList(where);
             if (requestList[0] === undefined) {
                 logger.warn(`Encountered a 204 message in getAllRequests.`);
-                const exception: notFoundError = {
+                /* const exception: notFoundError = {
                     message: `Encountered a 204 message in getAllRequests. No ${status} request exists in the database`,
                     code: 204,
                 };
-                throw exception;
+                throw exception; */
+
+                return noPendingRequestFoundResponse(204, {
+                    message: `Encountered a 204 message in getAllRequests. No ${status} request exists in the database`,
+                    code: 204,
+                });
             }
             results = requestList;
         } catch (err: any) {
