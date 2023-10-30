@@ -431,31 +431,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"updatedPIN": {
-				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
-				"properties": {
-					"pin": {
-						"type": "string"
-					},
-					"pids": {
-						"type": "string"
-					},
-					"livePinId": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"pids",
-					"livePinId"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"pin": "abcdefgh",
-					"pids": "1234",
-					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
-				}
-			},
 			"InvalidTokenErrorResponse": {
 				"description": "The response given when the api key provided in a request is invalid",
 				"properties": {
@@ -630,6 +605,31 @@
 					"country": "Canada",
 					"postalCode": "V1V1V1",
 					"propertyAddress": "8765 Willow Way, Chilliwack, BC"
+				}
+			},
+			"updatedPIN": {
+				"description": "A PIN updated for a homeowner and its corresponding parcel & database identifiers. Defaults to 8 character length and\nall numbers + lowercase letters as the character set.",
+				"properties": {
+					"pin": {
+						"type": "string"
+					},
+					"pids": {
+						"type": "string"
+					},
+					"livePinId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"pids",
+					"livePinId"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"pin": "abcdefgh",
+					"pids": "1234",
+					"livePinId": "cf430240-e5b6-4224-bd71-a02e098cc6e8"
 				}
 			},
 			"serviceBCCreateRequestBody": {
@@ -1309,6 +1309,130 @@
 						}
 					}
 				]
+			}
+		},
+		"/pins/score": {
+			"post": {
+				"operationId": "AddressScore",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EntityNotFoundErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Shows off the address match score function without actually updating pins.",
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/createPinRequestBody"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/pins/thresholds": {
+			"get": {
+				"operationId": "WeightsThresholds",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Displays the current weights, thresholds and fuzzy match coefficients used for scoring addresses",
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/pins/vhers-create": {
