@@ -545,6 +545,10 @@ export interface accessRequestUpdateRequestBody {
     action: requestStatusType;
     requestIds: string[];
     rejectionReason?: string;
+    emails: string[];
+    givenNames: string[];
+    lastNames: string[];
+    requestedRoles: string[];
 }
 
 /**

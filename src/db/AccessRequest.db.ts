@@ -8,6 +8,10 @@ import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
 } from '../helpers/types';
+import { findUser } from '../db/Users.db';
+import GCNotifyCaller from '../helpers/GCNotifyCaller';
+
+const gCNotifyCaller = new GCNotifyCaller();
 
 export async function createRequest(
     accessRequestInfo: accessRequestResponseBody,
@@ -31,6 +35,44 @@ export async function createRequest(
                 AccessRequest,
                 newRequest,
             );
+
+            let emailAddresses: any[] = [];
+
+            // Admin requests go to vhers_admin email only
+            if (accessRequestInfo.requestedRole === 'Admin') {
+                emailAddresses = [
+                    { email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL! },
+                ];
+            }
+            // Standard requests go to all admins, super-admins, vhers_admin
+            else if (accessRequestInfo.requestedRole === 'Standard') {
+                emailAddresses = await findUser({ email: true }, [
+                    { role: 'Admin' },
+                    { role: 'SuperAdmin' },
+                ]);
+                emailAddresses.push({
+                    email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
+                });
+            }
+
+            const templateId =
+                process.env.GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID;
+
+            const personalisation = {
+                given_name: accessRequestInfo.givenName,
+                last_name: accessRequestInfo.lastName,
+                role: accessRequestInfo.requestedRole,
+                request_reason: accessRequestInfo.requestReason,
+            };
+
+            for (const emailAddress of emailAddresses) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendEmailNotification(
+                    templateId!,
+                    emailAddress.email,
+                    personalisation,
+                );
+            }
 
             return { createdRequest };
         },
@@ -62,6 +104,7 @@ export async function updateRequestStatus(
     const action = requestBody.action;
     const idList: any[] = [];
     let updateFields: any;
+    let templateId: string;
 
     for (const itemId in requestBody?.requestIds) {
         const where = { requestId: requestBody?.requestIds[itemId] };
@@ -69,6 +112,7 @@ export async function updateRequestStatus(
     }
     if (action === requestStatusType.Granted) {
         updateFields = { requestStatus: requestStatusType.Granted };
+        templateId = process.env.GC_NOTIFY_ACCESS_APPROVE_EMAIL_TEMPLATE_ID!;
     }
 
     if (action === requestStatusType.Rejected) {
@@ -76,6 +120,7 @@ export async function updateRequestStatus(
             requestStatus: requestStatusType.Rejected,
             rejectionReason: requestBody.rejectionReason,
         };
+        templateId = process.env.GC_NOTIFY_ACCESS_REJECT_EMAIL_TEMPLATE_ID!;
     }
 
     action;
@@ -86,6 +131,27 @@ export async function updateRequestStatus(
                 idList,
                 updateFields,
             );
+
+            for (let i = 0; i < requestBody.emails.length; i++) {
+                const email = requestBody.emails[i];
+                const givenName = requestBody.givenNames[i];
+                const lastName = requestBody.lastNames[i];
+                const requestedRole = requestBody.requestedRoles[i];
+
+                const personalisation = {
+                    given_name: givenName,
+                    last_name: lastName,
+                    role: requestedRole,
+                    reject_reason: requestBody.rejectionReason,
+                };
+
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const response = await gCNotifyCaller.sendEmailNotification(
+                    templateId!,
+                    email,
+                    personalisation,
+                );
+            }
 
             return { updatedRequest };
         },

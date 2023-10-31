@@ -43,10 +43,6 @@ import {
 import { TypeORMError } from 'typeorm';
 import { authenticate } from '../middleware/authentication';
 import { AuthenticationError } from '../middleware/AuthenticationError';
-import GCNotifyCaller from '../helpers/GCNotifyCaller';
-import { findUser } from '../db/Users.db';
-
-const gCNotifyCaller = new GCNotifyCaller();
 
 @Middlewares(authenticate)
 @Route('user-requests')
@@ -111,43 +107,6 @@ export class AccessRequestController extends Controller {
                 return duplicateErrorResponse(409, { message });
             }
             await createRequest(requestBody);
-            let emailAddresses: any[] = [];
-
-            // Admin requests go to vhers_admin email only
-            if (requestBody.requestedRole === 'Admin') {
-                emailAddresses = [
-                    { email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL! },
-                ];
-            }
-            // Standard requests go to all admins, super-admins, vhers_admin
-            else if (requestBody.requestedRole === 'Standard') {
-                emailAddresses = await findUser({ email: true }, [
-                    { role: 'Admin' },
-                    { role: 'SuperAdmin' },
-                ]);
-                emailAddresses.push({
-                    email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
-                });
-            }
-
-            const templateId =
-                process.env.GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID;
-
-            const personalisation = {
-                given_name: requestBody.givenName,
-                last_name: requestBody.lastName,
-                role: requestBody.requestedRole,
-                request_reason: requestBody.requestReason,
-            };
-
-            for (const emailAddress of emailAddresses) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendEmailNotification(
-                    templateId!,
-                    emailAddress.email,
-                    personalisation,
-                );
-            }
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
@@ -378,43 +337,6 @@ export class AccessRequestController extends Controller {
         }
         try {
             await updateRequestStatus(requestBody);
-            // TODO: add send email functionality
-            /* let emailAddresses: any[] = [];
-            // Admin requests go to vhers_admin email only
-            if (requestBody.requestedRole === 'Admin') {
-                emailAddresses = [
-                    { email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL! },
-                ];
-            }
-            // Standard requests go to all admins, super-admins, vhers_admin
-            else if (requestBody.requestedRole === 'Standard') {
-                emailAddresses = await findUser({ email: true }, [
-                    { role: 'Admin' },
-                    { role: 'SuperAdmin' },
-                ]);
-                emailAddresses.push({
-                    email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
-                });
-            }
-
-            const templateId =
-                process.env.GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID;
-
-            const personalisation = {
-                given_name: requestBody.givenName,
-                last_name: requestBody.lastName,
-                role: requestBody.requestedRole,
-                request_reason: requestBody.requestReason,
-            };
-
-            for (const emailAddress of emailAddresses) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendEmailNotification(
-                    templateId!,
-                    emailAddress.email,
-                    personalisation,
-                );
-            }*/
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
