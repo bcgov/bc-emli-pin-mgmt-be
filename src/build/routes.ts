@@ -20,6 +20,48 @@ import type { RequestHandler, Router } from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "InvalidTokenErrorResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UnauthorizedErrorResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "verifyPinErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "errorType": {"dataType":"string"},
+            "errorMessage": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "verifyPinResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "verified": {"dataType":"boolean","required":true},
+            "reason": {"ref":"verifyPinErrorType"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DuplicateRequestErrorType": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GenericTypeORMErrorType": {
         "dataType": "refObject",
         "properties": {
@@ -190,22 +232,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "InvalidTokenErrorResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "UnauthorizedErrorResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "pinRangeErrorType": {
         "dataType": "refObject",
         "properties": {
@@ -333,24 +359,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "verifyPinErrorType": {
-        "dataType": "refObject",
-        "properties": {
-            "errorType": {"dataType":"string"},
-            "errorMessage": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "verifyPinResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "verified": {"dataType":"boolean","required":true},
-            "reason": {"ref":"verifyPinErrorType"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "verifyPinRequestBody": {
         "dataType": "refObject",
         "properties": {
@@ -426,6 +434,10 @@ export function RegisterRoutes(app: Router) {
 
             function AccessRequestController_createAccessRequest(request: any, response: any, next: any) {
             const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
+                    _notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"verifyPinResponse"},
+                    duplicateErrorResponse: {"in":"res","name":"409","required":true,"ref":"DuplicateRequestErrorType"},
                     typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
@@ -486,6 +498,8 @@ export function RegisterRoutes(app: Router) {
 
             function AccessRequestController_updateAccessRequest(request: any, response: any, next: any) {
             const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
                     typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},

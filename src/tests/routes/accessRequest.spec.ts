@@ -6,7 +6,10 @@ import { GCNotifyEmailSuccessResponse } from '../commonResponses';
 import { AccessRequestController } from '../../controllers/AccessRequestController';
 import { TsoaResponse } from 'tsoa';
 import {
+    DuplicateRequestErrorType,
     GenericTypeORMErrorType,
+    InvalidTokenErrorResponse,
+    UnauthorizedErrorResponse,
     requiredFieldErrorType,
     serverErrorType,
 } from '../../helpers/types';
@@ -35,11 +38,12 @@ describe('Access Request endpoints', () => {
             'sendSms',
         ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
 
-        jest.spyOn(AccessRequest, 'createRequest').mockResolvedValue({
+        jest.spyOn(AccessRequest, 'createRequest').mockResolvedValueOnce({
             createdRequest: {
                 identifiers: '123',
             },
         });
+        jest.spyOn(AccessRequest, 'getRequestList').mockResolvedValueOnce([]);
 
         const reqBody = {
             userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
@@ -53,10 +57,17 @@ describe('Access Request endpoints', () => {
             requestReason: 'To get access to site',
         };
         const res:
+            | TsoaResponse<400, InvalidTokenErrorResponse>
+            | TsoaResponse<401, UnauthorizedErrorResponse>
+            | TsoaResponse<409, DuplicateRequestErrorType>
             | TsoaResponse<422, GenericTypeORMErrorType>
             | TsoaResponse<422, requiredFieldErrorType>
             | TsoaResponse<500, serverErrorType>
             | undefined = await (proto as any).createAccessRequest(
+            () => {},
+            () => {},
+            () => {},
+            () => {},
             () => {},
             () => {},
             () => {},
