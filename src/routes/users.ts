@@ -1,7 +1,10 @@
 import express from 'express';
 import { UserController } from '../controllers/UserController';
 import { Request, Response } from 'express';
-import { userDeactivateRequestBody } from '../helpers/types';
+import {
+    userDeactivateRequestBody,
+    userListQueryParam,
+} from '../helpers/types';
 
 const userRouter = express.Router();
 const controller = new UserController();
@@ -14,7 +17,7 @@ userRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
-        req.params.active,
+        req.params.active as userListQueryParam,
         req,
     );
     return res.send(response);

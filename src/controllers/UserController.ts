@@ -22,6 +22,7 @@ import {
     userList,
     noActiveUserFound,
     userDeactivateRequestBody,
+    userListQueryParam,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
@@ -62,7 +63,7 @@ export class UserController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
         noActiveFoundResponse: TsoaResponse<204, noActiveUserFound>,
-        @Query() active: string,
+        @Query() active: userListQueryParam,
         @Request() req: req,
     ): Promise<Array<userList>> {
         let results: Array<userList> = [];
@@ -100,22 +101,22 @@ export class UserController extends Controller {
         try {
             let where;
             let userStatus;
-            if (active === 'true') {
+            if (active === userListQueryParam.active) {
                 where = { isActive: true };
                 userStatus = 'active';
-            } else if (active === 'false') {
+            } else if (active === userListQueryParam.deactivate) {
                 where = { isActive: false };
                 userStatus = 'deactivated';
             }
-            const requestList = await getUserList(where);
-            if (requestList[0] === undefined) {
+            const userList = await getUserList(where);
+            if (userList[0] === undefined) {
                 logger.warn(`Encountered a 204 message in getAllUsers.`);
                 return noActiveFoundResponse(204, {
                     message: `Encountered a 204 message in getAllUsers. No ${userStatus} user exists in the database`,
                     code: 204,
                 });
             }
-            results = requestList;
+            results = userList;
         } catch (err: any) {
             if (err.code === 401) {
                 logger.warn(

@@ -384,6 +384,14 @@
 					"code": 204
 				}
 			},
+			"requestListQueryParam": {
+				"description": "The enum is for validation to get request list query param to retrieve\npending or non active users",
+				"enum": [
+					"pending",
+					"completed"
+				],
+				"type": "string"
+			},
 			"accessRequestUpdateRequestBody": {
 				"description": "Request body for access request updates",
 				"properties": {
@@ -1143,6 +1151,14 @@
 					"code": 204
 				}
 			},
+			"userListQueryParam": {
+				"description": "The enum is for validation to get user list query param to retrieve active or\nnon active users",
+				"enum": [
+					"true",
+					"false"
+				],
+				"type": "string"
+			},
 			"userDeactivateRequestBody": {
 				"description": "Request body for deactivation of one or multiple users",
 				"properties": {
@@ -1355,7 +1371,7 @@
 						"name": "status",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/requestListQueryParam"
 						}
 					}
 				]
@@ -2350,7 +2366,7 @@
 						"name": "active",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/userListQueryParam"
 						}
 					}
 				]

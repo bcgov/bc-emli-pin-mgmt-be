@@ -179,6 +179,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "requestListQueryParam": {
+        "dataType": "refEnum",
+        "enums": ["pending","completed"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "accessRequestUpdateRequestBody": {
         "dataType": "refObject",
         "properties": {
@@ -447,6 +452,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "userListQueryParam": {
+        "dataType": "refEnum",
+        "enums": ["true","false"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "userDeactivateRequestBody": {
         "dataType": "refObject",
         "properties": {
@@ -510,7 +520,7 @@ export function RegisterRoutes(app: Router) {
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noPendingRequestFoundResponse: {"in":"res","name":"204","required":true,"ref":"noPendingRequestFound"},
-                    status: {"in":"query","name":"status","required":true,"dataType":"string"},
+                    status: {"in":"query","name":"status","required":true,"ref":"requestListQueryParam"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
@@ -962,7 +972,7 @@ export function RegisterRoutes(app: Router) {
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noActiveFoundResponse: {"in":"res","name":"204","required":true,"ref":"noActiveUserFound"},
-                    active: {"in":"query","name":"active","required":true,"dataType":"string"},
+                    active: {"in":"query","name":"active","required":true,"ref":"userListQueryParam"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 

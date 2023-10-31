@@ -765,3 +765,21 @@ export interface userDeactivateRequestBody {
 export interface DuplicateRequestErrorType {
     message: string;
 }
+
+/**
+ * The enum is for validation to get user list query param to retrieve active or
+ * non active users
+ */
+export enum userListQueryParam {
+    active = 'true',
+    deactivate = 'false',
+}
+
+/**
+ * The enum is for validation to get request list query param to retrieve
+ * pending or non active users
+ */
+export enum requestListQueryParam {
+    pending = 'pending',
+    completed = 'completed',
+}

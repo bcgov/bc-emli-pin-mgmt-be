@@ -29,6 +29,7 @@ import {
     InvalidTokenErrorResponse,
     UnauthorizedErrorResponse,
     verifyPinResponse,
+    requestListQueryParam,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
@@ -191,7 +192,7 @@ export class AccessRequestController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
         noPendingRequestFoundResponse: TsoaResponse<204, noPendingRequestFound>,
-        @Query() status: string,
+        @Query() status: requestListQueryParam,
         @Request() req: req,
     ): Promise<Array<accessRequestList>> {
         let results: Array<accessRequestList> = [];
@@ -228,9 +229,9 @@ export class AccessRequestController extends Controller {
         // retrieving data for a particular status
         try {
             let where;
-            if (status === 'pending') {
+            if (status === requestListQueryParam.pending) {
                 where = { requestStatus: requestStatusType.NotGranted };
-            } else if (status === 'completed') {
+            } else if (status === requestListQueryParam.completed) {
                 where = [
                     { requestStatus: requestStatusType.Granted },
                     { requestStatus: requestStatusType.Rejected },
