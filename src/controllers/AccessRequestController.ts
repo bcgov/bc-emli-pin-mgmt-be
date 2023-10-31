@@ -299,7 +299,7 @@ export class AccessRequestController extends Controller {
     @SuccessResponse('204', 'No content')
     @Put('')
     /**
-     * Create a new access request for a user
+     * Update access request for a user
      */
     public async updateAccessRequest(
         @Res()
@@ -416,7 +416,7 @@ export class AccessRequestController extends Controller {
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered TypeORM Error in createAccessRequest: ${err.message}`,
+                    `Encountered TypeORM Error in updateAccessRequest: ${err.message}`,
                 );
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {

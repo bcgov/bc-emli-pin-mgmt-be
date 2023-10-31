@@ -1100,6 +1100,9 @@
 					},
 					"isActive": {
 						"type": "boolean"
+					},
+					"deactivationReason": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -1112,7 +1115,8 @@
 					"userName",
 					"givenName",
 					"lastName",
-					"isActive"
+					"isActive",
+					"deactivationReason"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1138,6 +1142,26 @@
 					"message": "No active request found",
 					"code": 204
 				}
+			},
+			"userDeactivateRequestBody": {
+				"description": "Request body for deactivation of one or multiple users",
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"deactivationReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userIds",
+					"deactivationReason"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -2330,6 +2354,68 @@
 						}
 					}
 				]
+			}
+		},
+		"/users/deactivate": {
+			"put": {
+				"operationId": "DeactivateUsers",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/userDeactivateRequestBody"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

@@ -713,7 +713,49 @@ export interface userList {
     givenName: string;
     lastName: string;
     isActive: boolean;
+    deactivationReason: string;
 }
+
+/**
+ * Request Body for user update
+ * @date 10/30/2023 - 11:31:01 PM
+ *
+ * @export
+ * @interface userUpdateRequestBody
+ * @example
+ *  "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "role": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "givenName": "John",
+    "lastName": "Doe",
+ */
+export interface userUpdateRequestBody {
+    userId: string;
+    role: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+}
+
+/**
+ * Request body for deactivation of one or multiple users
+ * @example
+ * {
+ *    "userIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+ *    "deactivationReason" "reason for deactivation"
+ * }
+ */
+export interface userDeactivateRequestBody {
+    userIds: string[];
+    deactivationReason: string;
+}
+
 /**
 * The error given when there already exists an access request for a user that has not yet been approved or rejected.
 * @example {

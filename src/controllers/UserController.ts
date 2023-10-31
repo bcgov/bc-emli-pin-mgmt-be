@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     Get,
     Put,
@@ -22,16 +21,17 @@ import {
     notFoundError,
     userList,
     noActiveUserFound,
+    userDeactivateRequestBody,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
 import logger from '../middleware/logger';
-import { getUserList } from '../db/Users.db';
+import { getUserList, deactivateUsers } from '../db/Users.db';
 import { TypeORMError } from 'typeorm';
 import { authenticate } from '../middleware/authentication';
 import { AuthenticationError } from '../middleware/AuthenticationError';
 
-// @Middlewares(authenticate)
+@Middlewares(authenticate)
 @Route('users')
 export class UserController extends Controller {
     /*
@@ -70,16 +70,16 @@ export class UserController extends Controller {
         // checking permissions for this api.
         try {
             permissions = decodingJWT(req.cookies.token)?.payload.permissions;
-            if (!permissions.includes('ACCESS_REQUEST')) {
+            if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'ACCESS_REQUEST' is not available for this user`,
+                    `Permission 'USER_ACCESS' is not available for this user`,
                     403,
                 );
             }
         } catch (err) {
             if (err instanceof AuthenticationError) {
                 logger.warn(
-                    `Encountered 403 forbidden error in getAllRequests: ${err.message}`,
+                    `Encountered 403 forbidden error in getAllUsers: ${err.message}`,
                 );
                 return forbiddenErrorResponse(403, {
                     message: err.message,
@@ -88,7 +88,7 @@ export class UserController extends Controller {
             }
             if (err instanceof Error) {
                 logger.warn(
-                    `Encountered 404 not found error in getAllRequests: ${err.message}`,
+                    `Encountered 404 not found error in getAllUsers: ${err.message}`,
                 );
                 return notFoundErrorResponse(404, {
                     message: err.message,
@@ -160,78 +160,73 @@ export class UserController extends Controller {
         return results;
     }
 
-    // @SuccessResponse('204', 'No content')
-    // @Put('')
+    @SuccessResponse('204', 'No content')
+    @Put('deactivate')
     /**
-     * Create a new access request for a user
+     * Deactivate user(s)
      */
-    /* public async updateAccessRequest(
-      @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
-      @Res()
-      requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
-      @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
-      @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
-      @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
-      @Body() requestBody: accessRequestUpdateRequestBody,
-      @Request() req: req,
-  ): Promise<void> {
-      this.setStatus(204);
-      let permissions: string[] = [];
+    public async deactivateUsers(
+        @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
+        @Res()
+        requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
+        @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
+        @Body() requestBody: userDeactivateRequestBody,
+        @Request() req: req,
+    ): Promise<void> {
+        this.setStatus(204);
+        let permissions: string[] = [];
 
-      // validate access
-      try {
-          permissions = decodingJWT(req.cookies.token)?.payload.permissions;
-          if (!permissions.includes('ACCESS_REQUEST')) {
-              throw new AuthenticationError(
-                  `Permission 'ACCESS_REQUEST' is not available for this user`,
-                  403,
-              );
-          }
-      } catch (err) {
-          if (err instanceof AuthenticationError) {
-              logger.warn(
-                  `Encountered 403 forbidden error in getAllRequests: ${err.message}`,
-              );
-              return forbiddenErrorResponse(403, {
-                  message: err.message,
-                  code: 403,
-              });
-          }
-          if (err instanceof Error) {
-              logger.warn(
-                  `Encountered 404 not found error in getAllRequests: ${err.message}`,
-              );
-              return notFoundErrorResponse(404, {
-                  message: err.message,
-                  code: 404,
-              });
-          }
-      }
-      // validate inputs
-      if (
-          requestBody.action === requestStatusType.Rejected &&
-          requestBody.rejectionReason === ''
-      ) {
-          const message = 'Must provide reason for rejection.';
-          logger.warn(message);
-          return requiredFieldErrorResponse(422, { message });
-      }
+        // validate access
+        try {
+            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            if (!permissions.includes('USER_ACCESS')) {
+                throw new AuthenticationError(
+                    `Permission 'USER_ACCESS' is not available for this user`,
+                    403,
+                );
+            }
+        } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered 403 forbidden error in updateUser: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
+            if (err instanceof Error) {
+                logger.warn(
+                    `Encountered 404 not found error in updateUser: ${err.message}`,
+                );
+                return notFoundErrorResponse(404, {
+                    message: err.message,
+                    code: 404,
+                });
+            }
+        }
+        // validate inputs
 
-      if (requestBody.action === null || requestBody.action === undefined) {
-          const message = 'Must provide an action for update.';
-          logger.warn(message);
-          return requiredFieldErrorResponse(422, { message });
-      }
+        if (
+            requestBody.deactivationReason === null ||
+            requestBody.deactivationReason === undefined
+        ) {
+            const message = 'Must provide deactivation reason for user(s).';
+            logger.warn(message);
+            return requiredFieldErrorResponse(422, { message });
+        }
 
-      if (requestBody.requestIds.length < 1) {
-          const message = 'Must provide at least of request id';
-          logger.warn(message);
-          return requiredFieldErrorResponse(422, { message });
-      }
-      try {
-          await updateRequestStatus(requestBody);
-          // TODO: add send email functionality
-          let emailAddresses: any[] = [];
+        if (requestBody.userIds.length < 1) {
+            const message = 'Must provide at least of user id';
+            logger.warn(message);
+            return requiredFieldErrorResponse(422, { message });
+        }
+        try {
+            await deactivateUsers(requestBody);
+            // TODO: add send email functionality
+            /* let emailAddresses: any[] = [];
           // Admin requests go to vhers_admin email only
           if (requestBody.requestedRole === 'Admin') {
               emailAddresses = [
@@ -266,21 +261,21 @@ export class UserController extends Controller {
                   emailAddress.email,
                   personalisation,
               );
-          }
-      } catch (err) {
-          if (err instanceof TypeORMError) {
-              logger.warn(
-                  `Encountered TypeORM Error in createAccessRequest: ${err.message}`,
-              );
-              return typeORMErrorResponse(422, { message: err.message });
-          } else if (err instanceof Error) {
-              logger.warn(
-                  `Encountered unknown Internal Server Error in creating access request: ${err}`,
-              );
-              return serverErrorResponse(500, { message: err.message });
-          }
-      }
+          }  */
+        } catch (err) {
+            if (err instanceof TypeORMError) {
+                logger.warn(
+                    `Encountered TypeORM Error in deactivateUsers: ${err.message}`,
+                );
+                return typeORMErrorResponse(422, { message: err.message });
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in creating access request: ${err}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
 
-      return;
-  } */
+        return;
+    }
 }
