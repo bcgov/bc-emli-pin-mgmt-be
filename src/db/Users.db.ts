@@ -120,7 +120,7 @@ export async function deactivateUsers(
     const idList: any[] = [];
 
     for (const itemId in requestBody?.userIds) {
-        const where = { requestId: requestBody?.userIds[itemId] };
+        const where = { userId: requestBody?.userIds[itemId] };
         idList.push(where);
     }
 
