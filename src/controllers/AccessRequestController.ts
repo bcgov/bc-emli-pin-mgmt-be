@@ -1,4 +1,3 @@
-import { noPendingRequestFound } from './../helpers/types';
 import {
     Get,
     Post,
@@ -25,6 +24,7 @@ import {
     accessRequestList,
     requestStatusType,
     accessRequestUpdateRequestBody,
+    noPendingRequestFound,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
@@ -150,7 +150,7 @@ export class AccessRequestController extends Controller {
      * -- 'Forbidden'
      * - 404
      * -- 'Not Found'
-     * @param status The siteID of a site
+     * @param status Status of the requests
      * @returns A list of request of a status
      */
 

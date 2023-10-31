@@ -528,7 +528,7 @@ export interface accessRequestList {
     givenName: string;
     lastName: string;
     requestReason: string;
-    requestStatus: true;
+    requestStatus: requestStatusType;
     rejectionReason: string;
     createdAt: string;
 }
@@ -672,4 +672,46 @@ export interface UnauthorizedErrorResponse {
 */
 export interface InvalidTokenErrorResponse {
     message: string;
+}
+
+/**
+ * No active user found
+ * @example {
+ * 	 "message": "No active request found",
+ *   "code": 204
+ * }
+ */
+export interface noActiveUserFound {
+    message: string;
+    code: number;
+}
+/**
+ * Response for user list
+ * @example
+ * {
+    "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "role": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "givenName": "John",
+    "lastName": "Doe",
+    "isActive": "true",
+    "deactivationReason": "To get access to site",
+  }
+ */
+export interface userList {
+    userId: string;
+    userGuid: string;
+    identityType: string;
+    role: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+    isActive: boolean;
+    deactivationReason: string;
 }
