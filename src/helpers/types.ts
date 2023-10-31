@@ -713,5 +713,13 @@ export interface userList {
     givenName: string;
     lastName: string;
     isActive: boolean;
-    deactivationReason: string;
+}
+/**
+* The error given when there already exists an access request for a user that has not yet been approved or rejected.
+* @example {
+	"message": "There already exists an access request for this user. Please contact your administrator."
+  }
+*/
+export interface DuplicateRequestErrorType {
+    message: string;
 }

@@ -190,25 +190,25 @@ export default class GCNotifyCaller {
             }
 
             try {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                emailResponse = await this.sendEmail(
-                    notifyClient,
-                    emailTemplateId,
-                    email,
-                    { personalisation: personalisation },
-                );
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                phoneResponse = await this.sendSms(
-                    notifyClient,
-                    phoneTemplateId,
-                    phone,
-                    { personalisation: personalisation },
-                );
-
-                if (emailResponse | phoneResponse) {
-                    return true;
+                if (!emailResponse) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    emailResponse = await this.sendEmail(
+                        notifyClient,
+                        emailTemplateId,
+                        email,
+                        { personalisation: personalisation },
+                    );
                 }
+                if (!phoneResponse) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    phoneResponse = await this.sendSms(
+                        notifyClient,
+                        phoneTemplateId,
+                        phone,
+                        { personalisation: personalisation },
+                    );
+                }
+                return true;
             } catch (err) {
                 if (emailResponse) {
                     return true;
@@ -244,7 +244,6 @@ export default class GCNotifyCaller {
                         if (i + 1 === this.retryLimit) {
                             throw new Error(message);
                         }
-
                         continue;
                     }
                 }
