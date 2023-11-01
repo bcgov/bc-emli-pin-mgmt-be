@@ -111,11 +111,13 @@ export async function updateUser(
 /* The `deactivateUsers` function is deactivating users in the database. It
 accepts a `requestBody` parameter which contains the user IDs of the users to
 be deactivated. */
+// TODO: Add token to indicate who last changed / decativated the user
 export async function deactivateUsers(
     requestBody: userDeactivateRequestBody,
 ): Promise<any | undefined> {
     const updateFields = {
         isActive: false,
+        deactivationReason: requestBody.deactivationReason,
     };
     const idList: any[] = [];
 
