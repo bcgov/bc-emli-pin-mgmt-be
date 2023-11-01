@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import {
     userDeactivateRequestBody,
     userListQueryParam,
+    userUpdateRequestBody,
 } from '../helpers/types';
 
 const userRouter = express.Router();
@@ -31,6 +32,19 @@ userRouter.put('deactivate', async (req: Request, res: Response) => {
         () => {},
         () => {},
         req.body as userDeactivateRequestBody,
+        req,
+    );
+    return res.send(response);
+});
+
+userRouter.put('', async (req: Request, res: Response) => {
+    const response = await controller.updateUser(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body as userUpdateRequestBody,
         req,
     );
     return res.send(response);

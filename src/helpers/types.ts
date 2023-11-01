@@ -735,6 +735,7 @@ export interface userList {
  */
 export interface userUpdateRequestBody {
     userId: string;
+    identityType: string;
     role: UserRoles;
     organization: string;
     email: string;
