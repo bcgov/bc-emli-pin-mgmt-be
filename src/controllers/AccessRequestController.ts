@@ -1,11 +1,4 @@
 import {
-    DuplicateRequestErrorType,
-    InvalidTokenErrorResponse,
-    UnauthorizedErrorResponse,
-    noPendingRequestFound,
-    verifyPinResponse,
-} from './../helpers/types';
-import {
     Get,
     Post,
     Put,
@@ -31,6 +24,12 @@ import {
     accessRequestList,
     requestStatusType,
     accessRequestUpdateRequestBody,
+    noPendingRequestFound,
+    DuplicateRequestErrorType,
+    InvalidTokenErrorResponse,
+    UnauthorizedErrorResponse,
+    verifyPinResponse,
+    requestListQueryParam,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
@@ -139,7 +138,7 @@ export class AccessRequestController extends Controller {
      * -- 'Forbidden'
      * - 404
      * -- 'Not Found'
-     * @param status The siteID of a site
+     * @param status Status of the requests
      * @returns A list of request of a status
      */
 
@@ -152,7 +151,7 @@ export class AccessRequestController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
         noPendingRequestFoundResponse: TsoaResponse<204, noPendingRequestFound>,
-        @Query() status: string,
+        @Query() status: requestListQueryParam,
         @Request() req: req,
     ): Promise<Array<accessRequestList>> {
         let results: Array<accessRequestList> = [];
@@ -189,9 +188,9 @@ export class AccessRequestController extends Controller {
         // retrieving data for a particular status
         try {
             let where;
-            if (status === 'pending') {
+            if (status === requestListQueryParam.pending) {
                 where = { requestStatus: requestStatusType.NotGranted };
-            } else if (status === 'completed') {
+            } else if (status === requestListQueryParam.completed) {
                 where = [
                     { requestStatus: requestStatusType.Granted },
                     { requestStatus: requestStatusType.Rejected },
@@ -260,7 +259,7 @@ export class AccessRequestController extends Controller {
     @SuccessResponse('204', 'No content')
     @Put('')
     /**
-     * Create a new access request for a user
+     * Update access request for a user
      */
     public async updateAccessRequest(
         @Res()
@@ -340,7 +339,7 @@ export class AccessRequestController extends Controller {
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered TypeORM Error in createAccessRequest: ${err.message}`,
+                    `Encountered TypeORM Error in updateAccessRequest: ${err.message}`,
                 );
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {

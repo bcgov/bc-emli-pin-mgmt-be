@@ -103,7 +103,6 @@ export async function updateRequestStatus(
         templateId = process.env.GC_NOTIFY_ACCESS_REJECT_EMAIL_TEMPLATE_ID!;
     }
 
-    action;
     let transactionReturn;
     try {
         transactionReturn = (await AppDataSource.transaction(
@@ -142,7 +141,7 @@ export async function updateRequestStatus(
             transactionReturn.updatedRequest.affected !== null
         ) {
             logger.debug(
-                `Successfully created an access request with id  '${transactionReturn.updatedRequest.affected}'`,
+                `Successfully updated request(s) with id(s)  '${transactionReturn.updatedRequest.affected}'`,
             );
             return transactionReturn.updatedRequest.affected;
         }

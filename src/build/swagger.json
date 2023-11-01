@@ -204,6 +204,15 @@
 					"requestReason": "To get access to site"
 				}
 			},
+			"requestStatusType": {
+				"description": "Enum for status for Request Access",
+				"enum": [
+					"NotGranted",
+					"Granted",
+					"Rejected"
+				],
+				"type": "string"
+			},
 			"accessRequestList": {
 				"description": "Response for access request List information",
 				"properties": {
@@ -238,11 +247,7 @@
 						"type": "string"
 					},
 					"requestStatus": {
-						"type": "boolean",
-						"enum": [
-							true
-						],
-						"nullable": false
+						"$ref": "#/components/schemas/requestStatusType"
 					},
 					"rejectionReason": {
 						"type": "string"
@@ -379,12 +384,11 @@
 					"code": 204
 				}
 			},
-			"requestStatusType": {
-				"description": "Enum for status for Request Access",
+			"requestListQueryParam": {
+				"description": "The enum is for validation to get request list query param to retrieve\npending or non active users",
 				"enum": [
-					"NotGranted",
-					"Granted",
-					"Rejected"
+					"pending",
+					"completed"
 				],
 				"type": "string"
 			},
@@ -507,6 +511,10 @@
 						"type": "string",
 						"nullable": true
 					},
+					"alteredByName": {
+						"type": "string",
+						"nullable": true
+					},
 					"alteredByUsername": {
 						"type": "string",
 						"nullable": true
@@ -530,6 +538,7 @@
 					"sentToPhone",
 					"pinCreatedAt",
 					"updatedAt",
+					"alteredByName",
 					"alteredByUsername",
 					"livePinId",
 					"action",
@@ -545,6 +554,7 @@
 					"sentToPhone": "19021234567",
 					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
 					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"alteredByName": "Self",
 					"alteredByUsername": "self",
 					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
 					"action": "C",
@@ -1099,6 +1109,109 @@
 					"message": "PID not found in database",
 					"code": 204
 				}
+			},
+			"userList": {
+				"description": "Response for user list",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"userGuid": {
+						"type": "string"
+					},
+					"identityType": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/UserRoles"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"deactivationReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userId",
+					"userGuid",
+					"identityType",
+					"role",
+					"organization",
+					"email",
+					"userName",
+					"givenName",
+					"lastName",
+					"isActive",
+					"deactivationReason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"noActiveUserFound": {
+				"description": "No active user found",
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"message": "No active request found",
+					"code": 204
+				}
+			},
+			"userListQueryParam": {
+				"description": "The enum is for validation to get user list query param to retrieve active or\nnon active users",
+				"enum": [
+					"true",
+					"false"
+				],
+				"type": "string"
+			},
+			"userDeactivateRequestBody": {
+				"description": "Request body for deactivation of one or multiple users",
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"deactivationReason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userIds",
+					"deactivationReason"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -1292,7 +1405,7 @@
 						"name": "status",
 						"required": true,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/requestListQueryParam"
 						}
 					}
 				]
@@ -2200,6 +2313,159 @@
 						}
 					}
 				]
+			}
+		},
+		"/users": {
+			"get": {
+				"operationId": "GetAllUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/userList"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/noActiveUserFound"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/unauthorizedError"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "active",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/userListQueryParam"
+						}
+					}
+				]
+			}
+		},
+		"/users/deactivate": {
+			"put": {
+				"operationId": "DeactivateUsers",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/userDeactivateRequestBody"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

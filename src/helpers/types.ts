@@ -405,6 +405,7 @@ export interface auditLogReturn {
     "sentToPhone": "19021234567",
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-24T15:06:27.269Z",
+	"alteredByName": "Self",
     "alteredByUsername": "self",
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
@@ -420,6 +421,7 @@ export interface auditLogInfo {
     sentToPhone: string | null;
     pinCreatedAt: string;
     updatedAt: string | null;
+    alteredByName: string | null;
     alteredByUsername: string | null;
     livePinId: string;
     action: pinAuditAction;
@@ -528,7 +530,7 @@ export interface accessRequestList {
     givenName: string;
     lastName: string;
     requestReason: string;
-    requestStatus: true;
+    requestStatus: requestStatusType;
     rejectionReason: string;
     createdAt: string;
 }
@@ -679,6 +681,88 @@ export interface InvalidTokenErrorResponse {
 }
 
 /**
+ * No active user found
+ * @example {
+ * 	 "message": "No active request found",
+ *   "code": 204
+ * }
+ */
+export interface noActiveUserFound {
+    message: string;
+    code: number;
+}
+/**
+ * Response for user list
+ * @example
+ * {
+    "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "role": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "givenName": "John",
+    "lastName": "Doe",
+    "isActive": "true",
+    "deactivationReason": "To get access to site",
+  }
+ */
+export interface userList {
+    userId: string;
+    userGuid: string;
+    identityType: string;
+    role: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+    isActive: boolean;
+    deactivationReason: string;
+}
+
+/**
+ * Request Body for user update
+ * @date 10/30/2023 - 11:31:01 PM
+ *
+ * @export
+ * @interface userUpdateRequestBody
+ * @example
+ *  "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "identityType": "idir",
+    "role": "Admin",
+    "organization": "Bc Service",
+    "email": "abc@gov.ca",
+    "userName": "johndoe",
+    "givenName": "John",
+    "lastName": "Doe",
+ */
+export interface userUpdateRequestBody {
+    userId: string;
+    role: UserRoles;
+    organization: string;
+    email: string;
+    userName: string;
+    givenName: string;
+    lastName: string;
+}
+
+/**
+ * Request body for deactivation of one or multiple users
+ * @example
+ * {
+ *    "userIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+ *    "deactivationReason" "reason for deactivation"
+ * }
+ */
+export interface userDeactivateRequestBody {
+    userIds: string[];
+    deactivationReason: string;
+}
+
+/**
 * The error given when there already exists an access request for a user that has not yet been approved or rejected.
 * @example {
 	"message": "There already exists an access request for this user. Please contact your administrator."
@@ -686,4 +770,22 @@ export interface InvalidTokenErrorResponse {
 */
 export interface DuplicateRequestErrorType {
     message: string;
+}
+
+/**
+ * The enum is for validation to get user list query param to retrieve active or
+ * non active users
+ */
+export enum userListQueryParam {
+    active = 'true',
+    deactivate = 'false',
+}
+
+/**
+ * The enum is for validation to get request list query param to retrieve
+ * pending or non active users
+ */
+export enum requestListQueryParam {
+    pending = 'pending',
+    completed = 'completed',
 }
