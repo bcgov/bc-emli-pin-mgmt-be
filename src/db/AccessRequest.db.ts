@@ -8,10 +8,10 @@ import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
 } from '../helpers/types';
-import { findUser } from '../db/Users.db';
-import GCNotifyCaller from '../helpers/GCNotifyCaller';
-
-const gCNotifyCaller = new GCNotifyCaller();
+import {
+    sendAccessApproveAndRejectNotifications,
+    sendAccessRequestNotifications,
+} from '../helpers/GCNotifyCalls';
 
 export async function createRequest(
     accessRequestInfo: accessRequestResponseBody,
@@ -28,56 +28,29 @@ export async function createRequest(
         requestReason: accessRequestInfo.requestReason,
         requestStatus: requestStatusType.NotGranted,
     };
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const newRequest = await manager.create(AccessRequest, params);
-            const createdRequest = await manager.insert(
-                AccessRequest,
-                newRequest,
-            );
-
-            let emailAddresses: any[] = [];
-
-            // Admin requests go to vhers_admin email only
-            if (accessRequestInfo.requestedRole === 'Admin') {
-                emailAddresses = [
-                    { email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL! },
-                ];
-            }
-            // Standard requests go to all admins, super-admins, vhers_admin
-            else if (accessRequestInfo.requestedRole === 'Standard') {
-                emailAddresses = await findUser({ email: true }, [
-                    { role: 'Admin' },
-                    { role: 'SuperAdmin' },
-                ]);
-                emailAddresses.push({
-                    email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
-                });
-            }
-
-            const templateId =
-                process.env.GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID;
-
-            const personalisation = {
-                given_name: accessRequestInfo.givenName,
-                last_name: accessRequestInfo.lastName,
-                role: accessRequestInfo.requestedRole,
-                request_reason: accessRequestInfo.requestReason,
-            };
-
-            for (const emailAddress of emailAddresses) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendEmailNotification(
-                    templateId!,
-                    emailAddress.email,
-                    personalisation,
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const newRequest = await manager.create(AccessRequest, params);
+                const createdRequest = await manager.insert(
+                    AccessRequest,
+                    newRequest,
                 );
-            }
 
-            return { createdRequest };
-        },
-    )) as { createdRequest: InsertResult };
-    if (typeof transactionReturn.createdRequest != 'undefined') {
+                sendAccessRequestNotifications(accessRequestInfo);
+
+                return { createdRequest };
+            },
+        )) as { createdRequest: InsertResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling createRequest: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+
+    if (typeof transactionReturn?.createdRequest != 'undefined') {
         if (
             transactionReturn.createdRequest.identifiers &&
             transactionReturn.createdRequest.identifiers !== null
@@ -124,39 +97,39 @@ export async function updateRequestStatus(
     }
 
     action;
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const updatedRequest = await manager.update(
-                AccessRequest,
-                idList,
-                updateFields,
-            );
-
-            for (let i = 0; i < requestBody.emails.length; i++) {
-                const email = requestBody.emails[i];
-                const givenName = requestBody.givenNames[i];
-                const lastName = requestBody.lastNames[i];
-                const requestedRole = requestBody.requestedRoles[i];
-
-                const personalisation = {
-                    given_name: givenName,
-                    last_name: lastName,
-                    role: requestedRole,
-                    reject_reason: requestBody.rejectionReason,
-                };
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const response = await gCNotifyCaller.sendEmailNotification(
-                    templateId!,
-                    email,
-                    personalisation,
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const updatedRequest = await manager.update(
+                    AccessRequest,
+                    idList,
+                    updateFields,
                 );
-            }
 
-            return { updatedRequest };
-        },
-    )) as { updatedRequest: UpdateResult };
-    if (typeof transactionReturn.updatedRequest != 'undefined') {
+                const notificationResponse =
+                    await sendAccessApproveAndRejectNotifications(
+                        requestBody,
+                        templateId,
+                    );
+
+                if (notificationResponse) {
+                    return { updatedRequest };
+                } else {
+                    throw new Error(
+                        `Error calling sendAccessApproveAndRejectNotifications`,
+                    );
+                }
+            },
+        )) as { updatedRequest: UpdateResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling updateRequestStatus: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+
+    if (typeof transactionReturn?.updatedRequest != 'undefined') {
         if (
             transactionReturn.updatedRequest.affected &&
             transactionReturn.updatedRequest.affected !== null
