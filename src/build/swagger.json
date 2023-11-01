@@ -483,6 +483,10 @@
 						"type": "string",
 						"nullable": true
 					},
+					"alteredByName": {
+						"type": "string",
+						"nullable": true
+					},
 					"alteredByUsername": {
 						"type": "string",
 						"nullable": true
@@ -506,6 +510,7 @@
 					"sentToPhone",
 					"pinCreatedAt",
 					"updatedAt",
+					"alteredByName",
 					"alteredByUsername",
 					"livePinId",
 					"action",
@@ -521,6 +526,7 @@
 					"sentToPhone": "19021234567",
 					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
 					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"alteredByName": "Self",
 					"alteredByUsername": "self",
 					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
 					"action": "C",
