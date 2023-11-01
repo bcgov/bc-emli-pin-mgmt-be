@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
+    requestListQueryParam,
 } from '../helpers/types';
 
 const accessRequestRouter = express.Router();
@@ -31,7 +32,7 @@ accessRequestRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
-        req.params.status,
+        req.params.status as requestListQueryParam,
         req,
     );
     return res.send(response);

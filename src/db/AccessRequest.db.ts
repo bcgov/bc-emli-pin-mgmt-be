@@ -78,7 +78,6 @@ export async function updateRequestStatus(
         };
     }
 
-    action;
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const updatedRequest = await manager.update(
@@ -96,7 +95,7 @@ export async function updateRequestStatus(
             transactionReturn.updatedRequest.affected !== null
         ) {
             logger.debug(
-                `Successfully created an access request with id  '${transactionReturn.updatedRequest.affected}'`,
+                `Successfully updated request(s) with id(s)  '${transactionReturn.updatedRequest.affected}'`,
             );
             return transactionReturn.updatedRequest.affected;
         }
