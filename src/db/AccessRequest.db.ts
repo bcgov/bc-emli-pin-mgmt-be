@@ -38,9 +38,16 @@ export async function createRequest(
                     newRequest,
                 );
 
-                sendAccessRequestNotifications(accessRequestInfo);
+                const notificationResponse =
+                    await sendAccessRequestNotifications(accessRequestInfo);
 
-                return { createdRequest };
+                if (notificationResponse) {
+                    return { createdRequest };
+                } else {
+                    throw new Error(
+                        `Error calling sendAccessRequestNotifications`,
+                    );
+                }
             },
         )) as { createdRequest: InsertResult };
     } catch (err) {

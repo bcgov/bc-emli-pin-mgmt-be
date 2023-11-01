@@ -28,13 +28,13 @@ export async function sendAccessRequestNotifications(
         }
         // Standard requests go to all admins, super-admins, vhers_admin
         else if (accessRequestInfo.requestedRole === 'Standard') {
+            emailAddresses.push({
+                email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
+            });
             emailAddresses = await findUser({ email: true }, [
                 { role: 'Admin' },
                 { role: 'SuperAdmin' },
             ]);
-            emailAddresses.push({
-                email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
-            });
         }
 
         const templateId =
