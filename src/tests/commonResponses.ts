@@ -1,7 +1,9 @@
 import {
     accessRequestResponseBody,
+    accessRequestUpdateRequestBody,
     createPinRequestBody,
     gcNotifyError,
+    requestStatusType,
     serviceBCCreateRequestBody,
 } from '../helpers/types';
 
@@ -965,6 +967,16 @@ export const AccessRequestBody: accessRequestResponseBody = {
     givenName: 'John',
     lastName: 'Doe',
     requestReason: 'To get access to site',
+};
+
+export const AccessRequestUpdateRequestBody: accessRequestUpdateRequestBody = {
+    requestedRoles: ['Admin'],
+    emails: ['abc@gov.ca'],
+    givenNames: ['John'],
+    lastNames: ['Doe'],
+    rejectionReason: 'Not allowed access',
+    requestIds: ['123'],
+    action: requestStatusType.Rejected,
 };
 
 export const UsersMultiResponse = [

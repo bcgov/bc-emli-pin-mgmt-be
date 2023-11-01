@@ -406,11 +406,39 @@
 					},
 					"rejectionReason": {
 						"type": "string"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"requestedRoles": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"action",
-					"requestIds"
+					"requestIds",
+					"emails",
+					"givenNames",
+					"lastNames",
+					"requestedRoles"
 				],
 				"type": "object",
 				"additionalProperties": false
