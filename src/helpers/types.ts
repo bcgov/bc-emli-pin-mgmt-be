@@ -405,6 +405,7 @@ export interface auditLogReturn {
     "sentToPhone": "19021234567",
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-24T15:06:27.269Z",
+	"alteredByName": "Self",
     "alteredByUsername": "self",
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
@@ -420,6 +421,7 @@ export interface auditLogInfo {
     sentToPhone: string | null;
     pinCreatedAt: string;
     updatedAt: string | null;
+    alteredByName: string | null;
     alteredByUsername: string | null;
     livePinId: string;
     action: pinAuditAction;

@@ -223,6 +223,7 @@ const models: TsoaRoute.Models = {
             "sentToPhone": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "pinCreatedAt": {"dataType":"string","required":true},
             "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "alteredByName": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "alteredByUsername": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
             "livePinId": {"dataType":"string","required":true},
             "action": {"ref":"pinAuditAction","required":true},
