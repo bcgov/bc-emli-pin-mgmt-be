@@ -406,11 +406,39 @@
 					},
 					"rejectionReason": {
 						"type": "string"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"requestedRoles": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"action",
-					"requestIds"
+					"requestIds",
+					"emails",
+					"givenNames",
+					"lastNames",
+					"requestedRoles"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1176,14 +1204,50 @@
 					},
 					"deactivationReason": {
 						"type": "string"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"userIds",
-					"deactivationReason"
+					"deactivationReason",
+					"givenNames",
+					"lastNames",
+					"emails"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"userIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"deactivationReason": "reason for deactivation",
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			}
 		},
 		"securitySchemes": {

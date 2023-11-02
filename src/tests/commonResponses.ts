@@ -1,8 +1,11 @@
 import {
     accessRequestResponseBody,
+    accessRequestUpdateRequestBody,
     createPinRequestBody,
     gcNotifyError,
+    requestStatusType,
     serviceBCCreateRequestBody,
+    userDeactivateRequestBody,
 } from '../helpers/types';
 
 // API Responses to mock (sorry, this is a real response and it's long)
@@ -965,6 +968,24 @@ export const AccessRequestBody: accessRequestResponseBody = {
     givenName: 'John',
     lastName: 'Doe',
     requestReason: 'To get access to site',
+};
+
+export const AccessRequestUpdateRequestBody: accessRequestUpdateRequestBody = {
+    requestedRoles: ['Admin'],
+    emails: ['abc@gov.ca'],
+    givenNames: ['John'],
+    lastNames: ['Doe'],
+    rejectionReason: 'Not allowed access',
+    requestIds: ['123'],
+    action: requestStatusType.Rejected,
+};
+
+export const UserDeactivateRequestBody: userDeactivateRequestBody = {
+    emails: ['abc@gov.ca'],
+    givenNames: ['John'],
+    lastNames: ['Doe'],
+    deactivationReason: 'Not allowed access',
+    userIds: ['123'],
 };
 
 export const UsersMultiResponse = [
