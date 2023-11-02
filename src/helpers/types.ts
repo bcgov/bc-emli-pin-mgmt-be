@@ -760,6 +760,9 @@ export interface userUpdateRequestBody {
 export interface userDeactivateRequestBody {
     userIds: string[];
     deactivationReason: string;
+    givenNames: string[];
+    lastNames: string[];
+    emails: string[];
 }
 
 /**
