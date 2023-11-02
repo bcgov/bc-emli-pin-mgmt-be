@@ -31,6 +31,7 @@ import { getUserList, deactivateUsers } from '../db/Users.db';
 import { TypeORMError } from 'typeorm';
 import { authenticate } from '../middleware/authentication';
 import { AuthenticationError } from '../middleware/AuthenticationError';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 @Middlewares(authenticate)
 @Route('users')
@@ -178,10 +179,12 @@ export class UserController extends Controller {
     ): Promise<void> {
         this.setStatus(204);
         let permissions: string[] = [];
+        let payload = { permissions: [], username: '' };
 
         // validate access
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            payload = decodingJWT(req.cookies.token)?.payload;
+            permissions = payload.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
                     `Permission 'USER_ACCESS' is not available for this user`,
@@ -225,7 +228,7 @@ export class UserController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         try {
-            await deactivateUsers(requestBody);
+            await deactivateUsers(requestBody, payload.username);
             // TODO: add send email functionality
             /* let emailAddresses: any[] = [];
           // Admin requests go to vhers_admin email only
@@ -264,6 +267,15 @@ export class UserController extends Controller {
               );
           }  */
         } catch (err) {
+            if (err instanceof NotFoundError) {
+                logger.warn(
+                    `Encountered Not Found Error in deactivateUsers: ${err.message}`,
+                );
+                return notFoundErrorResponse(404, {
+                    message: err.message,
+                    code: 404,
+                });
+            }
             if (err instanceof TypeORMError) {
                 logger.warn(
                     `Encountered TypeORM Error in deactivateUsers: ${err.message}`,

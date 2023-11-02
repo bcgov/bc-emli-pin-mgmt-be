@@ -4,6 +4,7 @@ import { AppDataSource } from '../data-source';
 import { UserRoles, userDeactivateRequestBody } from '../helpers/types';
 import { FindOptionsOrderValue, UpdateResult } from 'typeorm';
 import logger from '../middleware/logger';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 export async function findUser(
     select?: object,
@@ -111,13 +112,14 @@ export async function updateUser(
 /* The `deactivateUsers` function is deactivating users in the database. It
 accepts a `requestBody` parameter which contains the user IDs of the users to
 be deactivated. */
-// TODO: Add token to indicate who last changed / decativated the user
 export async function deactivateUsers(
     requestBody: userDeactivateRequestBody,
+    username: string,
 ): Promise<any | undefined> {
     const updateFields = {
         isActive: false,
         deactivationReason: requestBody.deactivationReason,
+        updatedBy: username,
     };
     const idList: any[] = [];
 
@@ -140,12 +142,14 @@ export async function deactivateUsers(
     if (typeof transactionReturn.updatedUser != 'undefined') {
         if (
             transactionReturn.updatedUser.affected &&
-            transactionReturn.updatedUser.affected !== null
+            transactionReturn.updatedUser.affected !== 0
         ) {
             logger.debug(
                 `Successfully updated users(s) with id(s)  '${transactionReturn.updatedUser.affected}'`,
             );
             return transactionReturn.updatedUser.affected;
+        } else {
+            throw new NotFoundError('User to deactivate not found in database');
         }
     }
 }
