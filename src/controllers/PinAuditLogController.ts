@@ -70,6 +70,7 @@ export class PinAuditLogController extends Controller {
                 sentToPhone: true,
                 logCreatedAt: true,
                 pinCreatedAt: true,
+                alteredByName: true,
                 alteredByUsername: true,
                 livePinId: true,
             };

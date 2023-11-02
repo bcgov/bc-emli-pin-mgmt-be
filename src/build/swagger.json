@@ -406,14 +406,61 @@
 					},
 					"rejectionReason": {
 						"type": "string"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"requestedRoles": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"action",
-					"requestIds"
+					"requestIds",
+					"emails",
+					"givenNames",
+					"lastNames",
+					"requestedRoles"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"action": "Rejected",
+					"rejectionReason": "Unknown user",
+					"requestIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"requestedRoles": [
+						"Admin"
+					],
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			},
 			"HelloWorldResponse": {
 				"properties": {
@@ -483,6 +530,10 @@
 						"type": "string",
 						"nullable": true
 					},
+					"alteredByName": {
+						"type": "string",
+						"nullable": true
+					},
 					"alteredByUsername": {
 						"type": "string",
 						"nullable": true
@@ -506,6 +557,7 @@
 					"sentToPhone",
 					"pinCreatedAt",
 					"updatedAt",
+					"alteredByName",
 					"alteredByUsername",
 					"livePinId",
 					"action",
@@ -521,6 +573,7 @@
 					"sentToPhone": "19021234567",
 					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
 					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"alteredByName": "Self",
 					"alteredByUsername": "self",
 					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
 					"action": "C",
@@ -1170,14 +1223,50 @@
 					},
 					"deactivationReason": {
 						"type": "string"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"userIds",
-					"deactivationReason"
+					"deactivationReason",
+					"givenNames",
+					"lastNames",
+					"emails"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"userIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"deactivationReason": "reason for deactivation",
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			}
 		},
 		"securitySchemes": {

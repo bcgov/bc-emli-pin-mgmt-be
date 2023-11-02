@@ -405,6 +405,7 @@ export interface auditLogReturn {
     "sentToPhone": "19021234567",
     "pinCreatedAt": "2023-08-24T15:01:49.628Z",
     "updatedAt": "2023-08-24T15:06:27.269Z",
+	"alteredByName": "Self",
     "alteredByUsername": "self",
 	"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
     "action": "C",
@@ -420,6 +421,7 @@ export interface auditLogInfo {
     sentToPhone: string | null;
     pinCreatedAt: string;
     updatedAt: string | null;
+    alteredByName: string | null;
     alteredByUsername: string | null;
     livePinId: string;
     action: pinAuditAction;
@@ -537,14 +539,23 @@ export interface accessRequestList {
  * Request body for access request updates
  * @example
  * {
-    "action": "Granted",
-    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
-  }
+ *    "action": "Rejected",
+ *    "rejectionReason": "Unknown user",
+ *    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+ *    "requestedRoles": ["Admin"],
+ *    "givenNames": ["John"],
+ *    "lastNames": ["Smith"],
+ * 	  "emails": ["example@test.com"]
+ * }
  */
 export interface accessRequestUpdateRequestBody {
     action: requestStatusType;
     requestIds: string[];
     rejectionReason?: string;
+    emails: string[];
+    givenNames: string[];
+    lastNames: string[];
+    requestedRoles: string[];
 }
 
 /**
@@ -748,12 +759,18 @@ export interface userUpdateRequestBody {
  * @example
  * {
  *    "userIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
- *    "deactivationReason" "reason for deactivation"
+ *    "deactivationReason": "reason for deactivation",
+ *    "givenNames": ["John"],
+ *    "lastNames": ["Smith"],
+ * 	  "emails": ["example@test.com"]
  * }
  */
 export interface userDeactivateRequestBody {
     userIds: string[];
     deactivationReason: string;
+    givenNames: string[];
+    lastNames: string[];
+    emails: string[];
 }
 
 /**

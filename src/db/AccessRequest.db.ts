@@ -8,6 +8,11 @@ import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
 } from '../helpers/types';
+import {
+    sendAccessApproveAndRejectNotifications,
+    sendAccessRequestNotifications,
+} from '../helpers/GCNotifyCalls';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 export async function createRequest(
     accessRequestInfo: accessRequestResponseBody,
@@ -24,18 +29,36 @@ export async function createRequest(
         requestReason: accessRequestInfo.requestReason,
         requestStatus: requestStatusType.NotGranted,
     };
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const newRequest = await manager.create(AccessRequest, params);
-            const createdRequest = await manager.insert(
-                AccessRequest,
-                newRequest,
-            );
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const newRequest = await manager.create(AccessRequest, params);
+                const createdRequest = await manager.insert(
+                    AccessRequest,
+                    newRequest,
+                );
 
-            return { createdRequest };
-        },
-    )) as { createdRequest: InsertResult };
-    if (typeof transactionReturn.createdRequest != 'undefined') {
+                const notificationResponse =
+                    await sendAccessRequestNotifications(accessRequestInfo);
+
+                if (notificationResponse) {
+                    return { createdRequest };
+                } else {
+                    throw new Error(
+                        `Error calling sendAccessRequestNotifications`,
+                    );
+                }
+            },
+        )) as { createdRequest: InsertResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling createRequest: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+
+    if (typeof transactionReturn?.createdRequest != 'undefined') {
         if (
             transactionReturn.createdRequest.identifiers &&
             transactionReturn.createdRequest.identifiers !== null
@@ -58,10 +81,12 @@ transaction, it calls the `manager.update` method to update the
 information. Finally, it returns the number of affected rows in the database. */
 export async function updateRequestStatus(
     requestBody: accessRequestUpdateRequestBody,
+    username: string,
 ): Promise<any | undefined> {
     const action = requestBody.action;
     const idList: any[] = [];
     let updateFields: any;
+    let templateId: string;
 
     for (const itemId in requestBody?.requestIds) {
         const where = { requestId: requestBody?.requestIds[itemId] };
@@ -69,33 +94,65 @@ export async function updateRequestStatus(
     }
     if (action === requestStatusType.Granted) {
         updateFields = { requestStatus: requestStatusType.Granted };
+        templateId = process.env.GC_NOTIFY_ACCESS_APPROVE_EMAIL_TEMPLATE_ID!;
     }
 
     if (action === requestStatusType.Rejected) {
         updateFields = {
+            updatedBy: username,
             requestStatus: requestStatusType.Rejected,
             rejectionReason: requestBody.rejectionReason,
         };
+        templateId = process.env.GC_NOTIFY_ACCESS_REJECT_EMAIL_TEMPLATE_ID!;
     }
 
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const updatedRequest = await manager.update(
-                AccessRequest,
-                idList,
-                updateFields,
-            );
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const updatedRequest = await manager.update(
+                    AccessRequest,
+                    idList,
+                    updateFields,
+                );
+                if (!updatedRequest.affected || updatedRequest.affected === 0) {
+                    throw new NotFoundError(
+                        'Request to update not found in database',
+                    );
+                }
 
-            return { updatedRequest };
-        },
-    )) as { updatedRequest: UpdateResult };
-    if (typeof transactionReturn.updatedRequest != 'undefined') {
+                const notificationResponse =
+                    await sendAccessApproveAndRejectNotifications(
+                        requestBody,
+                        templateId,
+                    );
+
+                if (notificationResponse) {
+                    return { updatedRequest };
+                } else {
+                    throw new Error(
+                        `Error calling sendAccessApproveAndRejectNotifications`,
+                    );
+                }
+            },
+        )) as { updatedRequest: UpdateResult };
+    } catch (err) {
+        if (err instanceof NotFoundError) {
+            throw err;
+        }
+        if (err instanceof Error) {
+            const message = `An error occured while calling updateRequestStatus: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+
+    if (typeof transactionReturn?.updatedRequest != 'undefined') {
         if (
             transactionReturn.updatedRequest.affected &&
-            transactionReturn.updatedRequest.affected !== null
+            transactionReturn.updatedRequest.affected !== 0
         ) {
             logger.debug(
-                `Successfully updated request(s) with id(s)  '${transactionReturn.updatedRequest.affected}'`,
+                `Successfully updated ${transactionReturn.updatedRequest.affected} request(s)`,
             );
             return transactionReturn.updatedRequest.affected;
         }
