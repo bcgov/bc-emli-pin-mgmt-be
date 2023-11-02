@@ -12,6 +12,7 @@ import {
     sendAccessApproveAndRejectNotifications,
     sendAccessRequestNotifications,
 } from '../helpers/GCNotifyCalls';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 export async function createRequest(
     accessRequestInfo: accessRequestResponseBody,
@@ -80,6 +81,7 @@ transaction, it calls the `manager.update` method to update the
 information. Finally, it returns the number of affected rows in the database. */
 export async function updateRequestStatus(
     requestBody: accessRequestUpdateRequestBody,
+    username: string,
 ): Promise<any | undefined> {
     const action = requestBody.action;
     const idList: any[] = [];
@@ -97,6 +99,7 @@ export async function updateRequestStatus(
 
     if (action === requestStatusType.Rejected) {
         updateFields = {
+            updatedBy: username,
             requestStatus: requestStatusType.Rejected,
             rejectionReason: requestBody.rejectionReason,
         };
@@ -112,6 +115,11 @@ export async function updateRequestStatus(
                     idList,
                     updateFields,
                 );
+                if (!updatedRequest.affected || updatedRequest.affected === 0) {
+                    throw new NotFoundError(
+                        'Request to update not found in database',
+                    );
+                }
 
                 const notificationResponse =
                     await sendAccessApproveAndRejectNotifications(
@@ -129,6 +137,9 @@ export async function updateRequestStatus(
             },
         )) as { updatedRequest: UpdateResult };
     } catch (err) {
+        if (err instanceof NotFoundError) {
+            throw err;
+        }
         if (err instanceof Error) {
             const message = `An error occured while calling updateRequestStatus: ${err.message}`;
             throw new Error(message);
@@ -138,10 +149,10 @@ export async function updateRequestStatus(
     if (typeof transactionReturn?.updatedRequest != 'undefined') {
         if (
             transactionReturn.updatedRequest.affected &&
-            transactionReturn.updatedRequest.affected !== null
+            transactionReturn.updatedRequest.affected !== 0
         ) {
             logger.debug(
-                `Successfully updated request(s) with id(s)  '${transactionReturn.updatedRequest.affected}'`,
+                `Successfully updated ${transactionReturn.updatedRequest.affected} request(s)`,
             );
             return transactionReturn.updatedRequest.affected;
         }

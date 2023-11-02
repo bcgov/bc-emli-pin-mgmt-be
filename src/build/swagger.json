@@ -441,7 +441,26 @@
 					"requestedRoles"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"action": "Rejected",
+					"rejectionReason": "Unknown user",
+					"requestIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"requestedRoles": [
+						"Admin"
+					],
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			},
 			"HelloWorldResponse": {
 				"properties": {
