@@ -467,6 +467,9 @@ const models: TsoaRoute.Models = {
         "properties": {
             "userIds": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "deactivationReason": {"dataType":"string","required":true},
+            "givenNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "lastNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "emails": {"dataType":"array","array":{"dataType":"string"},"required":true},
         },
         "additionalProperties": false,
     },

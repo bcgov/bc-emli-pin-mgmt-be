@@ -2,6 +2,7 @@
 import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
+    userDeactivateRequestBody,
 } from './types';
 import { findUser } from '../db/Users.db';
 import GCNotifyCaller from '../helpers/GCNotifyCaller';
@@ -12,7 +13,7 @@ const gCNotifyCaller = new GCNotifyCaller();
 /**
  * Send GC Notify email notification upon access request.
  * @param accessRequestInfo contains requestedRole, givenName, lastName, and requestReason
- * @returns true
+ * @returns true: Boolean - if function runs without errors
  */
 export async function sendAccessRequestNotifications(
     accessRequestInfo: accessRequestResponseBody,
@@ -70,7 +71,7 @@ export async function sendAccessRequestNotifications(
  * Send GC Notify email notification upon status change on access request.
  * @param requestBody contains emails, requestedRoles, givenNames, lastNames, and rejectReason
  * @param accessRequestInfo contains requestedRole, givenName, lastName, and requestReason
- * @returns null
+ * @returns true: Boolean - if function runs without errors
  */
 export async function sendAccessApproveAndRejectNotifications(
     requestBody: accessRequestUpdateRequestBody,
@@ -101,6 +102,43 @@ export async function sendAccessApproveAndRejectNotifications(
         return true;
     } catch (err: any) {
         const message = `Encountered error calling sendAccessRequestNotifications: ${err.message}`;
+        logger.warn(message);
+    }
+}
+
+/**
+ * Send GC Notify email notification upon deactivating user.
+ * @param requestBody contains emails, givenNames, lastNames, and deactivationReason
+ * @param accessRequestInfo contains givenName, lastName, and requestReason
+ * @returns true: Boolean - if function runs without errors
+ */
+export async function sendDeactiveUserNotifications(
+    requestBody: userDeactivateRequestBody,
+    templateId: string,
+) {
+    try {
+        for (let i = 0; i < requestBody.emails.length; i++) {
+            const email = requestBody.emails[i];
+            const givenName = requestBody.givenNames[i];
+            const lastName = requestBody.lastNames[i];
+
+            const personalisation = {
+                given_name: givenName,
+                last_name: lastName,
+                deactivation_reason: requestBody.deactivationReason,
+            };
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = await gCNotifyCaller.sendEmailNotification(
+                templateId!,
+                email,
+                personalisation,
+            );
+        }
+
+        return true;
+    } catch (err: any) {
+        const message = `Encountered error calling sendDeactiveUserNotifications: ${err.message}`;
         logger.warn(message);
     }
 }

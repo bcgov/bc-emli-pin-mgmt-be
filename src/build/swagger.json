@@ -1204,11 +1204,32 @@
 					},
 					"deactivationReason": {
 						"type": "string"
+					},
+					"givenNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"lastNames": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"emails": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"userIds",
-					"deactivationReason"
+					"deactivationReason",
+					"givenNames",
+					"lastNames",
+					"emails"
 				],
 				"type": "object",
 				"additionalProperties": false

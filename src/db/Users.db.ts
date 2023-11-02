@@ -4,6 +4,7 @@ import { AppDataSource } from '../data-source';
 import { UserRoles, userDeactivateRequestBody } from '../helpers/types';
 import { FindOptionsOrderValue, UpdateResult } from 'typeorm';
 import logger from '../middleware/logger';
+import { sendDeactiveUserNotifications } from '../helpers/GCNotifyCalls';
 
 export async function findUser(
     select?: object,
@@ -126,18 +127,42 @@ export async function deactivateUsers(
         idList.push(where);
     }
 
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const updatedUser = await manager.update(
-                Users,
-                idList,
-                updateFields,
-            );
+    let transactionReturn;
 
-            return { updatedUser };
-        },
-    )) as { updatedUser: UpdateResult };
-    if (typeof transactionReturn.updatedUser != 'undefined') {
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const updatedUser = await manager.update(
+                    Users,
+                    idList,
+                    updateFields,
+                );
+
+                const templateId =
+                    process.env.GC_NOTIFY_USER_DEACTIVATION_EMAIL_TEMPLATE_ID!;
+
+                const notificationResponse =
+                    await sendDeactiveUserNotifications(
+                        requestBody,
+                        templateId,
+                    );
+
+                if (notificationResponse) {
+                    return { updatedUser };
+                } else {
+                    throw new Error(
+                        `Error calling sendDeactiveUserNotifications`,
+                    );
+                }
+            },
+        )) as { updatedUser: UpdateResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling deactivateUsers: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+    if (typeof transactionReturn?.updatedUser != 'undefined') {
         if (
             transactionReturn.updatedUser.affected &&
             transactionReturn.updatedUser.affected !== null
