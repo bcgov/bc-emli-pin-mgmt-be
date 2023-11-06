@@ -539,9 +539,14 @@ export interface accessRequestList {
  * Request body for access request updates
  * @example
  * {
-    "action": "Granted",
-    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
-  }
+ *    "action": "Rejected",
+ *    "rejectionReason": "Unknown user",
+ *    "requestIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
+ *    "requestedRoles": ["Admin"],
+ *    "givenNames": ["John"],
+ *    "lastNames": ["Smith"],
+ * 	  "emails": ["example@test.com"]
+ * }
  */
 export interface accessRequestUpdateRequestBody {
     action: requestStatusType;
@@ -754,7 +759,10 @@ export interface userUpdateRequestBody {
  * @example
  * {
  *    "userIds": ["82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"],
- *    "deactivationReason" "reason for deactivation"
+ *    "deactivationReason": "reason for deactivation",
+ *    "givenNames": ["John"],
+ *    "lastNames": ["Smith"],
+ * 	  "emails": ["example@test.com"]
  * }
  */
 export interface userDeactivateRequestBody {

@@ -441,7 +441,26 @@
 					"requestedRoles"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"action": "Rejected",
+					"rejectionReason": "Unknown user",
+					"requestIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"requestedRoles": [
+						"Admin"
+					],
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			},
 			"HelloWorldResponse": {
 				"properties": {
@@ -1193,6 +1212,43 @@
 				],
 				"type": "string"
 			},
+			"userUpdateRequestBody": {
+				"description": "Request Body for user update",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/UserRoles"
+					},
+					"organization": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"givenName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userId",
+					"role",
+					"organization",
+					"email",
+					"userName",
+					"givenName",
+					"lastName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"userDeactivateRequestBody": {
 				"description": "Request body for deactivation of one or multiple users",
 				"properties": {
@@ -1232,7 +1288,22 @@
 					"emails"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"userIds": [
+						"82dc08e5-cbca-40c2-9d35-a4d1407d5f8d"
+					],
+					"deactivationReason": "reason for deactivation",
+					"givenNames": [
+						"John"
+					],
+					"lastNames": [
+						"Smith"
+					],
+					"emails": [
+						"example@test.com"
+					]
+				}
 			}
 		},
 		"securitySchemes": {
@@ -2425,6 +2496,66 @@
 						}
 					}
 				]
+			},
+			"put": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/userUpdateRequestBody"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/users/deactivate": {

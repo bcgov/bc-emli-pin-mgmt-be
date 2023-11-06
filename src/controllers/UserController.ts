@@ -23,14 +23,21 @@ import {
     noActiveUserFound,
     userDeactivateRequestBody,
     userListQueryParam,
+    userUpdateRequestBody,
 } from '../helpers/types';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
 import logger from '../middleware/logger';
-import { getUserList, deactivateUsers } from '../db/Users.db';
+import {
+    getUserList,
+    deactivateUsers,
+    updateUser,
+    findUser,
+} from '../db/Users.db';
 import { TypeORMError } from 'typeorm';
 import { authenticate } from '../middleware/authentication';
 import { AuthenticationError } from '../middleware/AuthenticationError';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 @Middlewares(authenticate)
 @Route('users')
@@ -162,6 +169,96 @@ export class UserController extends Controller {
     }
 
     @SuccessResponse('204', 'No content')
+    @Put('')
+    /**
+     * Update user property
+     */
+    public async updateUser(
+        @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
+        @Res()
+        requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
+        @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
+        @Body() requestBody: userUpdateRequestBody,
+        @Request() req: req,
+    ): Promise<void> {
+        this.setStatus(204);
+        let permissions: string[] = [];
+
+        // validate access
+        try {
+            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            if (!permissions.includes('USER_ACCESS')) {
+                throw new AuthenticationError(
+                    `Permission 'USER_ACCESS' is not available for this user`,
+                    403,
+                );
+            }
+        } catch (err) {
+            if (err instanceof AuthenticationError) {
+                logger.warn(
+                    `Encountered 403 forbidden error in updateUser: ${err.message}`,
+                );
+                return forbiddenErrorResponse(403, {
+                    message: err.message,
+                    code: 403,
+                });
+            }
+            if (err instanceof Error) {
+                logger.warn(
+                    `Encountered 404 not found error in updateUser: ${err.message}`,
+                );
+                return notFoundErrorResponse(404, {
+                    message: err.message,
+                    code: 404,
+                });
+            }
+        }
+        // validate inputs
+        try {
+            const userId = { userId: requestBody.userId };
+            const existingUser = await findUser({}, userId);
+            const updateFields = {
+                ...(existingUser[0].role !== requestBody.role && {
+                    role: requestBody.role,
+                }),
+                ...(existingUser[0].organization !==
+                    requestBody.organization && {
+                    organization: requestBody.organization,
+                }),
+                ...(existingUser[0].email !== requestBody.email && {
+                    email: requestBody.email,
+                }),
+                ...(existingUser[0].userName !== requestBody.userName && {
+                    userName: requestBody.userName,
+                }),
+                ...(existingUser[0].givenName !== requestBody.givenName && {
+                    givenName: requestBody.givenName,
+                }),
+                ...(existingUser[0].lastName !== requestBody.lastName && {
+                    lastName: requestBody.lastName,
+                }),
+            };
+            await updateUser(userId, updateFields, requestBody);
+        } catch (err) {
+            if (err instanceof TypeORMError) {
+                logger.warn(
+                    `Encountered TypeORM Error in update user: ${err.message}`,
+                );
+                return typeORMErrorResponse(422, { message: err.message });
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error in updating user data: ${err}`,
+                );
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
+
+        return;
+    }
+
+    @SuccessResponse('204', 'No content')
     @Put('deactivate')
     /**
      * Deactivate user(s)
@@ -178,10 +275,12 @@ export class UserController extends Controller {
     ): Promise<void> {
         this.setStatus(204);
         let permissions: string[] = [];
+        let payload = { permissions: [], username: '' };
 
         // validate access
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            payload = decodingJWT(req.cookies.token)?.payload;
+            permissions = payload.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
                     `Permission 'USER_ACCESS' is not available for this user`,
@@ -225,8 +324,17 @@ export class UserController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
         try {
-            await deactivateUsers(requestBody);
+            await deactivateUsers(requestBody, payload.username);
         } catch (err) {
+            if (err instanceof NotFoundError) {
+                logger.warn(
+                    `Encountered Not Found Error in deactivateUsers: ${err.message}`,
+                );
+                return notFoundErrorResponse(404, {
+                    message: err.message,
+                    code: 404,
+                });
+            }
             if (err instanceof TypeORMError) {
                 logger.warn(
                     `Encountered TypeORM Error in deactivateUsers: ${err.message}`,
@@ -234,7 +342,7 @@ export class UserController extends Controller {
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {
                 logger.warn(
-                    `Encountered unknown Internal Server Error in creating access request: ${err}`,
+                    `Encountered unknown Internal Server Error in deactivating user(s): ${err}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }

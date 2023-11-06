@@ -6,6 +6,7 @@ import {
     requestStatusType,
     serviceBCCreateRequestBody,
     userDeactivateRequestBody,
+    userUpdateRequestBody,
 } from '../helpers/types';
 
 // API Responses to mock (sorry, this is a real response and it's long)
@@ -986,6 +987,16 @@ export const UserDeactivateRequestBody: userDeactivateRequestBody = {
     lastNames: ['Doe'],
     deactivationReason: 'Not allowed access',
     userIds: ['123'],
+};
+
+export const UserUpdateRequestBody: userUpdateRequestBody = {
+    email: 'abc@gov.ca',
+    givenName: 'John',
+    lastName: 'Doe',
+    role: 'Admin',
+    userId: '123',
+    userName: 'JohnDoe',
+    organization: 'BC Government',
 };
 
 export const UsersMultiResponse = [

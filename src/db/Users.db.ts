@@ -12,6 +12,7 @@ import {
     sendDeactiveUserNotifications,
     sendUpdateUserNotifications,
 } from '../helpers/GCNotifyCalls';
+import { NotFoundError } from '../helpers/NotFoundError';
 
 export async function findUser(
     select?: object,
@@ -106,19 +107,23 @@ export async function updateUser(
                 const templateId =
                     process.env.GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID!;
 
-                // TODO: Add in logic to only call if role is updated
+                // Call GC Notify only if role is updated
+                if ('role' in updateFields) {
+                    const notificationResponse =
+                        await sendUpdateUserNotifications(
+                            requestBody,
+                            templateId,
+                        );
 
-                const notificationResponse = await sendUpdateUserNotifications(
-                    requestBody,
-                    templateId,
-                );
-
-                if (notificationResponse) {
-                    return { updatedRequest };
+                    if (notificationResponse) {
+                        return { updatedRequest };
+                    } else {
+                        throw new Error(
+                            `Error calling sendUpdateUserNotifications`,
+                        );
+                    }
                 } else {
-                    throw new Error(
-                        `Error calling sendUpdateUserNotifications`,
-                    );
+                    return { updatedRequest };
                 }
             },
         )) as { updatedRequest: UpdateResult };
@@ -144,13 +149,14 @@ export async function updateUser(
 /* The `deactivateUsers` function is deactivating users in the database. It
 accepts a `requestBody` parameter which contains the user IDs of the users to
 be deactivated. */
-// TODO: Add token to indicate who last changed / decativated the user
 export async function deactivateUsers(
     requestBody: userDeactivateRequestBody,
+    username: string,
 ): Promise<any | undefined> {
     const updateFields = {
         isActive: false,
         deactivationReason: requestBody.deactivationReason,
+        updatedBy: username,
     };
     const idList: any[] = [];
 
@@ -169,6 +175,11 @@ export async function deactivateUsers(
                     idList,
                     updateFields,
                 );
+                if (!updatedUser.affected || updatedUser.affected === 0) {
+                    throw new NotFoundError(
+                        'User(s) to deactivate not found in database',
+                    );
+                }
 
                 const templateId =
                     process.env.GC_NOTIFY_USER_DEACTIVATION_EMAIL_TEMPLATE_ID!;
@@ -189,6 +200,9 @@ export async function deactivateUsers(
             },
         )) as { updatedUser: UpdateResult };
     } catch (err) {
+        if (err instanceof NotFoundError) {
+            throw err;
+        }
         if (err instanceof Error) {
             const message = `An error occured while calling deactivateUsers: ${err.message}`;
             throw new Error(message);
@@ -197,10 +211,10 @@ export async function deactivateUsers(
     if (typeof transactionReturn?.updatedUser != 'undefined') {
         if (
             transactionReturn.updatedUser.affected &&
-            transactionReturn.updatedUser.affected !== null
+            transactionReturn.updatedUser.affected !== 0
         ) {
             logger.debug(
-                `Successfully updated users(s) with id(s)  '${transactionReturn.updatedUser.affected}'`,
+                `Successfully updated ${transactionReturn.updatedUser.affected} users(s)`,
             );
             return transactionReturn.updatedUser.affected;
         }
