@@ -3,6 +3,7 @@ import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
     userDeactivateRequestBody,
+    userUpdateRequestBody,
 } from './types';
 import { findUser } from '../db/Users.db';
 import GCNotifyCaller from '../helpers/GCNotifyCaller';
@@ -70,7 +71,7 @@ export async function sendAccessRequestNotifications(
 /**
  * Send GC Notify email notification upon status change on access request.
  * @param requestBody contains emails, requestedRoles, givenNames, lastNames, and rejectReason
- * @param accessRequestInfo contains requestedRole, givenName, lastName, and requestReason
+ * @param templateId GC Notify email template ID
  * @returns true: Boolean - if function runs without errors
  */
 export async function sendAccessApproveAndRejectNotifications(
@@ -109,7 +110,7 @@ export async function sendAccessApproveAndRejectNotifications(
 /**
  * Send GC Notify email notification upon deactivating user.
  * @param requestBody contains emails, givenNames, lastNames, and deactivationReason
- * @param accessRequestInfo contains givenName, lastName, and requestReason
+ * @param templateId GC Notify email template ID
  * @returns true: Boolean - if function runs without errors
  */
 export async function sendDeactiveUserNotifications(
@@ -139,6 +140,37 @@ export async function sendDeactiveUserNotifications(
         return true;
     } catch (err: any) {
         const message = `Encountered error calling sendDeactiveUserNotifications: ${err.message}`;
+        logger.warn(message);
+    }
+}
+
+/**
+ * Send GC Notify email notification upon updating user role.
+ * @param requestBody contains email, givenName, lastName, and role
+ * @param templateId GC Notify email template ID
+ * @returns true: Boolean - if function runs without errors
+ */
+export async function sendUpdateUserNotifications(
+    requestBody: userUpdateRequestBody,
+    templateId: string,
+) {
+    try {
+        const personalisation = {
+            given_name: requestBody.givenName,
+            last_name: requestBody.lastName,
+            new_role: requestBody.role,
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const response = await gCNotifyCaller.sendEmailNotification(
+            templateId!,
+            requestBody.email,
+            personalisation,
+        );
+
+        return true;
+    } catch (err: any) {
+        const message = `Encountered error calling sendUpdateUserNotifications: ${err.message}`;
         logger.warn(message);
     }
 }
