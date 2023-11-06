@@ -53,7 +53,12 @@ app.use(function (req, res, next) {
     next();
 });
 
-const corsDomain = [process.env.FE_APP_URL, process.env.BE_APP_URL];
+const corsDomain = [
+    process.env.FE_APP_URL,
+    process.env.BE_APP_URL,
+    process.env.PROPERATE_STAGING_URL,
+    process.env.PROPERATE_TEST_URL,
+];
 
 const origin = (origin: any, callback: any) => {
     if (!origin || corsDomain.indexOf(origin) !== -1) {
