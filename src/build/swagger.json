@@ -1165,9 +1165,6 @@
 					"userId": {
 						"type": "string"
 					},
-					"identityType": {
-						"type": "string"
-					},
 					"role": {
 						"$ref": "#/components/schemas/UserRoles"
 					},
@@ -1189,7 +1186,6 @@
 				},
 				"required": [
 					"userId",
-					"identityType",
 					"role",
 					"organization",
 					"email",

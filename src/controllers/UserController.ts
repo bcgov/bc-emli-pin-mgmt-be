@@ -215,11 +215,9 @@ export class UserController extends Controller {
             }
         }
         // validate inputs
-        console.log('---------------------------------');
         try {
             const userId = { userId: requestBody.userId };
             const existingUser = await findUser({}, userId);
-            console.log(existingUser[0], '-----', requestBody);
             const updateFields = {
                 ...(existingUser[0].role !== requestBody.role && {
                     role: requestBody.role,
@@ -241,9 +239,7 @@ export class UserController extends Controller {
                     lastName: requestBody.lastName,
                 }),
             };
-            console.log('~~~~~~~~~~~~~~~~~~~~~~~~', updateFields);
-            const result = await updateUser(userId, updateFields);
-            console.log('iiii------iiii', result);
+            await updateUser(userId, updateFields);
             // TODO: add send email functionality
             /* let emailAddresses: any[] = [];
           // Admin requests go to vhers_admin email only

@@ -461,7 +461,6 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "userId": {"dataType":"string","required":true},
-            "identityType": {"dataType":"string","required":true},
             "role": {"ref":"UserRoles","required":true},
             "organization": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
