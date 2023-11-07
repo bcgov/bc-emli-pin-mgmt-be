@@ -49,9 +49,17 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
             ? tokenPayload.idir_username
             : tokenPayload.bceid_username;
     tokenDetails.preferred_username = tokenPayload.preferred_username;
-    tokenDetails.given_name = tokenPayload.given_name;
+    tokenDetails.given_name =
+        identityType === 'idir'
+            ? tokenPayload.given_name
+            : tokenPayload.given_name.split(/\s+/)[0];
     tokenDetails.display_name = tokenPayload.display_name;
-    tokenDetails.family_name = tokenPayload.family_name;
+    tokenDetails.family_name =
+        identityType === 'idir'
+            ? tokenPayload.family_name
+            : tokenPayload.given_name.trim().search(/\s+/) > -1
+            ? tokenPayload.given_name.split(/\s+/).slice(1).join(' ')
+            : '';
     tokenDetails.email = tokenPayload.email;
     if (identityType === 'bceidbusiness') {
         tokenDetails.bceid_business_name = tokenPayload.bceid_business_name;
