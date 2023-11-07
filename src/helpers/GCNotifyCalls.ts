@@ -12,6 +12,25 @@ import logger from '../middleware/logger';
 const gCNotifyCaller = new GCNotifyCaller();
 
 /**
+ * Convert role into consistent string
+ * @param role sting
+ * @returns formattedRole: string
+ */
+function standardizeRole(role: string) {
+    let formattedRole: string = '';
+
+    if (role === 'Admin') {
+        formattedRole = 'Administrator';
+    } else if (role === 'SuperAdmin') {
+        formattedRole = 'System administrator';
+    } else if (role === 'Standard') {
+        formattedRole = 'Client support';
+    }
+
+    return formattedRole;
+}
+
+/**
  * Send GC Notify email notification upon access request.
  * @param accessRequestInfo contains requestedRole, givenName, lastName, and requestReason
  * @returns true: Boolean - if function runs without errors
@@ -42,10 +61,12 @@ export async function sendAccessRequestNotifications(
         const templateId =
             process.env.GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID;
 
+        const role: string = standardizeRole(accessRequestInfo.requestedRole);
+
         const personalisation = {
             given_name: accessRequestInfo.givenName,
             last_name: accessRequestInfo.lastName,
-            role: accessRequestInfo.requestedRole,
+            role: role,
             request_reason: accessRequestInfo.requestReason,
         };
 
@@ -83,7 +104,9 @@ export async function sendAccessApproveAndRejectNotifications(
             const email = requestBody.emails[i];
             const givenName = requestBody.givenNames[i];
             const lastName = requestBody.lastNames[i];
-            const requestedRole = requestBody.requestedRoles[i];
+            const requestedRole: string = standardizeRole(
+                requestBody.requestedRoles[i],
+            );
 
             const personalisation = {
                 given_name: givenName,
@@ -155,10 +178,12 @@ export async function sendUpdateUserNotifications(
     templateId: string,
 ) {
     try {
+        const role: string = standardizeRole(requestBody.role);
+
         const personalisation = {
             given_name: requestBody.givenName,
             last_name: requestBody.lastName,
-            new_role: requestBody.role,
+            new_role: role,
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
