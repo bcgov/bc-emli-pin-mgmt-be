@@ -1,11 +1,18 @@
 import { Users } from '../entity/Users';
 import { Permission } from '../entity/Permission';
 import { AppDataSource } from '../data-source';
-import { UserRoles, userDeactivateRequestBody } from '../helpers/types';
+import {
+    UserRoles,
+    userDeactivateRequestBody,
+    userUpdateRequestBody,
+} from '../helpers/types';
 import { FindOptionsOrderValue, UpdateResult } from 'typeorm';
 import logger from '../middleware/logger';
+import {
+    sendDeactiveUserNotifications,
+    sendUpdateUserNotifications,
+} from '../helpers/GCNotifyCalls';
 import { NotFoundError } from '../helpers/NotFoundError';
-import { sendDeactiveUserNotifications } from '../helpers/GCNotifyCalls';
 
 export async function findUser(
     select?: object,
@@ -85,19 +92,48 @@ export async function getUserList(where?: object): Promise<Users[] | any> {
 export async function updateUser(
     userId: object,
     updateFields: object,
+    requestBody: userUpdateRequestBody,
 ): Promise<any | undefined> {
-    const transactionReturn = (await AppDataSource.transaction(
-        async (manager) => {
-            const updatedRequest = await manager.update(
-                Users,
-                userId,
-                updateFields,
-            );
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const updatedRequest = await manager.update(
+                    Users,
+                    userId,
+                    updateFields,
+                );
 
-            return { updatedRequest };
-        },
-    )) as { updatedRequest: UpdateResult };
-    if (typeof transactionReturn.updatedRequest != 'undefined') {
+                const templateId =
+                    process.env.GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID!;
+
+                // Call GC Notify only if role is updated
+                if ('role' in updateFields) {
+                    const notificationResponse =
+                        await sendUpdateUserNotifications(
+                            requestBody,
+                            templateId,
+                        );
+
+                    if (notificationResponse) {
+                        return { updatedRequest };
+                    } else {
+                        throw new Error(
+                            `Error calling sendUpdateUserNotifications`,
+                        );
+                    }
+                } else {
+                    return { updatedRequest };
+                }
+            },
+        )) as { updatedRequest: UpdateResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while calling updateUser: ${err.message}`;
+            throw new Error(message);
+        }
+    }
+    if (typeof transactionReturn?.updatedRequest != 'undefined') {
         if (
             transactionReturn.updatedRequest.affected &&
             transactionReturn.updatedRequest.affected !== null

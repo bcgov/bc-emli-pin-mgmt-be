@@ -3,6 +3,7 @@ import {
     sendAccessApproveAndRejectNotifications,
     sendAccessRequestNotifications,
     sendDeactiveUserNotifications,
+    sendUpdateUserNotifications,
 } from '../../helpers/GCNotifyCalls';
 import {
     GCNotifyEmailErrorResponse,
@@ -10,6 +11,7 @@ import {
     AccessRequestBody,
     AccessRequestUpdateRequestBody,
     UserDeactivateRequestBody,
+    UserUpdateRequestBody,
 } from '../commonResponses';
 
 jest.mock('notifications-node-client', () => {
@@ -92,6 +94,32 @@ describe('GCNotify Calls tests', () => {
         });
         const response = await sendDeactiveUserNotifications(
             UserDeactivateRequestBody,
+            'fake-template-id',
+        );
+        expect(response).toBe(undefined);
+    });
+
+    test('testing successful sendUpdateUserNotifications() call', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+        const response = await sendUpdateUserNotifications(
+            UserUpdateRequestBody,
+            'fake-template-id',
+        );
+        expect(response).toBe(true);
+    });
+
+    test('testing successful sendUpdateUserNotifications()  call', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockImplementationOnce(async () => {
+            throw GCNotifyEmailErrorResponse;
+        });
+        const response = await sendUpdateUserNotifications(
+            UserUpdateRequestBody,
             'fake-template-id',
         );
         expect(response).toBe(undefined);
