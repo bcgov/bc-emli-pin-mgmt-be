@@ -222,8 +222,6 @@ export async function batchUpdatePin(
                         regenerateOrCreate = 'create';
                     }
 
-                    console.log(regenerateOrCreate);
-
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
 
                     // Update the log with the correct info
