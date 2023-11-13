@@ -216,11 +216,13 @@ export async function batchUpdatePin(
                     });
 
                     let regenerateOrCreate: string;
-                    if (pin) {
+                    if (pin?.pin) {
                         regenerateOrCreate = 'regenerate';
                     } else {
                         regenerateOrCreate = 'create';
                     }
+
+                    console.log(regenerateOrCreate);
 
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
 
