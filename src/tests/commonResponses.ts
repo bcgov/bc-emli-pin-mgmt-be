@@ -1,3 +1,4 @@
+import { Users } from '../entity/Users';
 import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
@@ -1084,3 +1085,22 @@ export const DeletePINSuccessResponse = {
     country: 'Canada',
     postalCode: null,
 };
+
+export const validFindUserResponse: Users[] = [
+    {
+        userId: '618ac8f9-07ce-4615-8388-b0396ebe7e1d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        role: 'SuperAdmin',
+        organization: 'abc',
+        email: 'example@test.com',
+        userName: 'Example',
+        givenName: 'Test',
+        lastName: 'User',
+        isActive: true,
+        updatedAt: null,
+        createdAt: new Date(Date.now()),
+        updatedBy: null,
+        deactivationReason: null,
+    },
+];

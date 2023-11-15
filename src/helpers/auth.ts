@@ -56,8 +56,13 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
     if (identityType === 'bceidbusiness') {
         tokenDetails.bceid_business_name = tokenPayload.bceid_business_name;
     }
-
-    const activeUser = await checkActiveUser(tokenDetails.user_guid);
+    let activeUser;
+    try {
+        activeUser = await checkActiveUser(tokenDetails.user_guid);
+    } catch (err) {
+        // this error is already logged in the previous function, so just set permissions to null
+        activeUser = { roleType: null, permissions: null };
+    }
     if (activeUser.roleType !== null && activeUser.permissions !== null) {
         tokenDetails.role = activeUser.roleType;
         tokenDetails.permissions = activeUser.permissions;
