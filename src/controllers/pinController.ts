@@ -1490,9 +1490,10 @@ export class PINController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
+        let matchId = '';
         try {
             const response = await findPin(
-                { pin: true, pids: true },
+                { pin: true, pids: true, livePinId: true },
                 { pin: requestBody.pin },
             );
             if (response.length < 1) {
@@ -1507,6 +1508,7 @@ export class PINController extends Controller {
                         for (const dbPid of sortedPids) {
                             if (resultPid === dbPid) {
                                 isMatch = true;
+                                matchId = result.livePinId;
                                 break outerLoop; // we have a match, can stop checking
                             }
                         }
@@ -1546,6 +1548,6 @@ export class PINController extends Controller {
                 });
             }
         }
-        return { verified: true };
+        return { verified: true, livePinId: matchId };
     }
 }

@@ -1216,6 +1216,7 @@ describe('Pin endpoints', () => {
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(200);
         expect(res.body.verified).toBeTruthy;
+        expect(res.body.livePinId).toEqual(ActivePINMultiResponse[0].livePinId);
     });
 
     test('verify PIN on API key not matching returns 400', async () => {
