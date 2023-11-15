@@ -101,8 +101,7 @@ export class AccessRequestController extends Controller {
             });
             if (request.length > 0) {
                 // there is already a request that has not yet been granted
-                const message =
-                    'There already exists an access request for this user. Please contact your administrator.';
+                const message = `There already exists an access request for this user: ${requestBody.userName}. Please contact your administrator.`;
                 logger.warn(message);
                 return duplicateErrorResponse(409, { message });
             }
@@ -110,7 +109,7 @@ export class AccessRequestController extends Controller {
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered TypeORM Error in createAccessRequest: ${err.message}`,
+                    `Encountered TypeORM Error for user:${requestBody.userName} in createAccessRequest: ${err.message}`,
                 );
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {
@@ -291,7 +290,7 @@ export class AccessRequestController extends Controller {
             permissions = payload.permissions;
             if (!permissions.includes('ACCESS_REQUEST')) {
                 throw new AuthenticationError(
-                    `Permission 'ACCESS_REQUEST' is not available for this user`,
+                    `Permission 'ACCESS_REQUEST' is not available for this user ${payload.username}`,
                     403,
                 );
             }
