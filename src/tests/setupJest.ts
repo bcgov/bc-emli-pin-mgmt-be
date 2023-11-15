@@ -1,3 +1,11 @@
 import { enableFetchMocks } from 'jest-fetch-mock';
 enableFetchMocks();
 process.env.JWT_SECRET = 'abcd';
+process.env.DB_HOST = 'localhost';
+process.env.DB_USERNAME = 'postgres';
+process.env.DB_PASSWORD = '';
+process.env.DB_NAME = 'postgres';
+process.env.DB_PORT = '5432';
+process.env.TYPEORM_SYNCHRONIZE = 'false';
+process.env.TYPEORM_LOGGING = 'true';
+process.env.VHERS_API_KEY = 'abcd';
