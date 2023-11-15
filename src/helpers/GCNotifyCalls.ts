@@ -199,3 +199,65 @@ export async function sendUpdateUserNotifications(
         logger.warn(message);
     }
 }
+
+/**
+ * Send GC Notify email notification upon PIN expiration.
+ * @param requestBody contains email, phone, propertyAddress for GC Notify call
+ * @param emailTemplateId GC Notify email template ID
+ * @param phoneTemplateId GC Notify phone template ID
+ * @returns true: Boolean - if function runs without errors
+ */
+export async function sendCreateRegenerateOrExpireNotification(
+    requestBody: any,
+    emailTemplateId: string,
+    phoneTemplateId: string,
+    PINToDelete: any,
+) {
+    try {
+        const personalisation = {
+            property_address: requestBody.propertyAddress,
+            pin: PINToDelete.pin,
+        };
+
+        if (requestBody.email && !requestBody.phoneNumber) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const gcNotifyEmailResponse =
+                await gCNotifyCaller.sendEmailNotification(
+                    emailTemplateId!,
+                    requestBody.email,
+                    personalisation,
+                );
+        } else if (requestBody.phoneNumber && !requestBody.email) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const gcNotifyPhoneResponse =
+                await gCNotifyCaller.sendPhoneNotification(
+                    phoneTemplateId!,
+                    requestBody.phoneNumber,
+                    personalisation,
+                );
+        } else if (requestBody.phoneNumber && requestBody.email) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const gcNotifyEmailAndPhoneResponse =
+                await gCNotifyCaller.sendEmailAndPhoneNotification(
+                    emailTemplateId!,
+                    phoneTemplateId!,
+                    requestBody.email,
+                    requestBody.phoneNumber,
+                    personalisation,
+                );
+
+            if (!gcNotifyEmailAndPhoneResponse) {
+                throw new Error(
+                    'Failed to send email and phone GC Notify Notification.',
+                );
+            }
+        }
+        return true;
+    } catch (err: any) {
+        if (err.code) {
+            const message = `Encountered ${err.code} error calling sendCreateRegenerateOrExpireNotification: ${err.message}`;
+            logger.warn(message);
+            throw new Error(message);
+        }
+    }
+}
