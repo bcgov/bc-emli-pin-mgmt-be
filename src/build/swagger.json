@@ -59,6 +59,9 @@
 					"verified": {
 						"type": "boolean"
 					},
+					"livePinId": {
+						"type": "string"
+					},
 					"reason": {
 						"$ref": "#/components/schemas/verifyPinErrorType"
 					}

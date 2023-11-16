@@ -657,6 +657,7 @@ export interface verifyPinRequestBody {
  */
 export interface verifyPinResponse {
     verified: boolean;
+    livePinId?: string;
     reason?: verifyPinErrorType;
 }
 
