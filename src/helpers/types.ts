@@ -801,3 +801,13 @@ export enum requestListQueryParam {
     pending = 'pending',
     completed = 'completed',
 }
+
+/**
+ * Intermediate address score results
+ */
+export interface addressScoreResults {
+    updateResults: any[];
+    borderlineResults: any[];
+    contactMessages: Set<string>;
+    weightsThresholds: any;
+}
