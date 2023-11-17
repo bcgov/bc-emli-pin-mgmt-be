@@ -1,3 +1,4 @@
+import { Users } from '../entity/Users';
 import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
@@ -1048,6 +1049,41 @@ export const SampleSuperAdminTokenPayload = {
     ],
 };
 
+export const NamelessTokenPayload = {
+    identity_provider: 'idir',
+    sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
+    idir_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
+    idir_username: '',
+    username: '',
+    given_name: '',
+    family_name: '',
+    preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
+    email: 'example@test.com',
+    role: 'SuperAdmin',
+    permissions: [
+        'USER_ACCESS',
+        'VIEW_PIN',
+        'PROPERTY_SEARCH',
+        'ACCESS_REQUEST',
+    ],
+};
+
+export const LastNameOnlyTokenPayload = {
+    identity_provider: 'idir',
+    sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
+    idir_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
+    preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
+    email: 'example@test.com',
+    role: 'SuperAdmin',
+    family_name: 'abcd',
+    permissions: [
+        'USER_ACCESS',
+        'VIEW_PIN',
+        'PROPERTY_SEARCH',
+        'ACCESS_REQUEST',
+    ],
+};
+
 export const SampleBCEIDBUsinessAdminTokenPayload = {
     identity_provider: 'bceidbusiness',
     sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
@@ -1083,4 +1119,61 @@ export const DeletePINSuccessResponse = {
     provinceLong: null,
     country: 'Canada',
     postalCode: null,
+};
+
+export const validFindUserResponse: Users[] = [
+    {
+        userId: '618ac8f9-07ce-4615-8388-b0396ebe7e1d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        role: 'SuperAdmin',
+        organization: 'abc',
+        email: 'example@test.com',
+        userName: 'Example',
+        givenName: 'Test',
+        lastName: 'User',
+        isActive: true,
+        updatedAt: null,
+        createdAt: new Date(Date.now()),
+        updatedBy: null,
+        deactivationReason: null,
+    },
+];
+
+export const weightsThresholds = {
+    thresholds: {
+        overallThreshold: 1,
+        borderlineThreshold: 0,
+        givenNameThreshold: 0.95,
+        lastNamesThreshold: 0.95,
+        incorporationNumberThreshold: 1,
+        ownerNumberThreshold: 1,
+        streetAddressThreshold: 0.85,
+        cityThreshold: 0.8,
+        provinceAbbreviationThreshold: 0.95,
+        countryThreshold: 0.8,
+        postalCodeThreshold: 1,
+    },
+    weights: {
+        givenNameWeight: 0.2,
+        lastNamesWeight: 0.2,
+        incorporationNumberWeight: 0.2,
+        ownerNumberWeight: 0.125,
+        streetAddressWeight: 0.125,
+        cityWeight: 0.02,
+        provinceAbbreviationWeight: 0.01,
+        countryWeight: 0.01,
+        postalCodeWeight: 0.31,
+    },
+    fuzzinessCoefficients: {
+        givenNameFuzzyCoefficient: 0.95,
+        lastNamesFuzzyCoefficient: 0.95,
+        incorporationNumberFuzzyCoefficient: 0,
+        streetAddressFuzzyCoefficient: 0.95,
+        cityFuzzyCoefficient: 0.95,
+        provinceAbbreviationFuzzyCoefficient: 0.95,
+        countryFuzzyCoefficient: 0.95,
+        postalCodeFuzzyCoefficient: 0,
+    },
+    streetAddressLooseMatchReductionCoefficient: 0.25,
 };

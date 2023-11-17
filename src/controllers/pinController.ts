@@ -33,6 +33,7 @@ import {
     UnauthorizedErrorResponse,
     InvalidTokenErrorResponse,
     forbiddenError,
+    addressScoreResults,
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
@@ -510,15 +511,12 @@ export class PINController extends Controller {
     }
 
     /**
-     * Internal method for creating or recreating a PIN for VHERS. The process is the same.
+     * Helper function to determine the address score
      */
-    private async createOrRecreatePin(
+    private async addressScoreRank(
         @Body() requestBody: createPinRequestBody,
-    ): Promise<updatedPIN[]> {
-        const gen: PINGenerator = new PINGenerator();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result: any[] = [];
-
+        scoreTrial?: boolean,
+    ): Promise<addressScoreResults> {
         // Validate that the input request is correct
         const faults = this.pinRequestBodyValidate(requestBody);
         if (faults.length > 0) {
@@ -540,15 +538,37 @@ export class PINController extends Controller {
             }
         }
 
-        // Find Active PIN entry (or entries if more than one pid to insert or update
-        let pinResults = await findPin(undefined, where);
+        let pinResults;
+        if (scoreTrial && scoreTrial === true) {
+            const select = {
+                livePinId: true,
+                pids: true,
+                titleNumber: true,
+                landTitleDistrict: true,
+                givenName: true,
+                lastName_1: true,
+                lastName_2: true,
+                incorporationNumber: true,
+                addressLine_1: true,
+                addressLine_2: true,
+                city: true,
+                provinceAbbreviation: true,
+                provinceLong: true,
+                country: true,
+                postalCode: true,
+            };
+            // Find Active PIN entry (or entries if more than one pid to insert or update
+            pinResults = await findPin(select, where);
+        } else {
+            pinResults = await findPin(undefined, where);
+        }
         pinResults = sortActivePinResults(pinResults);
 
         const updateResults = [];
         const borderlineResults = [];
-        const thresholds = (await this.dynamicImportCaller()).thresholds;
+        const weightsThresholds = await this.dynamicImportCaller();
         const pinResultKeys = Object.keys(pinResults);
-        const contactMessages = new Set();
+        const contactMessages = new Set<string>();
 
         if (pinResultKeys.length > 0) {
             for (const key of pinResultKeys) {
@@ -572,9 +592,14 @@ export class PINController extends Controller {
                         if (err instanceof Error) logger.error(err.message);
                         continue; // skip this entry
                     }
-                    if (
+                    if (scoreTrial && scoreTrial === true) {
+                        updateResults.push({
+                            ActivePin: pinResults[key][i],
+                            matchScore,
+                        });
+                    } else if (
                         matchScore.weightedAverage >=
-                        thresholds.overallThreshold
+                        weightsThresholds.thresholds.overallThreshold
                     ) {
                         updateResults.push({
                             ActivePin: pinResults[key][i],
@@ -582,7 +607,7 @@ export class PINController extends Controller {
                         });
                     } else if (
                         matchScore.weightedAverage >=
-                        thresholds.borderlineThreshold
+                        weightsThresholds.thresholds.borderlineThreshold
                     ) {
                         borderlineResults.push({
                             ActivePin: pinResults[key][i],
@@ -600,80 +625,123 @@ export class PINController extends Controller {
                     b.matchScore.weightedAverage - a.matchScore.weightedAverage,
             );
         }
+        return {
+            updateResults,
+            borderlineResults,
+            contactMessages,
+            weightsThresholds,
+        };
+    }
 
-        if (updateResults.length <= 0 && borderlineResults.length <= 0) {
-            let errMessage;
-            if (contactMessages.size > 0) {
-                errMessage = '';
-                for (const message of contactMessages) {
-                    errMessage += message + `\n`;
-                }
-                errMessage = errMessage.substring(0, errMessage.length - 1);
-            } else {
-                errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
-                let newLineFlag = false;
-                // Line 1
-                if (requestBody.givenName)
-                    errMessage += `${requestBody.givenName} `;
-                errMessage += `${requestBody.lastName_1} `;
-                if (requestBody.lastName_2)
-                    errMessage += `${requestBody.lastName_2} `;
-                if (requestBody.incorporationNumber)
-                    errMessage += `Inc. # ${requestBody.incorporationNumber}`;
-                // Line 2
-                if (requestBody.addressLine_1)
-                    errMessage += `\n${requestBody.addressLine_1}`;
-                // Line 3
-                if (requestBody.addressLine_2)
-                    errMessage += `\n${requestBody.addressLine_2}`;
-                // Line 4
-                if (requestBody.city) {
+    /**
+     * Helper function dealing with the error messages for the adress score
+     */
+    private noAddressResultErrMessage(
+        @Body() requestBody: createPinRequestBody,
+        contactMessages: Set<string>,
+    ): string {
+        let errMessage;
+        if (contactMessages.size > 0) {
+            errMessage = '';
+            for (const message of contactMessages) {
+                errMessage += message + `\n`;
+            }
+            errMessage = errMessage.substring(0, errMessage.length - 1);
+        } else {
+            errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
+            let newLineFlag = false;
+            // Line 1
+            if (requestBody.givenName)
+                errMessage += `${requestBody.givenName} `;
+            errMessage += `${requestBody.lastName_1} `;
+            if (requestBody.lastName_2)
+                errMessage += `${requestBody.lastName_2} `;
+            if (requestBody.incorporationNumber)
+                errMessage += `Inc. # ${requestBody.incorporationNumber}`;
+            // Line 2
+            if (requestBody.addressLine_1)
+                errMessage += `\n${requestBody.addressLine_1}`;
+            // Line 3
+            if (requestBody.addressLine_2)
+                errMessage += `\n${requestBody.addressLine_2}`;
+            // Line 4
+            if (requestBody.city) {
+                newLineFlag = true;
+                errMessage += `\n${requestBody.city}`;
+            }
+            if (requestBody.provinceAbbreviation) {
+                if (!newLineFlag) {
                     newLineFlag = true;
-                    errMessage += `\n${requestBody.city}`;
-                }
-                if (requestBody.provinceAbbreviation) {
-                    if (!newLineFlag) {
-                        newLineFlag = true;
-                        errMessage += `\n${requestBody.provinceAbbreviation}`;
-                    } else {
-                        errMessage += `, ${requestBody.provinceAbbreviation}`;
-                    }
-                }
-                if (requestBody.country) {
-                    if (!newLineFlag) {
-                        newLineFlag = true;
-                        errMessage += `\n${requestBody.country}`;
-                    } else {
-                        errMessage += `, ${requestBody.country}`;
-                    }
-                }
-                if (requestBody.postalCode) {
-                    if (!newLineFlag)
-                        errMessage += `\n${requestBody.postalCode}`;
-                    else errMessage += ` ${requestBody.postalCode}`;
+                    errMessage += `\n${requestBody.provinceAbbreviation}`;
+                } else {
+                    errMessage += `, ${requestBody.provinceAbbreviation}`;
                 }
             }
+            if (requestBody.country) {
+                if (!newLineFlag) {
+                    newLineFlag = true;
+                    errMessage += `\n${requestBody.country}`;
+                } else {
+                    errMessage += `, ${requestBody.country}`;
+                }
+            }
+            if (requestBody.postalCode) {
+                if (!newLineFlag) errMessage += `\n${requestBody.postalCode}`;
+                else errMessage += ` ${requestBody.postalCode}`;
+            }
+        }
+        return errMessage;
+    }
+    /**
+     * Internal method for creating or recreating a PIN for VHERS. The process is the same.
+     */
+    private async createOrRecreatePin(
+        @Body() requestBody: createPinRequestBody,
+    ): Promise<updatedPIN[]> {
+        const gen: PINGenerator = new PINGenerator();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result: any[] = [];
+
+        const score = await this.addressScoreRank(requestBody);
+
+        if (
+            score.updateResults.length <= 0 &&
+            score.borderlineResults.length <= 0
+        ) {
+            const errMessage = this.noAddressResultErrMessage(
+                requestBody,
+                score.contactMessages,
+            );
             throw new NotFoundError(errMessage);
-        } else if (updateResults.length <= 0 && borderlineResults.length > 0) {
+        } else if (
+            score.updateResults.length <= 0 &&
+            score.borderlineResults.length > 0
+        ) {
             // Give an error message related to the closest result
             let errMessage = `Close result: consider checking your `;
             if (
-                borderlineResults[0].matchScore.streetAddressScore <
-                thresholds.streetAddressThreshold
-            ) {
-                errMessage += `address`;
-            } else if (
-                borderlineResults[0].matchScore.postalCodeScore &&
-                borderlineResults[0].matchScore.postalCodeScore <
-                    thresholds.postalCodeThreshold
+                Object.hasOwn(
+                    score.borderlineResults[0].matchScore,
+                    'postalCodeScore',
+                ) &&
+                score.borderlineResults[0].matchScore.postalCodeScore <
+                    score.weightsThresholds.weights.postalCodeWeight
             ) {
                 errMessage += `postal code`;
             } else if (
-                borderlineResults[0].matchScore.incorporationNumberScore &&
-                borderlineResults[0].matchScore.incorporationNumberScore <
-                    thresholds.incorporationNumberThreshold
+                Object.hasOwn(
+                    score.borderlineResults[0].matchScore,
+                    'incorporationNumberScore',
+                ) &&
+                score.borderlineResults[0].matchScore.incorporationNumberScore <
+                    score.weightsThresholds.weights.incorporationNumberWeight
             ) {
                 errMessage += `incorporation number`;
+            } else if (
+                score.borderlineResults[0].matchScore.streetAddressScore <
+                score.weightsThresholds.weights.streetAddressWeight
+            ) {
+                errMessage += `address`;
             } else {
                 errMessage += `name`; // we're not going to tell them about things that barely affect
                 // the score like country or province, and if they got the number of owners
@@ -687,7 +755,7 @@ export class PINController extends Controller {
             requestBody.pinLength,
             requestBody.allowedChars,
         );
-        const resultToUpdate = updateResults[0].ActivePin; // this will be the one with the highest match score
+        const resultToUpdate = score.updateResults[0].ActivePin; // this will be the one with the highest match score
         resultToUpdate.pin = pin.pin;
         const emailPhone: emailPhone = {
             email: requestBody.email,
@@ -739,11 +807,15 @@ export class PINController extends Controller {
         }
         const username: string =
             payload.username && payload.username !== '' ? payload.username : '';
-        const name: string =
-            (payload.given_name || payload.family_name) &&
-            (payload.given_name !== '' || payload.family_name !== '')
-                ? payload.given_name + ' ' + payload.family_name
-                : '';
+        let name: string = '';
+        if (payload.given_name) {
+            name = payload.given_name;
+            if (payload.family_name) name = name + ' ' + payload.family_name;
+        } else if (payload.family_name) {
+            name = payload.family_name;
+        } else {
+            name = '';
+        }
         if (username === '' || name === '') {
             throw new AuthenticationError(
                 `Username or given / family name does not exist for requester`,
@@ -841,137 +913,14 @@ export class PINController extends Controller {
         @Body() requestBody: createPinRequestBody,
     ) {
         try {
-            // Validate that the input request is correct
-            const faults = this.pinRequestBodyValidate(requestBody);
-            if (faults.length > 0) {
-                throw new AggregateError(
-                    faults,
-                    'Validation Error(s) occured in createPin request body:',
-                );
-            }
-
-            // Grab input pid(s)
-            const pids: string[] = pidStringSplitAndSort(requestBody.pids);
-            let where;
-            if (pids.length === 1) {
-                where = { pids: Like(`%` + pids[0] + `%`) };
+            const score = await this.addressScoreRank(requestBody, true);
+            if (score.updateResults.length > 0) {
+                return score.updateResults[0];
             } else {
-                where = [];
-                for (let i = 0; i < pids.length; i++) {
-                    where.push({ pids: Like(`%` + pids[i] + `%`) });
-                }
-            }
-            const select = {
-                livePinId: true,
-                pids: true,
-                titleNumber: true,
-                landTitleDistrict: true,
-                givenName: true,
-                lastName_1: true,
-                lastName_2: true,
-                incorporationNumber: true,
-                addressLine_1: true,
-                addressLine_2: true,
-                city: true,
-                provinceAbbreviation: true,
-                provinceLong: true,
-                country: true,
-                postalCode: true,
-            };
-            // Find Active PIN entry (or entries if more than one pid to insert or update
-            let pinResults = await findPin(select, where);
-            pinResults = sortActivePinResults(pinResults);
-
-            const updateResults = [];
-            // const borderlineResults = [];
-            // const thresholds = (await this.dynamicImportCaller()).thresholds;
-            const pinResultKeys = Object.keys(pinResults);
-            const contactMessages = new Set();
-
-            if (pinResultKeys.length > 0) {
-                for (const key of pinResultKeys) {
-                    const titleOwners = pinResults[key].length;
-                    for (let i = 0; i < titleOwners; i++) {
-                        const matchScore = await this.pinResultValidate(
-                            requestBody,
-                            pinResults[key][i],
-                            titleOwners,
-                        );
-                        if (!('weightedAverage' in matchScore)) {
-                            // it's a string array
-                            for (const message of matchScore) {
-                                contactMessages.add(message);
-                            }
-                            continue; // bad match, skip
-                        } else {
-                            updateResults.push({
-                                ActivePin: pinResults[key][i],
-                                matchScore,
-                            });
-                        }
-                    }
-                }
-                updateResults.sort(
-                    (a, b) =>
-                        b.matchScore.weightedAverage -
-                        a.matchScore.weightedAverage,
+                const errMessage = this.noAddressResultErrMessage(
+                    requestBody,
+                    score.contactMessages,
                 );
-            }
-
-            if (updateResults.length > 0) {
-                return updateResults[0];
-            } else {
-                let errMessage;
-                if (contactMessages.size > 0) {
-                    errMessage = '';
-                    for (const message of contactMessages) {
-                        errMessage += message + `\n`;
-                    }
-                    errMessage = errMessage.substring(0, errMessage.length - 1);
-                } else {
-                    errMessage = `Pids ${requestBody.pids} does not match the address and name / incorporation number given:\n`;
-                    let newLineFlag = false;
-                    // Line 1
-                    if (requestBody.givenName)
-                        errMessage += `${requestBody.givenName} `;
-                    errMessage += `${requestBody.lastName_1} `;
-                    if (requestBody.lastName_2)
-                        errMessage += `${requestBody.lastName_2} `;
-                    if (requestBody.incorporationNumber)
-                        errMessage += `Inc. # ${requestBody.incorporationNumber}`;
-                    // Line 2
-                    if (requestBody.addressLine_1)
-                        errMessage += `\n${requestBody.addressLine_1}`;
-                    // Line 3
-                    if (requestBody.addressLine_2)
-                        errMessage += `\n${requestBody.addressLine_2}`;
-                    // Line 4
-                    if (requestBody.city) {
-                        newLineFlag = true;
-                        errMessage += `\n${requestBody.city}`;
-                    }
-                    if (requestBody.provinceAbbreviation) {
-                        if (!newLineFlag) {
-                            newLineFlag = true;
-                            errMessage += `\n${requestBody.provinceAbbreviation}`;
-                        } else {
-                            errMessage += `, ${requestBody.provinceAbbreviation}`;
-                        }
-                    }
-                    if (requestBody.country) {
-                        if (!newLineFlag) {
-                            newLineFlag = true;
-                            errMessage += `\n${requestBody.country}`;
-                        } else {
-                            errMessage += `, ${requestBody.country}`;
-                        }
-                    }
-                    if (requestBody.postalCode) {
-                        if (!newLineFlag)
-                            errMessage += `\n${requestBody.postalCode}`;
-                        else errMessage += ` ${requestBody.postalCode}`;
-                    }
-                }
                 throw new NotFoundError(errMessage);
             }
         } catch (err) {
@@ -1490,9 +1439,10 @@ export class PINController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
+        let matchId = '';
         try {
             const response = await findPin(
-                { pin: true, pids: true },
+                { pin: true, pids: true, livePinId: true },
                 { pin: requestBody.pin },
             );
             if (response.length < 1) {
@@ -1507,6 +1457,7 @@ export class PINController extends Controller {
                         for (const dbPid of sortedPids) {
                             if (resultPid === dbPid) {
                                 isMatch = true;
+                                matchId = result.livePinId;
                                 break outerLoop; // we have a match, can stop checking
                             }
                         }
@@ -1546,6 +1497,6 @@ export class PINController extends Controller {
                 });
             }
         }
-        return { verified: true };
+        return { verified: true, livePinId: matchId };
     }
 }

@@ -2,6 +2,7 @@ import GCNotifyCaller from '../../helpers/GCNotifyCaller';
 import {
     sendAccessApproveAndRejectNotifications,
     sendAccessRequestNotifications,
+    sendCreateRegenerateOrExpireNotification,
     sendDeactiveUserNotifications,
     sendUpdateUserNotifications,
 } from '../../helpers/GCNotifyCalls';
@@ -12,6 +13,7 @@ import {
     AccessRequestUpdateRequestBody,
     UserDeactivateRequestBody,
     UserUpdateRequestBody,
+    validCreatePinBodyName,
 } from '../commonResponses';
 
 jest.mock('notifications-node-client', () => {
@@ -121,6 +123,40 @@ describe('GCNotify Calls tests', () => {
         const response = await sendUpdateUserNotifications(
             UserUpdateRequestBody,
             'fake-template-id',
+        );
+        expect(response).toBe(undefined);
+    });
+
+    test('testing successful sendCreateRegenerateOrExpireNotification() call', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+        const response = await sendCreateRegenerateOrExpireNotification(
+            validCreatePinBodyName,
+            'fake-template-id',
+            'fake-template-id',
+            {
+                pin: '12345678',
+            },
+        );
+        expect(response).toBe(true);
+    });
+
+    test('testing successful sendCreateRegenerateOrExpireNotification()  call', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockImplementationOnce(async () => {
+            throw GCNotifyEmailErrorResponse;
+        });
+        const response = await sendCreateRegenerateOrExpireNotification(
+            validCreatePinBodyName,
+            'fake-email-template-id',
+            'fake-phone-template-id',
+            {
+                pin: '12345678',
+            },
         );
         expect(response).toBe(undefined);
     });

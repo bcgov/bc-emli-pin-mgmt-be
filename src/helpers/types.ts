@@ -657,6 +657,7 @@ export interface verifyPinRequestBody {
  */
 export interface verifyPinResponse {
     verified: boolean;
+    livePinId?: string;
     reason?: verifyPinErrorType;
 }
 
@@ -799,4 +800,14 @@ export enum userListQueryParam {
 export enum requestListQueryParam {
     pending = 'pending',
     completed = 'completed',
+}
+
+/**
+ * Intermediate address score results
+ */
+export interface addressScoreResults {
+    updateResults: any[];
+    borderlineResults: any[];
+    contactMessages: Set<string>;
+    weightsThresholds: any;
 }

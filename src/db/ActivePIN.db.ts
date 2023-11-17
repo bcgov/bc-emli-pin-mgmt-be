@@ -9,9 +9,7 @@ import {
 } from '../helpers/types';
 import logger from '../middleware/logger';
 import { PINController } from '../controllers/pinController';
-import GCNotifyCaller from '../helpers/GCNotifyCaller';
-
-const gCNotifyCaller = new GCNotifyCaller();
+import { sendCreateRegenerateOrExpireNotification } from '../helpers/GCNotifyCalls';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function findPin(
@@ -112,17 +110,6 @@ export async function deletePin(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const faults = await controller.pinRequestBodyValidate(requestBody);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let gcNotifyPhoneResponse;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let gcNotifyEmailResponse;
-    let gcNotifyEmailAndPhoneResponse;
-    const emailTemplateId: string =
-        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
-    const phoneTemplateId: string =
-        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
-    let personalisation;
-
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
             const PINToDelete = await manager.findOneOrFail(ActivePin, {
@@ -145,51 +132,28 @@ export async function deletePin(
                 },
             );
 
-            personalisation = {
-                property_address: requestBody.propertyAddress,
-                pin: PINToDelete.pin,
-            };
+            const emailTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+            const phoneTemplateId: string =
+                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
 
-            if (requestBody.email && !requestBody.phoneNumber) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                gcNotifyEmailResponse =
-                    await gCNotifyCaller.sendEmailNotification(
-                        emailTemplateId!,
-                        requestBody.email,
-                        personalisation,
-                    );
-            } else if (requestBody.phoneNumber && !requestBody.email) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                gcNotifyPhoneResponse =
-                    await gCNotifyCaller.sendPhoneNotification(
-                        phoneTemplateId!,
-                        requestBody.phoneNumber,
-                        personalisation,
-                    );
-            } else if (requestBody.phoneNumber && requestBody.email) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                gcNotifyEmailAndPhoneResponse =
-                    await gCNotifyCaller.sendEmailAndPhoneNotification(
-                        emailTemplateId!,
-                        phoneTemplateId!,
-                        requestBody.email,
-                        requestBody.phoneNumber,
-                        personalisation,
-                    );
+            const notificationResponse =
+                await sendCreateRegenerateOrExpireNotification(
+                    requestBody,
+                    emailTemplateId,
+                    phoneTemplateId,
+                    PINToDelete,
+                );
 
-                if (!gcNotifyEmailAndPhoneResponse) {
-                    throw new Error(
-                        'Failed to send email and phone GC Notify Notification.',
-                    );
-                }
-            } else if (!requestBody.phoneNumber && !requestBody.email) {
+            if (notificationResponse) {
+                return { PINToDelete, logInfo };
+            } else {
                 throw new Error(
-                    'Email or phone number is require to send GC Notify Notification',
+                    `Error calling sendCreateRegenerateOrExpireNotification`,
                 );
             }
 
             // TO DO: Query for User ID???
-            return { PINToDelete, logInfo };
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
 
@@ -236,15 +200,8 @@ export async function batchUpdatePin(
         expireName = requesterName;
         reason = expirationReason.CallCenterPinReset;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let gcNotifyPhoneResponse;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let gcNotifyEmailResponse;
     let emailTemplateId: string;
     let phoneTemplateId: string;
-    let gcNotifyEmailAndPhoneResponse;
-    let personalisation;
-
     let transactionReturn;
 
     for (let i = 0; i < updatedPins.length; i++) {
@@ -259,7 +216,7 @@ export async function batchUpdatePin(
                     });
 
                     let regenerateOrCreate: string;
-                    if (pin) {
+                    if (pin?.pin) {
                         regenerateOrCreate = 'regenerate';
                     } else {
                         regenerateOrCreate = 'create';
@@ -335,9 +292,10 @@ export async function batchUpdatePin(
                         }
                     }
 
-                    personalisation = {
-                        property_address: propertyAddress,
-                        pin: updatedPins[i].pin,
+                    const gcNotifyBody = {
+                        email: sendToInfo.email,
+                        phoneNumber: sendToInfo.phoneNumber,
+                        propertyAddress: propertyAddress,
                     };
 
                     regenerateOrCreate === 'create'
@@ -353,43 +311,21 @@ export async function batchUpdatePin(
                               process.env
                                   .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
 
-                    if (sendToInfo.email && !sendToInfo.phoneNumber) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        gcNotifyEmailResponse =
-                            await gCNotifyCaller.sendEmailNotification(
-                                emailTemplateId!,
-                                sendToInfo.email,
-                                personalisation,
-                            );
-                    } else if (sendToInfo.phoneNumber && !sendToInfo.email) {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        gcNotifyPhoneResponse =
-                            await gCNotifyCaller.sendPhoneNotification(
-                                phoneTemplateId!,
-                                sendToInfo.phoneNumber,
-                                personalisation,
-                            );
-                    } else if (sendToInfo.phoneNumber && sendToInfo.email) {
-                        gcNotifyEmailAndPhoneResponse =
-                            await gCNotifyCaller.sendEmailAndPhoneNotification(
-                                emailTemplateId!,
-                                phoneTemplateId!,
-                                sendToInfo.email,
-                                sendToInfo.phoneNumber,
-                                personalisation,
-                            );
-                        if (!gcNotifyEmailAndPhoneResponse) {
-                            throw new Error(
-                                'Failed to send email and phone GC Notify Notification.',
-                            );
-                        }
-                    } else if (!sendToInfo.phoneNumber && !sendToInfo.email) {
+                    const notificationResponse =
+                        await sendCreateRegenerateOrExpireNotification(
+                            gcNotifyBody,
+                            emailTemplateId,
+                            phoneTemplateId,
+                            updatedPins[i],
+                        );
+
+                    if (notificationResponse) {
+                        return [logInfo, regenerateOrCreate];
+                    } else {
                         throw new Error(
-                            'Email or phone number is require to send GC Notify Notification',
+                            `Error calling sendCreateRegenerateOrExpireNotification`,
                         );
                     }
-
-                    return [logInfo, regenerateOrCreate];
                 },
             )) as [logInfo: UpdateResult, regenerateOrCreate: string];
         } catch (err) {

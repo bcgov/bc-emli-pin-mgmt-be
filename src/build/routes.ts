@@ -51,6 +51,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "verified": {"dataType":"boolean","required":true},
+            "livePinId": {"dataType":"string"},
             "reason": {"ref":"verifyPinErrorType"},
         },
         "additionalProperties": false,

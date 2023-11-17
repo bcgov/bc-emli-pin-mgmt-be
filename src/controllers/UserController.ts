@@ -188,10 +188,11 @@ export class UserController extends Controller {
 
         // validate access
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            const userInfo = decodingJWT(req.cookies.token)?.payload;
+            permissions = userInfo?.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'USER_ACCESS' is not available for this user`,
+                    `Permission 'USER_ACCESS' is not available for this user: ${userInfo?.username}`,
                     403,
                 );
             }
@@ -244,7 +245,7 @@ export class UserController extends Controller {
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered TypeORM Error in update user: ${err.message}`,
+                    `Encountered TypeORM Error in update user: ${err.message} for ${requestBody.userId}:${requestBody.userName}`,
                 );
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {
@@ -283,7 +284,7 @@ export class UserController extends Controller {
             permissions = payload.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'USER_ACCESS' is not available for this user`,
+                    `Permission 'USER_ACCESS' is not available for this user: ${payload.username}`,
                     403,
                 );
             }
@@ -319,7 +320,7 @@ export class UserController extends Controller {
         }
 
         if (requestBody.userIds.length < 1) {
-            const message = 'Must provide at least of user id';
+            const message = 'Must provide at least one user id';
             logger.warn(message);
             return requiredFieldErrorResponse(422, { message });
         }
