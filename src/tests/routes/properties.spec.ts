@@ -7,10 +7,12 @@ import {
     geocodeParcelAPIResponse_2,
     ActivePINResponse,
     SampleSuperAdminTokenPayload,
+    NoPropertySearchTokenPayload,
 } from '../commonResponses';
 import { AxiosError } from 'axios';
 import { ActivePin } from '../../entity/ActivePin';
 import * as ActivePIN from '../../db/ActivePIN.db';
+import * as auth from '../../helpers/auth';
 import jwt from 'jsonwebtoken';
 
 let token: string;
@@ -166,6 +168,24 @@ describe('Properties endpoints', () => {
         expect(res.statusCode).toBe(403);
     });
 
+    test('/details should throw 403 error on not having the correct permissions', async () => {
+        const JWT_SECRET = 'abcd';
+        token = jwt.sign(NoPropertySearchTokenPayload, JWT_SECRET, {
+            expiresIn: 30 * 60 * 1000,
+        });
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(403);
+        expect(res.body.message).toBe(
+            `Permission 'PROPERTY_SEARCH' is not available for this user`,
+        );
+        token = jwt.sign(SampleSuperAdminTokenPayload, JWT_SECRET, {
+            expiresIn: 30 * 60 * 1000,
+        });
+    });
+
     test('/details Throw 404 not found error', async () => {
         jest.spyOn(axios, 'get').mockRejectedValueOnce({
             response: {
@@ -177,6 +197,18 @@ describe('Properties endpoints', () => {
             .set('Cookie', `token=${token}`)
             .send();
         expect(res.statusCode).toBe(404);
+    });
+
+    test('/details should throw 404 error on unknown jwt error', async () => {
+        jest.spyOn(auth, 'decodingJWT').mockImplementationOnce(() => {
+            throw new Error('Oops!');
+        });
+        const res = await request(app)
+            .get('/properties/details?siteID=123&role=Admin')
+            .set('Cookie', `token=${token}`)
+            .send();
+        expect(res.statusCode).toBe(404);
+        expect(res.body.message).toBe('Oops!');
     });
 
     test('/details Throw 500 error', async () => {
