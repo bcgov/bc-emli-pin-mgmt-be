@@ -1084,6 +1084,17 @@ export const LastNameOnlyTokenPayload = {
     ],
 };
 
+export const NoPropertySearchTokenPayload = {
+    identity_provider: 'idir',
+    sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
+    idir_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
+    preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
+    email: 'example@test.com',
+    role: 'SuperAdmin',
+    family_name: 'abcd',
+    permissions: ['USER_ACCESS', 'VIEW_PIN', 'ACCESS_REQUEST'],
+};
+
 export const SampleBCEIDBUsinessAdminTokenPayload = {
     identity_provider: 'bceidbusiness',
     sid: 'f2291e4e-ea0b-4eb4-bc35-06a9bb7d1eb4',
