@@ -367,25 +367,10 @@
 			},
 			"noPendingRequestFound": {
 				"description": "No Pending Request Found",
-				"properties": {
-					"message": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"message",
-					"code"
-				],
+				"properties": {},
 				"type": "object",
 				"additionalProperties": false,
-				"example": {
-					"message": "No pending request found",
-					"code": 204
-				}
+				"example": {}
 			},
 			"requestListQueryParam": {
 				"description": "The enum is for validation to get request list query param to retrieve\npending or non active users",
@@ -1478,6 +1463,16 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericTypeORMErrorType"
 								}
 							}
 						}

@@ -561,14 +561,9 @@ export interface accessRequestUpdateRequestBody {
 /**
  * No Pending Request Found
  * @example {
- * 	 "message": "No pending request found",
- *   "code": 204
  * }
  */
-export interface noPendingRequestFound {
-    message: string;
-    code: number;
-}
+export interface noPendingRequestFound {}
 
 /* A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
  */
