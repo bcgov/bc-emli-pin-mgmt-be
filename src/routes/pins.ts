@@ -83,6 +83,19 @@ pinsRouter.post('/expire', async (req: Request, res: Response) => {
     return res.send(response);
 });
 
+pinsRouter.post('/etl-expire', async (req: Request, res: Response) => {
+    const response = await controller.expirePinEtl(
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        () => {},
+        req.body,
+    );
+    return res.send(response);
+});
+
 pinsRouter.post('/verify', async (req: Request, res: Response) => {
     const response = await controller.verifyPin(
         () => {},
