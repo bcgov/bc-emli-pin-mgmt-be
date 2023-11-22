@@ -54,6 +54,7 @@ import { NonMatchingPidError } from '../helpers/NonMatchingPidError';
 import { authenticate } from '../middleware/authentication';
 import { AuthenticationError } from '../middleware/AuthenticationError';
 import { decodingJWT } from '../helpers/auth';
+import { RequiredFieldError } from '../helpers/RequiredFieldError';
 
 @Route('pins')
 export class PINController extends Controller {
@@ -1350,6 +1351,52 @@ export class PINController extends Controller {
         return PINObject;
     }
 
+    /** Private function to handle this for both the API Key and BCGov auth version */
+    private async pinExpiration(@Body() requestBody: expireRequestBody) {
+        // If expired by LTSA data feed, username and name should be defaulted
+        const expiredUsername =
+            requestBody.expirationReason === expirationReason.ChangeOfOwnership
+                ? 'dataimportjob'
+                : requestBody.expiredByUsername
+                ? requestBody.expiredByUsername
+                : '';
+        if (expiredUsername === '') {
+            const message =
+                'Must provide an expiration username when expiring a PIN';
+            logger.warn(message);
+            throw new RequiredFieldError(message);
+        }
+        let deletedPin: ActivePin | undefined;
+
+        try {
+            deletedPin = await deletePin(
+                requestBody,
+                requestBody.livePinId,
+                requestBody.expirationReason,
+                expiredUsername,
+            );
+        } catch (err) {
+            if (err instanceof EntityNotFoundError) {
+                logger.warn(
+                    `Encountered Entity Not Found Error in pinExpiration: ${err.message}`,
+                );
+                throw err;
+            } else if (err instanceof TypeORMError) {
+                logger.warn(
+                    `Encountered TypeORM Error in pinExpiration: ${err.message}`,
+                );
+                throw err;
+            } else if (err instanceof Error) {
+                logger.warn(
+                    `Encountered unknown Internal Server Error pinExpiration: ${err}`,
+                );
+                throw err;
+            }
+        }
+
+        return deletedPin;
+    }
+
     /**
      * Used for expiring pins by their id (livePinId). Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.
      * Expected error codes and messages:
@@ -1372,48 +1419,76 @@ export class PINController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Body() requestBody: expireRequestBody,
     ): Promise<ActivePin | undefined> {
-        // If expired by LTSA data feed, username and name should be defaulted
-        const expiredUsername =
-            requestBody.expirationReason === expirationReason.ChangeOfOwnership
-                ? 'dataimportjob'
-                : requestBody.expiredByUsername
-                ? requestBody.expiredByUsername
-                : '';
-        if (expiredUsername === '') {
-            const message =
-                'Must provide an expiration username when expiring a PIN';
-            logger.warn(message);
-            return requiredFieldErrorResponse(422, { message });
-        }
-        let deletedPin: ActivePin | undefined;
-
         try {
-            deletedPin = await deletePin(
-                requestBody,
-                requestBody.livePinId,
-                requestBody.expirationReason,
-                expiredUsername,
-            );
+            const deletedPin = await this.pinExpiration(requestBody);
+            return deletedPin;
         } catch (err) {
+            // errors already logged
+            if (err instanceof RequiredFieldError) {
+                return requiredFieldErrorResponse(422, {
+                    message: err.message,
+                });
+            }
             if (err instanceof EntityNotFoundError) {
-                logger.warn(
-                    `Encountered Entity Not Found Error in expirePin: ${err.message}`,
-                );
                 return entityErrorResponse(422, { message: err.message });
             } else if (err instanceof TypeORMError) {
-                logger.warn(
-                    `Encountered TypeORM Error in expirePin: ${err.message}`,
-                );
                 return typeORMErrorResponse(422, { message: err.message });
             } else if (err instanceof Error) {
-                logger.warn(
-                    `Encountered unknown Internal Server Error in expirePin: ${err}`,
-                );
                 return serverErrorResponse(500, { message: err.message });
             }
         }
+    }
 
-        return deletedPin;
+    /**
+     * Used for expiring pins by their id (livePinId) from the etl job. Requires a reason for expiration, and if not a change of ownership, the name and username of who is expiring the pin.
+     * Expected error codes and messages:
+     * - `422`
+     * 	-- `Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "id here"\n}`
+     * 	-- `Must provide an expiration name when expiring a PIN`
+     * 	-- `Must provide an expiration username when expiring a PIN`
+     * - `500`
+     * 	-- `Internal Server Error`
+     * @param requestBody The body of the request. Note that expiredByUsername is only required for reasons other than "CO" (change of ownership).
+     * @returns The deleted pin
+     */
+    @Security('vhers_api_key')
+    @Post('etl-expire')
+    public async expirePinEtl(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() entityErrorResponse: TsoaResponse<422, EntityNotFoundErrorType>,
+        @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
+        @Res()
+        requiredFieldErrorResponse: TsoaResponse<422, requiredFieldErrorType>,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+        @Body() requestBody: expireRequestBody,
+    ): Promise<ActivePin | undefined> {
+        try {
+            const deletedPin = await this.pinExpiration(requestBody);
+            return deletedPin;
+        } catch (err) {
+            // errors already logged
+            if (err instanceof RequiredFieldError) {
+                return requiredFieldErrorResponse(422, {
+                    message: err.message,
+                });
+            }
+            if (err instanceof EntityNotFoundError) {
+                return entityErrorResponse(422, { message: err.message });
+            } else if (err instanceof TypeORMError) {
+                return typeORMErrorResponse(422, { message: err.message });
+            } else if (err instanceof Error) {
+                return serverErrorResponse(500, { message: err.message });
+            }
+        }
     }
 
     /**
