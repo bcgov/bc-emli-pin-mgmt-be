@@ -443,6 +443,7 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "isActive": {"dataType":"boolean","required":true},
             "deactivationReason": {"dataType":"string","required":true},
+            "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
         },
         "additionalProperties": false,
     },

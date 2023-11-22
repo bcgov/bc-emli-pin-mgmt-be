@@ -67,6 +67,7 @@ export async function getUserList(where?: object): Promise<Users[] | any> {
             lastName: true,
             isActive: true,
             deactivationReason: true,
+            updatedAt: true,
         },
         where: where ? where : undefined,
         order: { createdAt: 'ASC' as FindOptionsOrderValue },
@@ -78,7 +79,6 @@ export async function getUserList(where?: object): Promise<Users[] | any> {
     } else {
         result = await repo.find(query);
     }
-
     return result;
 }
 /**

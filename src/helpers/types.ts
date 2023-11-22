@@ -444,7 +444,7 @@ export enum requestStatusType {
  * Request body for access request submission
  * @example
  * {
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -472,7 +472,7 @@ export interface accessRequestResponseBody {
  * @example
  * {
     "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -505,7 +505,7 @@ export interface accessRequest {
  * @example
  * {
     "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -697,7 +697,7 @@ export interface noActiveUserFound {
  * @example
  * {
     "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "role": "Admin",
     "organization": "Bc Service",
@@ -705,8 +705,9 @@ export interface noActiveUserFound {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
-    "isActive": "true",
+    "isActive": true,
     "deactivationReason": "To get access to site",
+	"updatedAt": "2023-08-25T15:12:59.764Z"
   }
  */
 export interface userList {
@@ -721,6 +722,7 @@ export interface userList {
     lastName: string;
     isActive: boolean;
     deactivationReason: string;
+    updatedAt: string | null;
 }
 
 /**
@@ -729,9 +731,9 @@ export interface userList {
  *
  * @export
  * @interface userUpdateRequestBody
- * @example
- *  "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+ * @example {
+   "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "role": "Admin",
     "organization": "Bc Service",
@@ -739,6 +741,7 @@ export interface userList {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
+ }
  */
 export interface userUpdateRequestBody {
     userId: string;
