@@ -83,14 +83,8 @@ export class AccessRequestController extends Controller {
             return requiredFieldErrorResponse(422, { message });
         }
 
-        if (requestBody.requestedRole === null) {
-            const message = 'Must provide an role for requested user.';
-            logger.warn(message);
-            return requiredFieldErrorResponse(422, { message });
-        }
-
         if (requestBody.requestReason === '') {
-            const message = 'Must provide an reason for requested user.';
+            const message = 'Must provide a reason for requested user.';
             logger.warn(message);
             return requiredFieldErrorResponse(422, { message });
         }
@@ -144,10 +138,11 @@ export class AccessRequestController extends Controller {
 
     @Get('')
     public async getAllRequests(
-        @Res() unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
-        @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
+        @Res() _unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
+        @Res() _badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
+        @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
         noPendingRequestFoundResponse: TsoaResponse<204, noPendingRequestFound>,
@@ -156,12 +151,14 @@ export class AccessRequestController extends Controller {
     ): Promise<Array<accessRequestList>> {
         let results: Array<accessRequestList> = [];
         let permissions: string[] = [];
-        // checking permissions for this api.
+        let payload = { permissions: [], username: '' };
+        // validate access
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            payload = decodingJWT(req.cookies.token)?.payload;
+            permissions = payload.permissions;
             if (!permissions.includes('ACCESS_REQUEST')) {
                 throw new AuthenticationError(
-                    `Permission 'ACCESS_REQUEST' is not available for this user`,
+                    `Permission 'ACCESS_REQUEST' is not available for the user '${payload.username}'`,
                     403,
                 );
             }
@@ -199,60 +196,24 @@ export class AccessRequestController extends Controller {
             const requestList = await getRequestList(where);
             if (requestList[0] === undefined) {
                 logger.warn(`Encountered a 204 message in getAllRequests.`);
-                /* const exception: notFoundError = {
-                    message: `Encountered a 204 message in getAllRequests. No ${status} request exists in the database`,
-                    code: 204,
-                };
-                throw exception; */
-
-                return noPendingRequestFoundResponse(204, {
-                    message: `Encountered a 204 message in getAllRequests. No ${status} request exists in the database`,
-                    code: 204,
-                });
+                return noPendingRequestFoundResponse(204, {}); // 204 must return an empty body
             }
             results = requestList;
-        } catch (err: any) {
-            if (err.code === 401) {
+        } catch (err) {
+            if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered 401 unauthorized error in getAllRequests: ${err.message}`,
+                    `Encountered TypeORMError in getAuditLogs: ${err.message}`,
                 );
-                return unauthorizedErrorResponse(401, {
+                return typeORMErrorResponse(422, {
                     message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 400) {
-                logger.warn(
-                    `Encountered 400 bad request error in getAllRequests: ${err.message}`,
-                );
-                return badRequestErrorResponse(400, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 403) {
-                logger.warn(
-                    `Encountered 403 forbidden error in getAllRequests: ${err.message}`,
-                );
-                return forbiddenErrorResponse(403, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 404) {
-                logger.warn(
-                    `Encountered 404 not found error in getAllRequests: ${err.message}`,
-                );
-                return notFoundErrorResponse(404, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else {
+                } as GenericTypeORMErrorType);
+            } else if (err instanceof Error) {
                 logger.warn(
                     `Encountered 500 unknown Internal Server Error in getAllRequests: ${err.message}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-        // Sort results
-        // results = this.sortDetailsResults(results);
         return results;
     }
 
@@ -290,7 +251,7 @@ export class AccessRequestController extends Controller {
             permissions = payload.permissions;
             if (!permissions.includes('ACCESS_REQUEST')) {
                 throw new AuthenticationError(
-                    `Permission 'ACCESS_REQUEST' is not available for this user ${payload.username}`,
+                    `Permission 'ACCESS_REQUEST' is not available for the user '${payload.username}'`,
                     403,
                 );
             }
@@ -317,21 +278,15 @@ export class AccessRequestController extends Controller {
         // validate inputs
         if (
             requestBody.action === requestStatusType.Rejected &&
-            requestBody.rejectionReason === ''
+            (requestBody.rejectionReason === '' ||
+                requestBody.rejectionReason === undefined)
         ) {
             const message = 'Must provide reason for rejection.';
             logger.warn(message);
             return requiredFieldErrorResponse(422, { message });
         }
-
-        if (requestBody.action === null || requestBody.action === undefined) {
-            const message = 'Must provide an action for update.';
-            logger.warn(message);
-            return requiredFieldErrorResponse(422, { message });
-        }
-
         if (requestBody.requestIds.length < 1) {
-            const message = 'Must provide at least of request id';
+            const message = 'Must provide at least 1 request id.';
             logger.warn(message);
             return requiredFieldErrorResponse(422, { message });
         }
@@ -359,7 +314,6 @@ export class AccessRequestController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-
         return;
     }
 }

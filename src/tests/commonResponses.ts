@@ -1,3 +1,4 @@
+import { AccessRequest } from '../entity/AccessRequest';
 import { Users } from '../entity/Users';
 import {
     accessRequestResponseBody,
@@ -1090,9 +1091,10 @@ export const NoPropertySearchTokenPayload = {
     idir_user_guid: '12FC98EA15007D2F704B95DEFC3D2DDF',
     preferred_username: '12fc98ea15007d2f704b95defc3d2ddf@idir',
     email: 'example@test.com',
+    username: 'abc',
     role: 'SuperAdmin',
     family_name: 'abcd',
-    permissions: ['USER_ACCESS', 'VIEW_PIN', 'ACCESS_REQUEST'],
+    permissions: [],
 };
 
 export const SampleBCEIDBUsinessAdminTokenPayload = {
@@ -1187,4 +1189,113 @@ export const weightsThresholds = {
         postalCodeFuzzyCoefficient: 0,
     },
     streetAddressLooseMatchReductionCoefficient: 0.25,
+};
+
+export const AccessRequestValidBody = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Admin',
+    organization: 'Bc Service',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    givenName: 'John',
+    lastName: 'Doe',
+    requestReason: 'To get access to site',
+};
+
+export const AccessRequestPostNoOrgIdir = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Admin',
+    organization: '',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    givenName: 'John',
+    lastName: 'Doe',
+    requestReason: 'To get access to site',
+};
+
+export const AccessRequestPostNoReason = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Admin',
+    organization: 'abcd',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    givenName: 'John',
+    lastName: 'Doe',
+    requestReason: '',
+};
+
+export const UserRequestPendingResponse: AccessRequest[] = [
+    {
+        requestId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        requestedRole: 'Standard',
+        organization: 'org',
+        email: 'abc@gov.ca',
+        userName: 'user',
+        givenName: 'User',
+        lastName: 'Name',
+        requestReason: 'To get access to site',
+        requestStatus: 'NotGranted',
+        rejectionReason: null,
+        createdAt: new Date(Date.now()),
+        updatedAt: null,
+        updatedBy: null,
+    },
+];
+
+export const UserRequestCompletedResponse: AccessRequest[] = [
+    {
+        requestId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        requestedRole: 'Standard',
+        organization: 'org',
+        email: 'abc@gov.ca',
+        userName: 'user',
+        givenName: 'User',
+        lastName: 'Name',
+        requestReason: 'To get access to site',
+        requestStatus: 'Granted',
+        rejectionReason: null,
+        createdAt: new Date(Date.now()),
+        updatedAt: null,
+        updatedBy: null,
+    },
+];
+
+export const ValidUpdateAccessRequestBody: accessRequestUpdateRequestBody = {
+    action: requestStatusType.Granted,
+    requestIds: [
+        '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        '82dc08e5-cbca-40c2-9d35-a4d1407d5f8e',
+    ],
+    emails: ['abc@gov.ca', 'def@gov.ca'],
+    givenNames: ['John', 'Jane'],
+    lastNames: ['Smith', 'Smith'],
+    requestedRoles: ['Admin', 'Admin'],
+};
+
+export const UpdateAccessRequestBodyNoReason: accessRequestUpdateRequestBody = {
+    action: requestStatusType.Rejected,
+    requestIds: [
+        '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        '82dc08e5-cbca-40c2-9d35-a4d1407d5f8e',
+    ],
+    emails: ['abc@gov.ca', 'def@gov.ca'],
+    givenNames: ['John', 'Jane'],
+    lastNames: ['Smith', 'Smith'],
+    requestedRoles: ['Admin', 'Admin'],
+};
+
+export const UpdateAccessRequestBodyNoIds = {
+    action: requestStatusType.Granted,
+    requestIds: [],
+    emails: ['abc@gov.ca', 'def@gov.ca'],
+    givenNames: ['John', 'Jane'],
+    lastNames: ['Smith', 'Smith'],
+    requestedRoles: ['Admin', 'Admin'],
 };

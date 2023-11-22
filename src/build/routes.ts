@@ -174,8 +174,6 @@ const models: TsoaRoute.Models = {
     "noPendingRequestFound": {
         "dataType": "refObject",
         "properties": {
-            "message": {"dataType":"string","required":true},
-            "code": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -537,10 +535,11 @@ export function RegisterRoutes(app: Router) {
 
             function AccessRequestController_getAllRequests(request: any, response: any, next: any) {
             const args = {
-                    unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
-                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
+                    _badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noPendingRequestFoundResponse: {"in":"res","name":"204","required":true,"ref":"noPendingRequestFound"},
                     status: {"in":"query","name":"status","required":true,"ref":"requestListQueryParam"},
