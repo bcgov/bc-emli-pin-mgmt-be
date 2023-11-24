@@ -1021,10 +1021,11 @@ export function RegisterRoutes(app: Router) {
 
             function UserController_getAllUsers(request: any, response: any, next: any) {
             const args = {
-                    unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
-                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
+                    _badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noActiveFoundResponse: {"in":"res","name":"204","required":true,"ref":"noActiveUserFound"},
                     active: {"in":"query","name":"active","required":true,"ref":"userListQueryParam"},

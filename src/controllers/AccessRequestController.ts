@@ -202,7 +202,7 @@ export class AccessRequestController extends Controller {
         } catch (err) {
             if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered TypeORMError in getAuditLogs: ${err.message}`,
+                    `Encountered TypeORMError in getAllRequests: ${err.message}`,
                 );
                 return typeORMErrorResponse(422, {
                     message: err.message,

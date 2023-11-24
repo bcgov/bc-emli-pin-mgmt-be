@@ -2567,6 +2567,16 @@
 							}
 						}
 					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericTypeORMErrorType"
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "",
 						"content": {

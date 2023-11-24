@@ -988,7 +988,7 @@ export const UserDeactivateRequestBody: userDeactivateRequestBody = {
     givenNames: ['John'],
     lastNames: ['Doe'],
     deactivationReason: 'Not allowed access',
-    userIds: ['123'],
+    userIds: ['82dc08e5-cbca-40c2-9d35-a4d1407d5f8d'],
 };
 
 export const UserUpdateRequestBody: userUpdateRequestBody = {
@@ -1298,4 +1298,67 @@ export const UpdateAccessRequestBodyNoIds = {
     givenNames: ['John', 'Jane'],
     lastNames: ['Smith', 'Smith'],
     requestedRoles: ['Admin', 'Admin'],
+};
+
+export const UserListSuccess = [
+    {
+        userId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        role: 'Admin',
+        organization: 'Bc Service',
+        email: 'abc@gov.ca',
+        userName: 'johndoe',
+        givenName: 'John',
+        lastName: 'Doe',
+        isActive: true,
+        updatedAt: '2023-08-25T15:12:59.764Z',
+    },
+];
+
+export const UserListSuccessDeactivated = [
+    {
+        userId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        userGuid: 'A84D1AB221334298956C47A7B623E983',
+        identityType: 'idir',
+        role: 'Admin',
+        organization: 'Bc Service',
+        email: 'abc@gov.ca',
+        userName: 'johndoe',
+        givenName: 'John',
+        lastName: 'Doe',
+        isActive: false,
+        deactivationReason: 'Invalid user',
+        updatedAt: '2023-08-25T15:12:59.764Z',
+    },
+];
+
+export const updateUserRequestBody = {
+    userId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    role: 'Standard',
+    organization: 'org',
+    email: 'abc@example.com',
+    userName: 'username',
+    givenName: 'givenName',
+    lastName: 'string',
+};
+
+export const updateUserExistingUser = [
+    {
+        userId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+        role: 'Admin',
+        organization: 'bcd',
+        email: 'bcd@example.com',
+        userName: 'username1',
+        givenName: 'givenName1',
+        lastName: 'string1',
+    },
+];
+
+export const UserDeactivateRequestBodyNoId = {
+    emails: ['abc@gov.ca'],
+    deactivationReason: 'Not allowed access',
+    givenNames: ['John'],
+    lastNames: ['Doe'],
+    userIds: [],
 };
