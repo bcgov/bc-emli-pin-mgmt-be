@@ -9,3 +9,5 @@ process.env.DB_PORT = '5432';
 process.env.TYPEORM_SYNCHRONIZE = 'false';
 process.env.TYPEORM_LOGGING = 'true';
 process.env.VHERS_API_KEY = 'abcd';
+process.env.OIDC_CLIENT_ID = 'abcd';
+process.env.OIDC_CLIENT_SECRET = 'abcd';
