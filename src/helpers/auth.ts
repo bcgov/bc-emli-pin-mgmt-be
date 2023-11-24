@@ -1,15 +1,14 @@
 import { checkActiveUser } from './userTokenHelper';
-import axios from 'axios';
+import { post } from 'axios';
 import { stringify } from 'qs';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 
-const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth` || '';
-const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token` || '';
-const OIDC_LOGOUT_URL = `${process.env.CSS_DOMAIN_NAME_URL}/logout` || '';
-const OIDC_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth` || '';
-const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout` || '';
-const JWT_SECRET = process.env.JWT_SECRET || '';
+const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth`;
+const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token`;
+const OIDC_LOGOUT_URL = `${process.env.CSS_DOMAIN_NAME_URL}/logout`;
+const OIDC_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth`;
+const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout`;
 
 const btoa = (input: string) => Buffer.from(input).toString('base64');
 const tokenExpiry = 30 * 60 * 1000;
@@ -99,6 +98,13 @@ export const getAuthorizationUrl = async ({
 
 // see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3
 export const getAccessToken = async ({ code }: any) => {
+    const JWT_SECRET =
+        process.env.JWT_SECRET && process.env.JWT_SECRET !== ''
+            ? process.env.JWT_SECRET
+            : '';
+    if (JWT_SECRET === '') {
+        throw new Error('No secret defined');
+    }
     const url = OIDC_TOKEN_URL;
     const params = {
         grant_type: process.env.OIDC_GRANT_TYPE,
@@ -126,7 +132,9 @@ export const getAccessToken = async ({ code }: any) => {
         };
     }
 
-    const { data } = await axios(config);
+    const { data } = Object.hasOwn(config, 'headers')
+        ? await post(url, config.data, { headers: config.headers })
+        : await post(url, config.data);
 
     const { access_token } = data;
     const userInfo = decodingJWT(access_token);
