@@ -57,16 +57,21 @@ export class UserController extends Controller {
      * -- 'Forbidden'
      * - 404
      * -- 'Not Found'
+     * - 422
+     * -- 'Type ORM Error'
+     * - 500
+     * -- 'Internal Server Error
      * @param active Status of the user
      * @returns A list of users based on active status
      */
 
     @Get('')
     public async getAllUsers(
-        @Res() unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
-        @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
+        @Res() _unauthorizedErrorResponse: TsoaResponse<401, unauthorizedError>,
+        @Res() _badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() forbiddenErrorResponse: TsoaResponse<403, forbiddenError>,
         @Res() notFoundErrorResponse: TsoaResponse<404, notFoundError>,
+        @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Res()
         noActiveFoundResponse: TsoaResponse<204, noActiveUserFound>,
@@ -75,12 +80,14 @@ export class UserController extends Controller {
     ): Promise<Array<userList>> {
         let results: Array<userList> = [];
         let permissions: string[] = [];
+        let payload = { username: '', permissions: [] };
         // checking permissions for this api.
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            payload = decodingJWT(req.cookies.token)?.payload;
+            permissions = payload.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'USER_ACCESS' is not available for this user`,
+                    `Permission 'USER_ACCESS' is not available for the user ${payload.username}`,
                     403,
                 );
             }
@@ -124,47 +131,21 @@ export class UserController extends Controller {
                 });
             }
             results = userList;
-        } catch (err: any) {
-            if (err.code === 401) {
+        } catch (err) {
+            if (err instanceof TypeORMError) {
                 logger.warn(
-                    `Encountered 401 unauthorized error in getAllUsers: ${err.message}`,
+                    `Encountered TypeORMError in getAllUsers: ${err.message}`,
                 );
-                return unauthorizedErrorResponse(401, {
+                return typeORMErrorResponse(422, {
                     message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 400) {
-                logger.warn(
-                    `Encountered 400 bad request error in getAllUsers: ${err.message}`,
-                );
-                return badRequestErrorResponse(400, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 403) {
-                logger.warn(
-                    `Encountered 403 forbidden error in getAllUsers: ${err.message}`,
-                );
-                return forbiddenErrorResponse(403, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 404) {
-                logger.warn(
-                    `Encountered 404 not found error in getAllUsers: ${err.message}`,
-                );
-                return notFoundErrorResponse(404, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else {
+                } as GenericTypeORMErrorType);
+            } else if (err instanceof Error) {
                 logger.warn(
                     `Encountered 500 unknown Internal Server Error in getAllUsers: ${err.message}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-
         return results;
     }
 
@@ -192,7 +173,7 @@ export class UserController extends Controller {
             permissions = userInfo?.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'USER_ACCESS' is not available for this user: ${userInfo?.username}`,
+                    `Permission 'USER_ACCESS' is not available for the user ${userInfo?.username}`,
                     403,
                 );
             }
@@ -220,6 +201,11 @@ export class UserController extends Controller {
         try {
             const userId = { userId: requestBody.userId };
             const existingUser = await findUser({}, userId);
+            if (existingUser.length < 1) {
+                throw new TypeORMError(
+                    `User with userId ${requestBody.userId} not found in database`,
+                );
+            }
             const updateFields = {
                 ...(existingUser[0].role !== requestBody.role && {
                     role: requestBody.role,
@@ -255,7 +241,6 @@ export class UserController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-
         return;
     }
 
@@ -284,7 +269,7 @@ export class UserController extends Controller {
             permissions = payload.permissions;
             if (!permissions.includes('USER_ACCESS')) {
                 throw new AuthenticationError(
-                    `Permission 'USER_ACCESS' is not available for this user: ${payload.username}`,
+                    `Permission 'USER_ACCESS' is not available for the user ${payload.username}`,
                     403,
                 );
             }
@@ -309,15 +294,6 @@ export class UserController extends Controller {
             }
         }
         // validate inputs
-
-        if (
-            requestBody.deactivationReason === null ||
-            requestBody.deactivationReason === undefined
-        ) {
-            const message = 'Must provide deactivation reason for user(s).';
-            logger.warn(message);
-            return requiredFieldErrorResponse(422, { message });
-        }
 
         if (requestBody.userIds.length < 1) {
             const message = 'Must provide at least one user id';
@@ -348,7 +324,6 @@ export class UserController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-
         return;
     }
 }
