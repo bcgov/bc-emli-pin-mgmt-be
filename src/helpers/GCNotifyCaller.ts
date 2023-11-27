@@ -223,7 +223,7 @@ export default class GCNotifyCaller {
                                 { personalisation: personalisation },
                             );
                         }
-                        return emailResponse | phoneResponse ? true : false;
+                        return emailResponse || phoneResponse ? true : false;
                     } catch {
                         let message =
                             `Error(s) sending GCNotify email & text - ` +
