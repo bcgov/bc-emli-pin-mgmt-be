@@ -1,4 +1,3 @@
-// import { Query } from 'tsoa';
 import { InsertResult, FindOptionsOrderValue, UpdateResult } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { AccessRequest } from '../entity/AccessRequest';
@@ -38,10 +37,8 @@ export async function createRequest(
                     AccessRequest,
                     newRequest,
                 );
-
                 const notificationResponse =
                     await sendAccessRequestNotifications(accessRequestInfo);
-
                 if (notificationResponse) {
                     return { createdRequest };
                 } else {
@@ -120,13 +117,11 @@ export async function updateRequestStatus(
                         'Request to update not found in database',
                     );
                 }
-
                 const notificationResponse =
                     await sendAccessApproveAndRejectNotifications(
                         requestBody,
                         templateId,
                     );
-
                 if (notificationResponse) {
                     return { updatedRequest };
                 } else {

@@ -192,6 +192,8 @@ describe('Active PIN db tests', () => {
             pins,
             emailPhone,
             propertyAddress,
+            'Username',
+            'Name',
         );
         expect(response[0].length).toBe(1);
         expect(response[0][0]).toBe(
@@ -231,6 +233,6 @@ describe('Active PIN db tests', () => {
                 [],
                 ['USER_ACCESS', 'PROPERTY_SEARCH', 'ACCESS_REQUEST'],
             ),
-        ).rejects.toThrowError(`No pids available for search`);
+        ).rejects.toThrow(`No pids available for search`);
     });
 });

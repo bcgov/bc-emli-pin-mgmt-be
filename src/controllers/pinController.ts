@@ -1366,6 +1366,27 @@ export class PINController extends Controller {
             logger.warn(message);
             throw new RequiredFieldError(message);
         }
+        if (
+            requestBody.expirationReason !==
+                expirationReason.ChangeOfOwnership &&
+            !requestBody.phoneNumber &&
+            !requestBody.email
+        ) {
+            const message =
+                'An email and/or phone number must be provided for non-system PIN expiration';
+            logger.warn(message);
+            throw new RequiredFieldError(message);
+        }
+        if (
+            requestBody.expirationReason !==
+                expirationReason.ChangeOfOwnership &&
+            !requestBody.propertyAddress
+        ) {
+            const message =
+                'Property address must be provided for non-system PIN expiration';
+            logger.warn(message);
+            throw new RequiredFieldError(message);
+        }
         let deletedPin: ActivePin | undefined;
 
         try {

@@ -1429,6 +1429,38 @@ describe('Pin endpoints', () => {
         );
     });
 
+    test('expire PIN should fail without email or phone for non-system expirations', async () => {
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+                propertyAddress: '123 example st',
+                expiredByUsername: 'jsmith',
+            })
+            .set('Cookie', `token=${token}`);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'An email and/or phone number must be provided for non-system PIN expiration',
+        );
+    });
+
+    test('expire PIN should fail without property address for non-system expirations', async () => {
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+                email: '123 example st',
+                expiredByUsername: 'jsmith',
+            })
+            .set('Cookie', `token=${token}`);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Property address must be provided for non-system PIN expiration',
+        );
+    });
+
     test('expire PIN without existing PIN returns 422', async () => {
         jest.clearAllMocks();
         jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {

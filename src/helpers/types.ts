@@ -279,7 +279,8 @@ export enum roleType {
 
 /**
  * The request body for a pin expiration request.
- * Note that expiredByUsername is only required for reasons other
+ * Note that expiredByUsername, propertyAddress, email and phone
+ * number are only required for reasons other
  * than "CO" (change of ownership).
  * @example {
  	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
@@ -293,11 +294,10 @@ export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
     expiredByUsername?: string;
-    propertyAddress: string;
+    propertyAddress?: string;
     phoneNumber?: string;
     email?: string;
 }
-// TODO: Change to look up by GUID??
 
 /**
  * The request body for a pin creation / recreation request.
