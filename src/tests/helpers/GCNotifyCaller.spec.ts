@@ -16,6 +16,10 @@ describe('GCNotify Caller tests', () => {
     afterEach(() => {
         process.env.GC_NOTIFY_RETRY_LIMIT = '2';
     });
+    test('construct GCNotifyCaller with not given retry limit', () => {
+        const caller = new GCNotifyCaller();
+        expect((caller as any).retryLimit).toBe(3);
+    });
     test('construct GCNotifyCaller with non-numeric retry limit', () => {
         process.env.GC_NOTIFY_RETRY_LIMIT = 'hijk';
         const caller = new GCNotifyCaller();

@@ -644,6 +644,20 @@ export const validCreatePinBodyName: createPinRequestBody = {
     propertyAddress: '123 example street',
 };
 
+export const validCreatePinBodyPhoneOnly: createPinRequestBody = {
+    phoneNumber: '19021234567',
+    pids: '1234|5678',
+    givenName: 'John',
+    lastName_1: 'Smith',
+    addressLine_1: '123 example st',
+    city: 'Vancouver',
+    provinceAbbreviation: 'BC',
+    country: 'Canada',
+    postalCode: 'V1V1V1',
+    numberOfOwners: 1,
+    propertyAddress: '123 example street',
+};
+
 export const validCreatePinBodySinglePid: createPinRequestBody = {
     lastName_1: 'None',
     email: 'example@example.com',
@@ -965,6 +979,18 @@ export const AccessRequestBody: accessRequestResponseBody = {
     userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
     identityType: 'idir',
     requestedRole: 'Admin',
+    organization: 'Bc Service',
+    email: 'abc@gov.ca',
+    userName: 'johndoe',
+    givenName: 'John',
+    lastName: 'Doe',
+    requestReason: 'To get access to site',
+};
+
+export const AccessRequestBodyStandard: accessRequestResponseBody = {
+    userGuid: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    identityType: 'idir',
+    requestedRole: 'Standard',
     organization: 'Bc Service',
     email: 'abc@gov.ca',
     userName: 'johndoe',
