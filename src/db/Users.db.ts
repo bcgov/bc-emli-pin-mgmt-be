@@ -83,11 +83,6 @@ export async function getUserList(where?: object): Promise<Users[] | any> {
 }
 /**
  * update user object with updated field value
- *
- * @export
- * @param {object} userId
- * @param {object} updateFields
- * @return {*}  affected row
  */
 export async function updateUser(
     userId: object,
@@ -95,6 +90,7 @@ export async function updateUser(
     requestBody: userUpdateRequestBody,
 ): Promise<any | undefined> {
     let transactionReturn;
+    const templateId = process.env.GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID!;
     try {
         transactionReturn = (await AppDataSource.transaction(
             async (manager) => {
@@ -103,10 +99,6 @@ export async function updateUser(
                     userId,
                     updateFields,
                 );
-
-                const templateId =
-                    process.env.GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID!;
-
                 // Call GC Notify only if role is updated
                 if ('role' in updateFields) {
                     const notificationResponse =
@@ -114,7 +106,6 @@ export async function updateUser(
                             requestBody,
                             templateId,
                         );
-
                     if (notificationResponse) {
                         return { updatedRequest };
                     } else {
@@ -166,6 +157,8 @@ export async function deactivateUsers(
     }
 
     let transactionReturn;
+    const templateId =
+        process.env.GC_NOTIFY_USER_DEACTIVATION_EMAIL_TEMPLATE_ID!;
 
     try {
         transactionReturn = (await AppDataSource.transaction(
@@ -180,16 +173,11 @@ export async function deactivateUsers(
                         'User(s) to deactivate not found in database',
                     );
                 }
-
-                const templateId =
-                    process.env.GC_NOTIFY_USER_DEACTIVATION_EMAIL_TEMPLATE_ID!;
-
                 const notificationResponse =
                     await sendDeactiveUserNotifications(
                         requestBody,
                         templateId,
                     );
-
                 if (notificationResponse) {
                     return { updatedUser };
                 } else {

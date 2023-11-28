@@ -363,7 +363,7 @@ const models: TsoaRoute.Models = {
             "livePinId": {"dataType":"string","required":true},
             "expirationReason": {"ref":"expirationReason","required":true},
             "expiredByUsername": {"dataType":"string"},
-            "propertyAddress": {"dataType":"string","required":true},
+            "propertyAddress": {"dataType":"string"},
             "phoneNumber": {"dataType":"string"},
             "email": {"dataType":"string"},
         },

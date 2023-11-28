@@ -926,7 +926,7 @@
 				"additionalProperties": false
 			},
 			"expireRequestBody": {
-				"description": "The request body for a pin expiration request.\nNote that expiredByUsername is only required for reasons other\nthan \"CO\" (change of ownership).",
+				"description": "The request body for a pin expiration request.\nNote that expiredByUsername, propertyAddress, email and phone\nnumber are only required for reasons other\nthan \"CO\" (change of ownership).",
 				"properties": {
 					"livePinId": {
 						"type": "string"
@@ -949,8 +949,7 @@
 				},
 				"required": [
 					"livePinId",
-					"expirationReason",
-					"propertyAddress"
+					"expirationReason"
 				],
 				"type": "object",
 				"additionalProperties": false,
