@@ -279,7 +279,8 @@ export enum roleType {
 
 /**
  * The request body for a pin expiration request.
- * Note that expiredByUsername is only required for reasons other
+ * Note that expiredByUsername, propertyAddress, email and phone
+ * number are only required for reasons other
  * than "CO" (change of ownership).
  * @example {
  	"livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae6",
@@ -293,11 +294,10 @@ export interface expireRequestBody {
     livePinId: string;
     expirationReason: expirationReason;
     expiredByUsername?: string;
-    propertyAddress: string;
+    propertyAddress?: string;
     phoneNumber?: string;
     email?: string;
 }
-// TODO: Change to look up by GUID??
 
 /**
  * The request body for a pin creation / recreation request.
@@ -444,7 +444,7 @@ export enum requestStatusType {
  * Request body for access request submission
  * @example
  * {
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -472,7 +472,7 @@ export interface accessRequestResponseBody {
  * @example
  * {
     "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -505,7 +505,7 @@ export interface accessRequest {
  * @example
  * {
     "requestId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "requestedRole": "Admin",
     "organization": "Bc Service",
@@ -561,14 +561,9 @@ export interface accessRequestUpdateRequestBody {
 /**
  * No Pending Request Found
  * @example {
- * 	 "message": "No pending request found",
- *   "code": 204
  * }
  */
-export interface noPendingRequestFound {
-    message: string;
-    code: number;
-}
+export interface noPendingRequestFound {}
 
 /* A list of scores from 0 to 1 of how close a "match" an address is to the provided request information
  */
@@ -702,7 +697,7 @@ export interface noActiveUserFound {
  * @example
  * {
     "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "role": "Admin",
     "organization": "Bc Service",
@@ -710,8 +705,9 @@ export interface noActiveUserFound {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
-    "isActive": "true",
+    "isActive": true,
     "deactivationReason": "To get access to site",
+	"updatedAt": "2023-08-25T15:12:59.764Z"
   }
  */
 export interface userList {
@@ -726,6 +722,7 @@ export interface userList {
     lastName: string;
     isActive: boolean;
     deactivationReason: string;
+    updatedAt: string | null;
 }
 
 /**
@@ -734,9 +731,9 @@ export interface userList {
  *
  * @export
  * @interface userUpdateRequestBody
- * @example
- *  "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-    "userGuid": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+ * @example {
+   "userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+    "userGuid": "A84D1AB221334298956C47A7B623E983",
     "identityType": "idir",
     "role": "Admin",
     "organization": "Bc Service",
@@ -744,6 +741,7 @@ export interface userList {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
+ }
  */
 export interface userUpdateRequestBody {
     userId: string;

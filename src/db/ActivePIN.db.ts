@@ -109,6 +109,10 @@ export async function deletePin(
     const controller = new PINController();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const faults = await controller.pinRequestBodyValidate(requestBody);
+    const emailTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
+    const phoneTemplateId: string =
+        process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
 
     const transactionReturn = (await AppDataSource.transaction(
         async (manager) => {
@@ -131,29 +135,25 @@ export async function deletePin(
                     alteredByUsername: expiredByUsername,
                 },
             );
-
-            const emailTemplateId: string =
-                process.env.GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID!;
-            const phoneTemplateId: string =
-                process.env.GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID!;
-
-            const notificationResponse =
-                await sendCreateRegenerateOrExpireNotification(
-                    requestBody,
-                    emailTemplateId,
-                    phoneTemplateId,
-                    PINToDelete,
-                );
-
-            if (notificationResponse) {
-                return { PINToDelete, logInfo };
+            if (reason !== expirationReason.ChangeOfOwnership) {
+                // etl should not send a notification
+                const notificationResponse =
+                    await sendCreateRegenerateOrExpireNotification(
+                        requestBody,
+                        emailTemplateId,
+                        phoneTemplateId,
+                        PINToDelete,
+                    );
+                if (notificationResponse) {
+                    return { PINToDelete, logInfo };
+                } else {
+                    throw new Error(
+                        `Error calling sendCreateRegenerateOrExpireNotification`,
+                    );
+                }
             } else {
-                throw new Error(
-                    `Error calling sendCreateRegenerateOrExpireNotification`,
-                );
+                return { PINToDelete, logInfo };
             }
-
-            // TO DO: Query for User ID???
         },
     )) as { PINToDelete: ActivePin; logInfo: UpdateResult };
 
@@ -214,16 +214,13 @@ export async function batchUpdatePin(
                             pin: Not(IsNull()),
                         },
                     });
-
                     let regenerateOrCreate: string;
                     if (pin?.pin) {
                         regenerateOrCreate = 'regenerate';
                     } else {
                         regenerateOrCreate = 'create';
                     }
-
                     await manager.save(updatedPins[i]); // this fires the trigger to create an audit log
-
                     // Update the log with the correct info
                     let log,
                         updateInfo = {};
@@ -291,13 +288,11 @@ export async function batchUpdatePin(
                             );
                         }
                     }
-
                     const gcNotifyBody = {
                         email: sendToInfo.email,
                         phoneNumber: sendToInfo.phoneNumber,
                         propertyAddress: propertyAddress,
                     };
-
                     regenerateOrCreate === 'create'
                         ? (emailTemplateId =
                               process.env
@@ -310,7 +305,6 @@ export async function batchUpdatePin(
                           (phoneTemplateId =
                               process.env
                                   .GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
-
                     const notificationResponse =
                         await sendCreateRegenerateOrExpireNotification(
                             gcNotifyBody,
@@ -318,7 +312,6 @@ export async function batchUpdatePin(
                             phoneTemplateId,
                             updatedPins[i],
                         );
-
                     if (notificationResponse) {
                         return [logInfo, regenerateOrCreate];
                     } else {

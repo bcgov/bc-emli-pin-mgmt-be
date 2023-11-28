@@ -32,6 +32,7 @@ accessRequestRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.params.status as requestListQueryParam,
         req,
     );

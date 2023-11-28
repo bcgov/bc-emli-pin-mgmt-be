@@ -174,8 +174,6 @@ const models: TsoaRoute.Models = {
     "noPendingRequestFound": {
         "dataType": "refObject",
         "properties": {
-            "message": {"dataType":"string","required":true},
-            "code": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -365,7 +363,7 @@ const models: TsoaRoute.Models = {
             "livePinId": {"dataType":"string","required":true},
             "expirationReason": {"ref":"expirationReason","required":true},
             "expiredByUsername": {"dataType":"string"},
-            "propertyAddress": {"dataType":"string","required":true},
+            "propertyAddress": {"dataType":"string"},
             "phoneNumber": {"dataType":"string"},
             "email": {"dataType":"string"},
         },
@@ -445,6 +443,7 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "isActive": {"dataType":"boolean","required":true},
             "deactivationReason": {"dataType":"string","required":true},
+            "updatedAt": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
         },
         "additionalProperties": false,
     },
@@ -537,10 +536,11 @@ export function RegisterRoutes(app: Router) {
 
             function AccessRequestController_getAllRequests(request: any, response: any, next: any) {
             const args = {
-                    unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
-                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
+                    _badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noPendingRequestFoundResponse: {"in":"res","name":"204","required":true,"ref":"noPendingRequestFound"},
                     status: {"in":"query","name":"status","required":true,"ref":"requestListQueryParam"},
@@ -892,6 +892,38 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/pins/etl-expire',
+            authenticateMiddleware([{"vhers_api_key":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(PINController)),
+            ...(fetchMiddlewares<RequestHandler>(PINController.prototype.expirePinEtl)),
+
+            function PINController_expirePinEtl(request: any, response: any, next: any) {
+            const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
+                    entityErrorResponse: {"in":"res","name":"422","required":true,"ref":"EntityNotFoundErrorType"},
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
+                    requiredFieldErrorResponse: {"in":"res","name":"422","required":true,"ref":"requiredFieldErrorType"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"expireRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new PINController();
+
+
+              const promise = controller.expirePinEtl.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/pins/verify',
             authenticateMiddleware([{"vhers_api_key":[]}]),
             ...(fetchMiddlewares<RequestHandler>(PINController)),
@@ -989,10 +1021,11 @@ export function RegisterRoutes(app: Router) {
 
             function UserController_getAllUsers(request: any, response: any, next: any) {
             const args = {
-                    unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
-                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"unauthorizedError"},
+                    _badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
                     notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     noActiveFoundResponse: {"in":"res","name":"204","required":true,"ref":"noActiveUserFound"},
                     active: {"in":"query","name":"active","required":true,"ref":"userListQueryParam"},

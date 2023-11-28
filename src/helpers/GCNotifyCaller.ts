@@ -62,7 +62,11 @@ export default class GCNotifyCaller {
         // Attempt to send email x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
-                if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+                if (
+                    personalisation &&
+                    Object.hasOwn(personalisation, 'pin') &&
+                    (personalisation as any).pin.length > 4
+                ) {
                     (personalisation as any).pin =
                         ((personalisation as any).pin as string).substring(
                             0,
@@ -80,16 +84,24 @@ export default class GCNotifyCaller {
                 );
                 return true;
             } catch (err) {
-                let message =
-                    `Error(s) sending GCNotify email - ` +
-                    (err as gcNotifyError).response.status +
-                    ` ` +
-                    (err as gcNotifyError).response.statusText +
-                    `:`;
-                for (const error of (err as gcNotifyError).response.data
-                    .errors) {
+                let message;
+                if ((err as any).response?.data?.errors) {
                     message =
-                        message + `\n` + error.error + `: ` + error.message;
+                        `Error(s) sending GCNotify email - ` +
+                        (err as gcNotifyError).response?.status +
+                        ` ` +
+                        (err as gcNotifyError).response?.statusText +
+                        `:`;
+
+                    for (const error of (err as gcNotifyError).response.data
+                        .errors) {
+                        message =
+                            message + `\n` + error.error + `: ` + error.message;
+                    }
+                } else {
+                    message =
+                        `Error sending GCNotify email - ` +
+                        (err as Error).message;
                 }
                 logger.error(message);
                 if (i + 1 === this.retryLimit) {
@@ -119,7 +131,11 @@ export default class GCNotifyCaller {
         // Attempt to send text x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
             try {
-                if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+                if (
+                    personalisation &&
+                    Object.hasOwn(personalisation, 'pin') &&
+                    (personalisation as any).pin.length > 4
+                ) {
                     (personalisation as any).pin =
                         ((personalisation as any).pin as string).substring(
                             0,
@@ -182,7 +198,11 @@ export default class GCNotifyCaller {
 
         // Attempt to send text x number of times. Throw error otherwise
         for (let i = 0; i < this.retryLimit; i++) {
-            if (personalisation && Object.hasOwn(personalisation, 'pin')) {
+            if (
+                personalisation &&
+                Object.hasOwn(personalisation, 'pin') &&
+                (personalisation as any).pin.length > 4
+            ) {
                 (personalisation as any).pin =
                     ((personalisation as any).pin as string).substring(0, 4) +
                     '-' +
@@ -223,7 +243,7 @@ export default class GCNotifyCaller {
                                 { personalisation: personalisation },
                             );
                         }
-                        return emailResponse | phoneResponse ? true : false;
+                        return emailResponse || phoneResponse ? true : false;
                     } catch {
                         let message =
                             `Error(s) sending GCNotify email & text - ` +

@@ -1429,6 +1429,38 @@ describe('Pin endpoints', () => {
         );
     });
 
+    test('expire PIN should fail without email or phone for non-system expirations', async () => {
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+                propertyAddress: '123 example st',
+                expiredByUsername: 'jsmith',
+            })
+            .set('Cookie', `token=${token}`);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'An email and/or phone number must be provided for non-system PIN expiration',
+        );
+    });
+
+    test('expire PIN should fail without property address for non-system expirations', async () => {
+        const res = await request(app)
+            .post('/pins/expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+                email: '123 example st',
+                expiredByUsername: 'jsmith',
+            })
+            .set('Cookie', `token=${token}`);
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Property address must be provided for non-system PIN expiration',
+        );
+    });
+
     test('expire PIN without existing PIN returns 422', async () => {
         jest.clearAllMocks();
         jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
@@ -1490,6 +1522,114 @@ describe('Pin endpoints', () => {
                 email: 'test@gmail.com',
             })
             .set('Cookie', `token=${token}`);
+        expect(res.statusCode).toBe(500);
+        expect(res.body.message).toBe('An unknown error occured');
+    });
+
+    /* 
+		/etl-expire endpoint tests 
+	*/
+    test('etl-expire PIN should return expired PIN', async () => {
+        jest.spyOn(
+            PINController.prototype as any,
+            'pinRequestBodyValidate',
+        ).mockResolvedValueOnce([]);
+
+        jest.spyOn(ActivePIN as any, 'deletePin').mockResolvedValueOnce(
+            DeletePINSuccessResponse,
+        );
+
+        const res = await request(app)
+            .post('/pins/etl-expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.ChangeOfOwnership,
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            })
+            .set({ 'x-api-key': key });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.livePinId).toBe('ca609097-7b4f-49a7-b2e9-efb78afb3ae6');
+    });
+
+    test('etl-expire PIN should fail without username for non-system expirations', async () => {
+        const res = await request(app)
+            .post('/pins/etl-expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae6',
+                expirationReason: expirationReason.CallCenterPinReset,
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Must provide an expiration username when expiring a PIN',
+        );
+    });
+
+    test('etl-expire PIN without existing PIN returns 422', async () => {
+        jest.clearAllMocks();
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new EntityNotFoundError(ActivePin, {
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            });
+        });
+        const res = await request(app)
+            .post('/pins/etl-expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            `Could not find any entity of type "ActivePin" matching: {\n    "livePinId": "ca609097-7b4f-49a7-b2e9-efb78afb3ae7",\n    "propertyAddress": "123 example st",\n    "email": "test@gmail.com"\n}`,
+        );
+    });
+
+    test('etl-expire PIN on generic TypeORM Error returns 422', async () => {
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new TypeORMError(
+                'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
+            );
+        });
+        const res = await request(app)
+            .post('/pins/etl-expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            })
+            .set({ 'x-api-key': key });
+        expect(res.statusCode).toBe(422);
+        expect(res.body.message).toBe(
+            'Could not remove ActivePin matching: {\n    livePinId: "ca609097-7b4f-49a7-b2e9-efb78afb3ae7"\n}',
+        );
+    });
+
+    test('etl-expire PIN on generic error returns 500', async () => {
+        jest.spyOn(ActivePIN, 'deletePin').mockImplementationOnce(async () => {
+            throw new Error('An unknown error occured');
+        });
+        const res = await request(app)
+            .post('/pins/etl-expire')
+            .send({
+                livePinId: 'ca609097-7b4f-49a7-b2e9-efb78afb3ae7',
+                expirationReason: expirationReason.CallCenterPinReset,
+                expiredByUsername: 'Test',
+                propertyAddress: '123 example st',
+                email: 'test@gmail.com',
+            })
+            .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe('An unknown error occured');
     });

@@ -16,7 +16,7 @@ const gCNotifyCaller = new GCNotifyCaller();
  * @param role sting
  * @returns formattedRole: string
  */
-function standardizeRole(role: string) {
+export function standardizeRole(role: string) {
     let formattedRole: string = '';
 
     if (role === 'Admin') {
@@ -49,13 +49,23 @@ export async function sendAccessRequestNotifications(
         }
         // Standard requests go to all admins, super-admins, vhers_admin
         else if (accessRequestInfo.requestedRole === 'Standard') {
-            emailAddresses.push({
-                email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
-            });
-            emailAddresses = await findUser({ email: true }, [
+            const result = await findUser({ email: true }, [
                 { role: 'Admin' },
                 { role: 'SuperAdmin' },
             ]);
+            // removing dupilcate emails
+            const map = new Map();
+            for (const item of result) {
+                if (!map.has(item.email)) {
+                    map.set(item.email, true);
+                    emailAddresses.push({
+                        email: item.email,
+                    });
+                }
+            }
+            emailAddresses.push({
+                email: process.env.GC_NOTIFY_VHERS_ADMIN_EMAIL!,
+            });
         }
 
         const templateId =
@@ -81,8 +91,9 @@ export async function sendAccessRequestNotifications(
 
         return true;
     } catch (err: any) {
-        if (err.code) {
-            const message = `Encountered ${err.code} error calling sendAccessRequestNotifications: ${err.message}`;
+        console.log('here');
+        if (err instanceof Error) {
+            const message = `Encountered ${err.name} calling sendAccessRequestNotifications: ${err.message}`;
             logger.warn(message);
             throw new Error(message);
         }
@@ -214,11 +225,14 @@ export async function sendCreateRegenerateOrExpireNotification(
     PINToDelete: any,
 ) {
     try {
-        const personalisation = {
+        const personalisation: any = {
             property_address: requestBody.propertyAddress,
-            pin: PINToDelete.pin,
         };
-
+        if (PINToDelete.pin) {
+            personalisation.pin = PINToDelete.pin;
+        } else {
+            personalisation.pin = ' '; // so we won't get an error sending an email with no pin
+        }
         if (requestBody.email && !requestBody.phoneNumber) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const gcNotifyEmailResponse =
@@ -254,8 +268,8 @@ export async function sendCreateRegenerateOrExpireNotification(
         }
         return true;
     } catch (err: any) {
-        if (err.code) {
-            const message = `Encountered ${err.code} error calling sendCreateRegenerateOrExpireNotification: ${err.message}`;
+        if (err instanceof Error) {
+            const message = `Encountered ${err.name} calling sendCreateRegenerateOrExpireNotification: ${err.message}`;
             logger.warn(message);
             throw new Error(message);
         }

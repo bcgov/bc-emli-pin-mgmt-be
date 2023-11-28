@@ -18,6 +18,7 @@ userRouter.get('', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
+        () => {},
         req.params.active as userListQueryParam,
         req,
     );
