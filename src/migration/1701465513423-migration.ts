@@ -3,16 +3,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class Migration1701465513423 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'public';
-        await queryRunner.query(
-            `DROP TYPE IF EXISTS ${schemaName}.endpoint_name`,
-        );
-        await queryRunner.query(
-            `CREATE TYPE ${schemaName}.endpoint_name AS ENUM ('/pins/vhers-create', '/pins/vhers-regenerate', '/pins/verify', '/virus-scan');`,
-        );
         await queryRunner.query(`CREATE TABLE IF NOT EXISTS ${schemaName}."vhers_audit_log" (
 			log_id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
 			response_time_ms REAL NOT NULL,
-			endpoint_name ${schemaName}.endpoint_name NOT NULL,
+			endpoint_name VARCHAR NOT NULL,
 			status_code INTEGER NOT NULL,
 			created_at TIMESTAMPZ NOT NULL DEFAULT now(),
 			request_body JSON,
@@ -24,9 +18,6 @@ export class Migration1701465513423 implements MigrationInterface {
         const schemaName = process.env.NODE_ENV === 'test' ? 'test' : 'public';
         await queryRunner.query(
             `DROP TABLE IF EXISTS ${schemaName}."vhers_audit_log";`,
-        );
-        await queryRunner.query(
-            `DROP TYPE IF EXISTS ${schemaName}.endpoint_name`,
         );
     }
 }

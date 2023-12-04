@@ -13,20 +13,8 @@ export class VhersAuditLog {
     @Column('real', { name: 'response_time_ms', precision: 24 })
     responseTimeMs: number;
 
-    @Column('enum', {
-        name: 'endpoint_name',
-        enum: [
-            '/pins/vhers-create',
-            '/pins/vhers-regenerate',
-            '/pins/verify',
-            '/virus-scan',
-        ],
-    })
-    endpointName:
-        | '/pins/vhers-create'
-        | '/pins/vhers-regenerate'
-        | '/pins/verify'
-        | '/virus-scan';
+    @Column('character varying', { name: 'endpoint_name' })
+    endpointName: string;
 
     @Column('integer', { name: 'status_code' })
     statusCode: number;
