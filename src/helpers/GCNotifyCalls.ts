@@ -91,7 +91,6 @@ export async function sendAccessRequestNotifications(
 
         return true;
     } catch (err: any) {
-        console.log('here');
         if (err instanceof Error) {
             const message = `Encountered ${err.name} calling sendAccessRequestNotifications: ${err.message}`;
             logger.warn(message);
