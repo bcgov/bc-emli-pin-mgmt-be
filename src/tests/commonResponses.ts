@@ -1,5 +1,6 @@
 import { AccessRequest } from '../entity/AccessRequest';
 import { Users } from '../entity/Users';
+import { VhersAuditLog } from '../entity/VhersAuditLog';
 import {
     accessRequestResponseBody,
     accessRequestUpdateRequestBody,
@@ -1387,4 +1388,14 @@ export const UserDeactivateRequestBodyNoId = {
     givenNames: ['John'],
     lastNames: ['Doe'],
     userIds: [],
+};
+
+export const VHERSAuditLogResponse: VhersAuditLog = {
+    logId: '82dc08e5-cbca-40c2-9d35-a4d1407d5f8d',
+    responseTimeMs: 123.45,
+    statusCode: 500,
+    endpointName: 'POST /pins/verify',
+    createdAt: new Date(),
+    requestBody: null,
+    responseBody: null,
 };
