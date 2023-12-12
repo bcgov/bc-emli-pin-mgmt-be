@@ -40,15 +40,14 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
-  jobs:
-    zap-owasp:
-      uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
-      with:
-        ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
-        ZAP_TARGET_URL: http://www.itsecgames.com
-        ZAP_DURATION: '2'
-        ZAP_MAX_DURATION: '5'
-        ZAP_GCP_PUBLISH: false
+  zap-owasp:
+    uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
+    with:
+      ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
+      ZAP_TARGET_URL: http://www.itsecgames.com
+      ZAP_DURATION: '2'
+      ZAP_MAX_DURATION: '5'
+      ZAP_GCP_PUBLISH: false
   
   build:
     runs-on: ubuntu-latest
