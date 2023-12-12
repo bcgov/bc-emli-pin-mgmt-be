@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
+      matrix: 
         language: [ 'javascript' ]
 
     steps:
