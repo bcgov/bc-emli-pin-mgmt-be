@@ -39,6 +39,25 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
 
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Penetration Tests
+    env:
+      DOMAIN: apps.silver.devops.gov.bc.ca
+      PREFIX: ${{ github.event.repository.name }}-test
+    strategy:
+      matrix:
+        name: [backend-go, backend-java, backend-py]
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          allow_issue_writing: true
+          artifact_name: "zap_${{ matrix.name }}"
+          cmd_options: "-a"
+          issue_title: "ZAP: ${{ matrix.name }}"
+          target: https://${{ env.PREFIX }}-${{ matrix.name }}.${{ env.DOMAIN }}
+
   build:
     runs-on: ubuntu-latest
 
