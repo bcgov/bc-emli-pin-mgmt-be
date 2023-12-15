@@ -24,6 +24,7 @@ export async function authenticate(
                 .status(401)
                 .json({ result: 'Token verification failed' });
         }
+        // check for role info on the token
         if (
             (verified as any).role === null ||
             (verified as any).role === undefined
