@@ -3,7 +3,6 @@ import { post } from 'axios';
 import { stringify } from 'qs';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import logger from '../middleware/logger';
 
 const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth`;
 const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token`;
@@ -59,15 +58,6 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
     }
     let activeUser;
     try {
-        if (
-            tokenDetails.user_guid === undefined ||
-            tokenDetails.user_guid === null
-        ) {
-            logger.error(
-                `prepareTokenInfo error: No user_guid was provided in token`,
-            );
-            throw new Error(``);
-        }
         activeUser = await checkActiveUser(tokenDetails.user_guid);
     } catch (err) {
         // this error is already logged in the previous function, so just set permissions to null
@@ -77,6 +67,7 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
         tokenDetails.role = activeUser.roleType;
         tokenDetails.permissions = activeUser.permissions;
     }
+
     return tokenDetails;
 };
 

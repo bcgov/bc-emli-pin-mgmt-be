@@ -167,7 +167,6 @@ export class PINController extends Controller {
         if (
             pinResult.addressLine_1 === undefined ||
             pinResult.addressLine_1 === null ||
-            pinResult.addressLine_1 === '' ||
             pinResult.addressLine_1.trim().toUpperCase() ===
                 'NO ADDRESS ON FILE FOR THIS OWNER'
         ) {
@@ -177,20 +176,16 @@ export class PINController extends Controller {
         }
         if (
             pinResult.lastName_1 === undefined ||
-            pinResult.lastName_1 === null ||
-            pinResult.lastName_1 === ''
+            pinResult.lastName_1 === null
         ) {
             faults.push(
                 'No legal name or corporation name is on file for this owner: please contact service BC to create or recreate your PIN',
             );
         }
         if (
-            (pinResult.city === undefined ||
-                pinResult.city === null ||
-                pinResult.city === '') &&
+            (pinResult.city === undefined || pinResult.city === null) &&
             (pinResult.postalCode === undefined ||
-                pinResult.postalCode === null ||
-                pinResult.postalCode === '')
+                pinResult.postalCode === null)
         ) {
             faults.push(
                 'No city or postal / zip code is on file for this owner: please contact service BC to create or recreate your PIN',
@@ -218,11 +213,7 @@ export class PINController extends Controller {
             postalCodeScore = NaN;
 
         // If given name is present, it isn't a corporation. These only have lastName_1 and sometimes lastName_2
-        if (
-            pinResult.givenName !== null &&
-            pinResult.givenName !== undefined &&
-            pinResult.givenName !== ''
-        ) {
+        if (pinResult.givenName !== null && pinResult.givenName !== undefined) {
             if (
                 requestBody.givenName === null ||
                 requestBody.givenName === undefined
@@ -242,8 +233,7 @@ export class PINController extends Controller {
             // it's a corporation
             if (
                 pinResult.incorporationNumber !== null &&
-                pinResult.incorporationNumber !== undefined &&
-                pinResult.incorporationNumber !== ''
+                pinResult.incorporationNumber !== undefined
             ) {
                 if (
                     requestBody.incorporationNumber === null ||
@@ -276,11 +266,7 @@ export class PINController extends Controller {
         )
             combinedRequestLastNames += ' ' + requestBody.lastName_2.trim();
         combinedResultLastNames = pinResult.lastName_1;
-        if (
-            pinResult.lastName_2 !== null &&
-            pinResult.lastName_2 !== undefined &&
-            pinResult.lastName_2 !== ''
-        )
+        if (pinResult.lastName_2 !== null && pinResult.lastName_2 !== undefined)
             combinedResultLastNames += ' ' + pinResult.lastName_2.trim();
         lastNamesScore = this.score(
             combinedResultLastNames,
@@ -306,8 +292,7 @@ export class PINController extends Controller {
         combinedResultAddress = pinResult.addressLine_1;
         if (
             pinResult.addressLine_2 !== null &&
-            pinResult.addressLine_2 !== undefined &&
-            pinResult.addressLine_2 !== ''
+            pinResult.addressLine_2 !== undefined
         )
             combinedResultAddress += ' ' + pinResult.addressLine_2.trim();
         streetAddressScore = this.score(
@@ -318,11 +303,7 @@ export class PINController extends Controller {
         );
 
         // City
-        if (
-            pinResult.city !== null &&
-            pinResult.city !== undefined &&
-            pinResult.city !== ''
-        ) {
+        if (pinResult.city !== null && pinResult.city !== undefined) {
             if (requestBody.city === null || requestBody.city === undefined)
                 cityScore = 0;
             else {
@@ -339,8 +320,7 @@ export class PINController extends Controller {
         // Province Abbreviation
         if (
             pinResult.provinceAbbreviation !== null &&
-            pinResult.provinceAbbreviation !== undefined &&
-            pinResult.provinceAbbreviation !== ''
+            pinResult.provinceAbbreviation !== undefined
         ) {
             if (
                 requestBody.provinceAbbreviation === null ||
@@ -363,11 +343,7 @@ export class PINController extends Controller {
         }
 
         // Country
-        if (
-            pinResult.country !== null &&
-            pinResult.country !== undefined &&
-            pinResult.country !== ''
-        ) {
+        if (pinResult.country !== null && pinResult.country !== undefined) {
             if (
                 requestBody.country === null ||
                 requestBody.country === undefined
@@ -388,8 +364,7 @@ export class PINController extends Controller {
         // Postal Code
         if (
             pinResult.postalCode !== null &&
-            pinResult.postalCode !== undefined &&
-            pinResult.postalCode !== ''
+            pinResult.postalCode !== undefined
         ) {
             if (
                 requestBody.postalCode === null ||

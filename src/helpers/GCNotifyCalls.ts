@@ -91,6 +91,7 @@ export async function sendAccessRequestNotifications(
 
         return true;
     } catch (err: any) {
+        console.log('here');
         if (err instanceof Error) {
             const message = `Encountered ${err.name} calling sendAccessRequestNotifications: ${err.message}`;
             logger.warn(message);
@@ -110,7 +111,7 @@ export async function sendAccessApproveAndRejectNotifications(
     templateId: string,
 ) {
     try {
-        for (let i = 0; i < Math.min(requestBody.emails.length, 1000); i++) {
+        for (let i = 0; i < requestBody.emails.length; i++) {
             const email = requestBody.emails[i];
             const givenName = requestBody.givenNames[i];
             const lastName = requestBody.lastNames[i];
@@ -151,7 +152,7 @@ export async function sendDeactiveUserNotifications(
     templateId: string,
 ) {
     try {
-        for (let i = 0; i < Math.min(requestBody.emails.length, 1000); i++) {
+        for (let i = 0; i < requestBody.emails.length; i++) {
             const email = requestBody.emails[i];
             const givenName = requestBody.givenNames[i];
             const lastName = requestBody.lastNames[i];

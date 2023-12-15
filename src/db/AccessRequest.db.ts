@@ -61,7 +61,7 @@ export async function createRequest(
             transactionReturn.createdRequest.identifiers !== null
         ) {
             logger.debug(
-                `Successfully created an access request with id '${transactionReturn.createdRequest.identifiers[0].requestId}'`,
+                `Successfully created an access request with id  '${transactionReturn.createdRequest.identifiers}'`,
             );
             return transactionReturn.createdRequest.identifiers;
         }

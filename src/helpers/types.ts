@@ -809,12 +809,3 @@ export interface addressScoreResults {
     contactMessages: Set<string>;
     weightsThresholds: any;
 }
-
-/**
- * URLs we will keep track of in the vhers audit log table
- */
-export enum AuditedURLMethods {
-    verify = 'POST /pins/verify',
-    vhersCreate = 'POST /pins/vhers-create',
-    vhersRegenerate = 'POST /pins/vhers-regenerate',
-}

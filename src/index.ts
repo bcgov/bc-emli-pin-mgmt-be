@@ -11,7 +11,6 @@ import { AppDataSource } from './data-source';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { AuthenticationError } from './middleware/AuthenticationError';
-import { responseLogger, startTime } from './middleware/responseLogger';
 
 declare module 'express-session' {
     export interface SessionData {
@@ -27,8 +26,6 @@ const port: number =
     process.env.SERVER_PORT && process.env.SERVER_PORT !== '3000'
         ? parseInt(process.env.SERVER_PORT as string)
         : 3000;
-
-app.use(startTime);
 // TO-DO: update after testing in dev
 const setHeaderURL = FE_APP_URL?.includes('localhost') ? '*' : FE_APP_URL;
 // Add headers before the routes are defined
@@ -92,10 +89,9 @@ if (process.env.FE_APP_URL?.includes('localhost')) {
 
 // Middleware configuration
 app.use(express.json());
+app.use(morganConfig);
 app.use(express.static('public'));
 app.use(cookieParser());
-app.use(morganConfig);
-app.use(responseLogger);
 
 // Route configuration
 app.use('/api-specs', swaggerUI.serve, async (req: Request, res: Response) => {
@@ -108,7 +104,7 @@ app.use(router);
 
 // tsoa error handling
 app.use(function notFoundHandler(_req, res: Response) {
-    res.status(404).json({
+    res.status(404).send({
         message: 'Not Found',
     });
 });
