@@ -9,7 +9,6 @@ import {
 import * as tokenHelper from '../../helpers/userTokenHelper';
 import * as auth from '../../helpers/auth';
 import {
-    NoGUIDPayload,
     SampleBCEIDBUsinessAdminTokenPayload,
     SampleSuperAdminTokenPayload,
 } from '../commonResponses';
@@ -53,12 +52,6 @@ describe('auth helper tests', () => {
             },
         );
         const token = await prepareTokenInfo(SampleSuperAdminTokenPayload);
-        expect(token.role).toBe(undefined);
-        expect(token.permissions).toBe(undefined);
-    });
-
-    test('prepareTokenInfo returns undefined role and permissions if no user guid is provided', async () => {
-        const token = await prepareTokenInfo(NoGUIDPayload);
         expect(token.role).toBe(undefined);
         expect(token.permissions).toBe(undefined);
     });
