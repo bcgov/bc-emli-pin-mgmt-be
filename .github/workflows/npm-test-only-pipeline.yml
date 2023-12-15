@@ -7,8 +7,48 @@ on:
       - '!main'
       - '!dev'
       - '!qa'
+  workflow_dispatch:
 
 jobs:
+  codeql-scan:
+    name: codeql-scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
+    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+  zap-owasp:
+    uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
+    with:
+      ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
+      ZAP_TARGET_URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
+      ZAP_DURATION: '2'
+      ZAP_MAX_DURATION: '5'
+      ZAP_GCP_PUBLISH: false
+  
   build:
     runs-on: ubuntu-latest
 

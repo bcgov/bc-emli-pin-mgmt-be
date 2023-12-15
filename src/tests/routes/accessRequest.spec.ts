@@ -8,6 +8,7 @@ import {
     AccessRequestValidBody,
     GCNotifyEmailSuccessResponse,
     NoPropertySearchTokenPayload,
+    NoRolePayload,
     SampleSuperAdminTokenPayload,
     UpdateAccessRequestBodyNoIds,
     UpdateAccessRequestBodyNoReason,
@@ -35,12 +36,16 @@ import { NotFoundError } from '../../helpers/NotFoundError';
 describe('Access Request endpoints', () => {
     let proto: { createAccessRequest: () => void },
         controller: AccessRequestController,
-        token: string | null;
+        token: string | null,
+        noRoleToken: string | null;
     beforeAll(() => {
         controller = new AccessRequestController();
         proto = Object.getPrototypeOf(controller);
         const JWT_SECRET = 'abcd';
         token = jwt.sign(SampleSuperAdminTokenPayload, JWT_SECRET, {
+            expiresIn: 30 * 60 * 1000,
+        });
+        noRoleToken = jwt.sign(NoRolePayload, JWT_SECRET, {
             expiresIn: 30 * 60 * 1000,
         });
     });
@@ -90,6 +95,31 @@ describe('Access Request endpoints', () => {
             reqBody,
         );
         expect(res).toBe(undefined);
+    });
+
+    test('createAccessRequest returns sucessfully with no user permissions in token', async () => {
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendEmail',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(
+            GCNotifyCaller.prototype as any,
+            'sendSms',
+        ).mockResolvedValueOnce(GCNotifyEmailSuccessResponse);
+
+        jest.spyOn(AccessRequest, 'createRequest').mockResolvedValueOnce({
+            createdRequest: {
+                identifiers: '123',
+            },
+        });
+        jest.spyOn(AccessRequest, 'getRequestList').mockResolvedValueOnce([]);
+        const reqBody = AccessRequestValidBody;
+        const res = await request(app)
+            .post('/user-requests')
+            .send(reqBody)
+            .set('Cookie', `token=${noRoleToken}`);
+        expect(res.statusCode).toBe(201);
     });
 
     test('createAccessRequest throws error on idir identity with no organization', async () => {
