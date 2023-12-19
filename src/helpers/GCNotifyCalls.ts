@@ -50,8 +50,8 @@ export async function sendAccessRequestNotifications(
         // Standard requests go to all admins, super-admins, vhers_admin
         else if (accessRequestInfo.requestedRole === 'Standard') {
             const result = await findUser({ email: true }, [
-                { role: 'Admin' },
-                { role: 'SuperAdmin' },
+                { role: 'Admin', isActive: true },
+                { role: 'SuperAdmin', isActive: true },
             ]);
             // removing dupilcate emails
             const map = new Map();
