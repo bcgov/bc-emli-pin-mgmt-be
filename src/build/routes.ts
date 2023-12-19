@@ -5,6 +5,8 @@ import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, H
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AccessRequestController } from './../controllers/AccessRequestController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { DashboardController } from './../controllers/DashboardController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { HelloWorldController } from './../controllers/helloworld';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PinAuditLogController } from './../controllers/PinAuditLogController';
@@ -193,6 +195,14 @@ const models: TsoaRoute.Models = {
             "givenNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "lastNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "requestedRoles": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "dashboardURLResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "url": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -591,6 +601,36 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.updateAccessRequest.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 204, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/dashboard',
+            ...(fetchMiddlewares<RequestHandler>(DashboardController)),
+            ...(fetchMiddlewares<RequestHandler>(DashboardController.prototype.getDashboardURL)),
+
+            function DashboardController_getDashboardURL(request: any, response: any, next: any) {
+            const args = {
+                    _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
+                    _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
+                    forbiddenErrorResponse: {"in":"res","name":"403","required":true,"ref":"forbiddenError"},
+                    notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"notFoundError"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new DashboardController();
+
+
+              const promise = controller.getDashboardURL.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }
