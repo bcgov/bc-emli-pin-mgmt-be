@@ -450,6 +450,22 @@
 					]
 				}
 			},
+			"dashboardURLResponse": {
+				"description": "URL for metabase dashborad iframe",
+				"properties": {
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"url": "https://www.google.com/dashboardEndpoint"
+				}
+			},
 			"HelloWorldResponse": {
 				"properties": {
 					"message": {
@@ -1597,6 +1613,76 @@
 						}
 					}
 				}
+			}
+		},
+		"/dashboard": {
+			"get": {
+				"operationId": "GetDashboardURL",
+				"responses": {
+					"200": {
+						"description": "The iframe URL for embedding if SuperAdmin and signing is successful, and an error otherwise",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/dashboardURLResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Endpoint for getting the Metabase dashboard URL.",
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/helloworld": {
