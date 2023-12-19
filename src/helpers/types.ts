@@ -818,3 +818,14 @@ export enum AuditedURLMethods {
     vhersCreate = 'POST /pins/vhers-create',
     vhersRegenerate = 'POST /pins/vhers-regenerate',
 }
+
+/**
+ * URL for metabase dashborad iframe
+ * @example
+ *  {
+ *		"url": "https://www.google.com/dashboardEndpoint"
+ * 	}
+ */
+export interface dashboardURLResponse {
+    url: string;
+}

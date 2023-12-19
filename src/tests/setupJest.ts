@@ -11,3 +11,6 @@ process.env.TYPEORM_LOGGING = 'true';
 process.env.VHERS_API_KEY = 'abcd';
 process.env.OIDC_CLIENT_ID = 'abcd';
 process.env.OIDC_CLIENT_SECRET = 'abcd';
+process.env.METABASE_SECRET_KEY = 'abcd';
+process.env.METABASE_SITE_URL = 'http://www.google.com';
+process.env.METABASE_EXPIRY_MINUTES = '10';
