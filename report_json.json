@@ -1,7 +1,7 @@
 {
 	"@programName": "ZAP",
 	"@version": "2.14.0",
-	"@generated": "Tue, 19 Dec 2023 20:59:08",
+	"@generated": "Tue, 19 Dec 2023 21:00:45",
 	"site":[ 
 		{
 			"@name": "https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca",
@@ -34,7 +34,7 @@
 					"reference": "<p>https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site</p>",
 					"cweid": "1275",
 					"wascid": "13",
-					"sourceid": "6"
+					"sourceid": "1"
 				},
 				{
 					"pluginid": "10035",
@@ -77,7 +77,7 @@
 					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html</p><p>https://owasp.org/www-community/Security_Headers</p><p>http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security</p><p>http://caniuse.com/stricttransportsecurity</p><p>http://tools.ietf.org/html/rfc6797</p>",
 					"cweid": "319",
 					"wascid": "15",
-					"sourceid": "6"
+					"sourceid": "1"
 				},
 				{
 					"pluginid": "10049",
@@ -104,7 +104,7 @@
 					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
 					"cweid": "524",
 					"wascid": "13",
-					"sourceid": "6"
+					"sourceid": "1"
 				},
 				{
 					"pluginid": "90005",
@@ -293,7 +293,7 @@
 							"method": "GET",
 							"param": "9e815ea4eebc0b344dc0a7bbd4154bc5",
 							"attack": "",
-							"evidence": "a5e94e57c57cf296ed9f455f87535d57",
+							"evidence": "98c6068a39e81708c7a1bc97968b2b83",
 							"otherinfo": "\ncookie:9e815ea4eebc0b344dc0a7bbd4154bc5"
 						},
 						{
@@ -301,7 +301,7 @@
 							"method": "GET",
 							"param": "9e815ea4eebc0b344dc0a7bbd4154bc5",
 							"attack": "",
-							"evidence": "a5e94e57c57cf296ed9f455f87535d57",
+							"evidence": "98c6068a39e81708c7a1bc97968b2b83",
 							"otherinfo": "\ncookie:9e815ea4eebc0b344dc0a7bbd4154bc5"
 						}
 					],
