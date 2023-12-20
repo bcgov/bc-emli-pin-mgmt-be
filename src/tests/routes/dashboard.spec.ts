@@ -54,7 +54,7 @@ describe('Dashboard endpoints', () => {
             .send();
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toBe(
-            'Dashboards are not available for this user',
+            `Permission 'DASHBOARD' is not available for the user '${SampleBCEIDBUsinessAdminTokenPayload.username}'`,
         );
     });
 

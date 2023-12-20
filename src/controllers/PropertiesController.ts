@@ -143,10 +143,11 @@ export class PropertiesController extends Controller {
         let results: Array<propertyDetailsResponse> = [];
         let permissions: string[] = [];
         try {
-            permissions = decodingJWT(req.cookies.token)?.payload.permissions;
+            const payload = decodingJWT(req.cookies.token)?.payload;
+            permissions = payload.permissions;
             if (!permissions.includes('PROPERTY_SEARCH')) {
                 throw new AuthenticationError(
-                    `Permission 'PROPERTY_SEARCH' is not available for this user`,
+                    `Permission 'PROPERTY_SEARCH' is not available for the user '${payload.username}'`,
                     403,
                 );
             }

@@ -179,7 +179,7 @@ describe('Properties endpoints', () => {
             .send();
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toBe(
-            `Permission 'PROPERTY_SEARCH' is not available for this user`,
+            `Permission 'PROPERTY_SEARCH' is not available for the user 'abc'`,
         );
         token = jwt.sign(SampleSuperAdminTokenPayload, JWT_SECRET, {
             expiresIn: 30 * 60 * 1000,
