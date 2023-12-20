@@ -7,7 +7,6 @@ import {
     dashboardURLResponse,
     forbiddenError,
     notFoundError,
-    roleType,
     serverErrorType,
 } from '../helpers/types';
 import logger from '../middleware/logger';
@@ -39,12 +38,13 @@ export class DashboardController {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         @Request() req: req,
     ): Promise<dashboardURLResponse> {
-        // Check role before continuing
+        // Check permissions before continuing
         try {
-            const role = decodingJWT(req.cookies.token)?.payload.role;
-            if ((role as roleType) !== roleType.SuperAdmin) {
+            const payload = decodingJWT(req.cookies.token)?.payload;
+            const permissions = payload.permissions;
+            if (!permissions.includes('DASHBOARD')) {
                 throw new AuthenticationError(
-                    `Dashboards are not available for this user`,
+                    `Permission 'DASHBOARD' is not available for the user '${payload.username}'`,
                     403,
                 );
             }
@@ -79,9 +79,14 @@ export class DashboardController {
             Number.isInteger(parseInt(process.env.METABASE_EXPIRY_MINUTES))
                 ? parseInt(process.env.METABASE_EXPIRY_MINUTES)
                 : 30;
+        const METABASE_DASHBOARD_NUMBER =
+            process.env.METABASE_DASHBOARD_NUMBER &&
+            Number.isInteger(parseInt(process.env.METABASE_DASHBOARD_NUMBER))
+                ? parseInt(process.env.METABASE_DASHBOARD_NUMBER)
+                : 2;
 
         const payload = {
-            resource: { dashboard: 2 },
+            resource: { dashboard: METABASE_DASHBOARD_NUMBER },
             params: {},
             exp: Math.round(Date.now() / 1000) + METABASE_EXPIRY_MINUTES * 60,
         };
