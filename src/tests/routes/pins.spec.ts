@@ -1682,7 +1682,7 @@ describe('Pin endpoints', () => {
         expect(res.body.message).toBe('Access Denied');
     });
 
-    test('verify PIN on not matching pin error returns 403', async () => {
+    test('verify PIN on not matching pin error returns 418', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -1697,14 +1697,14 @@ describe('Pin endpoints', () => {
                 pids: '9101112',
             })
             .set({ 'x-api-key': key });
-        expect(res.statusCode).toBe(403);
+        expect(res.statusCode).toBe(418);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NonMatchingPidError');
         expect(res.body.reason.errorMessage).toBe('PIN and PID do not match');
     });
 
-    test('verify PIN on not found error returns 404', async () => {
+    test('verify PIN on not found error returns 407', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -1717,14 +1717,16 @@ describe('Pin endpoints', () => {
                 pids: '1234',
             })
             .set({ 'x-api-key': key });
-        expect(res.statusCode).toBe(404);
+        expect(res.statusCode).toBe(407);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
-        expect(res.body.reason.errorMessage).toBe('PIN not found');
+        expect(res.body.reason.errorMessage).toBe(
+            'PIN was unable to be verified',
+        );
     });
 
-    test('verify PIN on generic error returns 500', async () => {
+    test('verify PIN on generic error returns 408', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -1737,7 +1739,7 @@ describe('Pin endpoints', () => {
                 pids: '1234',
             })
             .set({ 'x-api-key': key });
-        expect(res.statusCode).toBe(500);
+        expect(res.statusCode).toBe(408);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('Error');

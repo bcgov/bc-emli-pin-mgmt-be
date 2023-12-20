@@ -14,3 +14,4 @@ process.env.OIDC_CLIENT_SECRET = 'abcd';
 process.env.METABASE_SECRET_KEY = 'abcd';
 process.env.METABASE_SITE_URL = 'http://www.google.com';
 process.env.METABASE_EXPIRY_MINUTES = '10';
+process.env.METABASE_DASHBOARD_NUMBER = '3';

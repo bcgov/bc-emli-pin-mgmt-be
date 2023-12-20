@@ -973,9 +973,9 @@ export function RegisterRoutes(app: Router) {
             const args = {
                     _invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"ref":"InvalidTokenErrorResponse"},
                     _unauthorizedErrorResponse: {"in":"res","name":"401","required":true,"ref":"UnauthorizedErrorResponse"},
-                    verificationErrorResponse: {"in":"res","name":"403","required":true,"ref":"verifyPinResponse"},
-                    notFoundErrorResponse: {"in":"res","name":"404","required":true,"ref":"verifyPinResponse"},
-                    serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"verifyPinResponse"},
+                    verificationErrorResponse: {"in":"res","name":"418","required":true,"ref":"verifyPinResponse"},
+                    notFoundErrorResponse: {"in":"res","name":"407","required":true,"ref":"verifyPinResponse"},
+                    serverErrorResponse: {"in":"res","name":"408","required":true,"ref":"verifyPinResponse"},
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"verifyPinRequestBody"},
             };
 
