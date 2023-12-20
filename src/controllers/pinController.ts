@@ -1538,7 +1538,9 @@ export class PINController extends Controller {
     }
 
     /**
-     * Verifies the user given a PIN and the pid(s) associated with the title
+     * Verifies the user given a PIN and the pid(s) associated with the title.
+     * Note: some of the error return codes here are not semantically correct.
+     * This is because of external vendor requirements and is unavoidable.
      * @param requestBody The body for the request. Note that pids should be seperated by a vertical bar (|)
      * @returns verified as true if verification was successful, and false otherwise along with a reason
      */
@@ -1555,9 +1557,9 @@ export class PINController extends Controller {
             401,
             UnauthorizedErrorResponse
         >,
-        @Res() verificationErrorResponse: TsoaResponse<403, verifyPinResponse>,
-        @Res() notFoundErrorResponse: TsoaResponse<404, verifyPinResponse>,
-        @Res() serverErrorResponse: TsoaResponse<500, verifyPinResponse>,
+        @Res() verificationErrorResponse: TsoaResponse<418, verifyPinResponse>,
+        @Res() notFoundErrorResponse: TsoaResponse<407, verifyPinResponse>,
+        @Res() serverErrorResponse: TsoaResponse<408, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
         let matchId = '';
@@ -1568,7 +1570,7 @@ export class PINController extends Controller {
             );
             if (response.length < 1) {
                 // we don't have a match
-                throw new NotFoundError('PIN not found');
+                throw new NotFoundError('PIN was unable to be verified');
             } else {
                 const sortedPids = pidStringSplitAndSort(requestBody.pids);
                 let isMatch = false;
@@ -1590,7 +1592,7 @@ export class PINController extends Controller {
         } catch (err) {
             if (err instanceof NonMatchingPidError) {
                 logger.warn(`Encountered error in verifyPin: ${err.message}`);
-                return verificationErrorResponse(403, {
+                return verificationErrorResponse(418, {
                     verified: false,
                     reason: {
                         errorType: 'NonMatchingPidError',
@@ -1600,7 +1602,7 @@ export class PINController extends Controller {
             }
             if (err instanceof NotFoundError) {
                 logger.warn(`Encountered error in verifyPin: ${err.message}`);
-                return notFoundErrorResponse(404, {
+                return notFoundErrorResponse(407, {
                     verified: false,
                     reason: {
                         errorType: 'NotFoundError',
@@ -1612,7 +1614,7 @@ export class PINController extends Controller {
                 logger.warn(
                     `Encountered unknown Internal Server Error in verifyPin: ${err.message}`,
                 );
-                return serverErrorResponse(500, {
+                return serverErrorResponse(408, {
                     verified: false,
                     reason: { errorType: err.name, errorMessage: err.message },
                 });
