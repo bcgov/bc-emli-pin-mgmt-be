@@ -8,6 +8,7 @@ import { Users } from './entity/Users';
 import { Migrations } from './entity/Migrations';
 import { AccessRequest } from './entity/AccessRequest';
 import { join } from 'path';
+import { VhersAuditLog } from './entity/VhersAuditLog';
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
@@ -32,6 +33,7 @@ export const AppDataSource = new DataSource({
         Users,
         Migrations,
         AccessRequest,
+        VhersAuditLog,
     ],
     migrations: [join(__dirname, 'migration', '**.ts')],
     synchronize:
