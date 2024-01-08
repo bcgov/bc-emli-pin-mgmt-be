@@ -7,8 +7,7 @@
 		 -e CREATE_PIDS='matching pid in db' -e GIVEN_NAME='name' -e LAST_NAME_1='last name 1' -e LAST_NAME_2='last name 2'
 		 -e INC_NUMBER='incorporation number' -e ADDRESS_LINE_1='address line 1' -e ADDRESS_LINE_2='address line 2'
 		 -e CITY='city' -e PROVINCE_ABBREV='BC' -e COUNTRY='Canada' -e POSTAL_CODE='postal code'
-		 -e CREATE_IDEAL_TARGET=200 -e CREATE_IDEAL_VUS=100 -e CREATE_IDEAL_MAX_DURATION='180' -e CREATE_IDEAL_SLEEP=2
-		 vhers-create.js
+		 -e CREATE_SPIKE_TARGET=120 -e CREATE_SPIKE_VUS=100 -e CREATE_SPIKE_MAX_DURATION='30' -e CREATE_SPIKE_SLEEP=2 vhers-create.js
 */
 
 import http from 'k6/http';
@@ -17,11 +16,11 @@ import { sleep } from 'k6';
 export let options = {
     discardResponseBodies: true,
     scenarios: {
-        ideal: {
+        spike: {
             executor: 'shared-iterations',
-            vus: __ENV.CREATE_IDEAL_VUS,
-            iterations: __ENV.CREATE_IDEAL_TARGET,
-            maxDuration: __ENV.CREATE_IDEAL_MAX_DURATION + 's',
+            vus: __ENV.CREATE_SPIKE_VUS,
+            iterations: __ENV.CREATE_SPIKE_TARGET,
+            maxDuration: __ENV.CREATE_SPIKE_MAX_DURATION + 's',
             gracefulStop: '60s',
         },
     },
@@ -57,5 +56,5 @@ export default function () {
     check(res, {
         'is status 200': (r) => r.status === 200,
     });
-    sleep(parseInt(__ENV.CREATE_IDEAL_SLEEP)); // let each VU sleep before sending another request
+    sleep(parseInt(__ENV.CREATE_SPIKE_SLEEP));
 }

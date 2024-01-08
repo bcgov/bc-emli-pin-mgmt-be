@@ -1,10 +1,11 @@
 /* eslint-disable no-undef */
 /*
 	You must install the k6 binary on your local machine for this to work (brew install k6)
-	You will also need to run the server and include all environment varaibles with the '-e' flag
+	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
 		k6 run -e URL='server url here' -e VERIFY_ENDPOINT='verify endpoint name here' -e API_KEY='key here' 
-		-e PIN='valid pin in db' -e VERIFY_PIDS='matching pid in db' -e VERIFY_IDEAL_TARGET=20 verify.js
+		-e PIN='valid pin in db' -e VERIFY_PIDS='matching pid in db' -e VERIFY_IDEAL_TARGET=20 
+		-e VERIFY_IDEAL_VUS=100 -e VERIFY_IDEAL_MAX_DURATION='60' -e VERIFY_IDEAL_SLEEP=0.5 verify.js
 */
 
 import http from 'k6/http';
@@ -14,18 +15,15 @@ export let options = {
     discardResponseBodies: true,
     scenarios: {
         ideal: {
-            executor: 'ramping-vus',
-            startVUs: 0,
-            stages: [
-                // Ramp-up to target VUs in 20s
-                { duration: '20s', target: __ENV.VERIFY_IDEAL_TARGET },
-                // Stay at rest on target VUs for 20s
-                { duration: '20s', target: __ENV.VERIFY_IDEAL_TARGET },
-                // Ramp-down to 0 VUs for 20s
-                { duration: '20s', target: 0 },
-            ],
-            gracefulRampDown: '60s',
+            executor: 'shared-iterations',
+            vus: __ENV.VERIFY_IDEAL_VUS,
+            iterations: __ENV.VERIFY_IDEAL_TARGET,
+            maxDuration: __ENV.VERIFY_IDEAL_MAX_DURATION + 's',
+            gracefulStop: '60s',
         },
+    },
+    thresholds: {
+        iterations: ['count >= 10000'],
     },
 };
 
@@ -41,5 +39,8 @@ export default function () {
         JSON.stringify(body),
         { headers: headers },
     );
-    sleep(2); // let each VU sleep for 2 seconds before sending another request
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+    });
+    sleep(parseInt(__ENV.VERIFY_IDEAL_SLEEP)); // let each VU sleep for 0.5 seconds before sending another request
 }
