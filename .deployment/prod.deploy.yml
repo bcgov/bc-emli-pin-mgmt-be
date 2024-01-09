@@ -301,11 +301,6 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-be
                       key: METABASE_DASHBOARD_NUMBER
-                - name: GC_NOTIFY_VHERS_ADMIN_EMAIL
-                  valueFrom:
-                    secretKeyRef:
-                      name: bc-emli-pin-mgmt-be
-                    key: gc_notify_vhers_admin_email
               ports:
                 - containerPort: 3000
                   protocol: TCP
