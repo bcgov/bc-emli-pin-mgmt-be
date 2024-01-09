@@ -1,0 +1,37 @@
+{
+	"thresholds": {
+		"overallThreshold": 0.9,
+		"borderlineThreshold": 0.85,
+		"givenNameThreshold": 0.95,
+		"lastNamesThreshold": 0.95,
+		"incorporationNumberThreshold": 1,
+		"ownerNumberThreshold": 1,
+		"streetAddressThreshold": 0.85,
+		"cityThreshold": 0.8,
+		"provinceAbbreviationThreshold": 0.95,
+		"countryThreshold": 0.8,
+		"postalCodeThreshold": 1
+	},
+	"weights": {
+		"givenNameWeight": 0.2,
+		"lastNamesWeight": 0.2,
+		"incorporationNumberWeight": 0.2,
+		"ownerNumberWeight": 0.125,
+		"streetAddressWeight": 0.125,
+		"cityWeight": 0.02,
+		"provinceAbbreviationWeight": 0.01,
+		"countryWeight": 0.01,
+		"postalCodeWeight": 0.31
+	},
+	"fuzzinessCoefficients": {
+		"givenNameFuzzyCoefficient": 0.95,
+		"lastNamesFuzzyCoefficient": 0.95,
+		"incorporationNumberFuzzyCoefficient": 0,
+		"streetAddressFuzzyCoefficient": 0.95,
+		"cityFuzzyCoefficient": 0.95,
+		"provinceAbbreviationFuzzyCoefficient": 0.95,
+		"countryFuzzyCoefficient": 0.95,
+		"postalCodeFuzzyCoefficient": 0
+	},
+	"streetAddressLooseMatchReductionCoefficient": 0.25
+}

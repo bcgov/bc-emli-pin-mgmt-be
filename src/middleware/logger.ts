@@ -8,16 +8,20 @@ winston.addColors({
     info: 'white',
     http: 'magenta',
     debug: 'cyan',
+    silly: 'grey',
 });
 
 const level = () => {
-    const env = process.env.NODE_ENV || 'development';
+    const env =
+        process.env.NODE_ENV !== 'development'
+            ? process.env.NODE_ENV
+            : 'development';
     const isDevelopment = env === 'development';
-    return isDevelopment ? 'debug' : 'warn';
+    return isDevelopment ? 'silly' : 'debug';
 };
 
 const consoleFormat = winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss' }),
+    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss UTCZZ' }),
     winston.format.colorize({ all: true }),
     winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: ${info.message}`,
@@ -25,9 +29,11 @@ const consoleFormat = winston.format.combine(
 );
 
 const outputFormat = winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss' }),
+    winston.format.label({ label: 'pin-mgmt-be' }),
+    winston.format.timestamp({ format: 'YYYY-MMM-DD HH:mm:ss UTCZZ' }),
     winston.format.printf(
-        (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+        (info) =>
+            `[${info.label}] ${info.timestamp} ${info.level}: ${info.message}`,
     ),
 );
 

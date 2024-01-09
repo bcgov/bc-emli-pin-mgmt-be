@@ -27,7 +27,6 @@
         "default-case": "warn",
         "default-case-last": "error",
         "no-eval": "error",
-        "require-await": "warn",
         "spaced-comment": ["error", "always", {
             "line": {
                 "markers": ["/"],
@@ -36,6 +35,7 @@
             "block": {
                 "exceptions": ["+", "-", "*"]
             }
-        }]
+        }],
+		"@typescript-eslint/no-explicit-any": "off"
     }
 }

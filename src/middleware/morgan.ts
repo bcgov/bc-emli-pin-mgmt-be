@@ -9,7 +9,22 @@ const stream: StreamOptions = {
 };
 
 const morganConfig = morgan(
-    ':method :url :status :res[content-length] - :response-time ms',
+    function (tokens, req, res) {
+        const returnArray = [
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            tokens.res(req, res, 'content-length'),
+            '-',
+        ];
+        if (tokens.res(req, res, 'X-Response-Time') !== undefined) {
+            returnArray.push(tokens.res(req, res, 'X-Response-Time'));
+        } else {
+            returnArray.push(tokens['response-time'](req, res));
+        }
+        returnArray.push('ms');
+        return returnArray.join(' ');
+    },
     { stream },
 );
 

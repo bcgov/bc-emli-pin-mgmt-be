@@ -1,2 +1,17 @@
-import { enableFetchMocks } from 'jest-fetch-mock'
-enableFetchMocks()
+import { enableFetchMocks } from 'jest-fetch-mock';
+enableFetchMocks();
+process.env.JWT_SECRET = 'abcd';
+process.env.DB_HOST = 'localhost';
+process.env.DB_USERNAME = 'postgres';
+process.env.DB_PASSWORD = '';
+process.env.DB_NAME = 'postgres';
+process.env.DB_PORT = '5432';
+process.env.TYPEORM_SYNCHRONIZE = 'false';
+process.env.TYPEORM_LOGGING = 'true';
+process.env.VHERS_API_KEY = 'abcd';
+process.env.OIDC_CLIENT_ID = 'abcd';
+process.env.OIDC_CLIENT_SECRET = 'abcd';
+process.env.METABASE_SECRET_KEY = 'abcd';
+process.env.METABASE_SITE_URL = 'http://www.google.com';
+process.env.METABASE_EXPIRY_MINUTES = '10';
+process.env.METABASE_DASHBOARD_NUMBER = '3';
