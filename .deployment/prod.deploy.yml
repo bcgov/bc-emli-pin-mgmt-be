@@ -89,16 +89,223 @@ objects:
               imagePullPolicy: Always
               name: "${NAME}"
               env:
-                - name: NEXT_PUBLIC_BE_APP_URL
+                - name: DB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: patroni-ha-postgres-instance
+                      key: app-db-name
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: patroni-ha-postgres-instance
+                      key: app-db-username
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: patroni-ha-postgres-instance
+                      key: app-db-password
+                - name: DB_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: patroni-ha-postgres-instance
+                      key: app-db-port
+                - name: DB_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: patroni-ha-postgres-instance
+                      key: app-db-hostname
+                - name: SERVER_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: server-port
+                - name: GEOCODER_API_BASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bcgeocoder
+                      key: geocoder-test-api-url
+                - name: GEOCODER_API_ADDRESSES_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: bcgeocoder
+                      key: geocoder-addresses-endpoint-name
+                - name: FE_APP_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: fe-app-url
+                - name: BE_APP_URL
                   valueFrom:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-fe
                       key: be-app-url
-                - name: NEXT_PUBLIC_SUBMIT_SUPPORT_TICKET_URL
+                - name: OIDC_CLIENT_ID
                   valueFrom:
                     secretKeyRef:
-                      name: bc-emli-pin-mgmt-fe
-                      key: support_ticket_url
+                      name: bc-emli-pin-mgmt-be
+                      key: oidc-client-id
+                - name: OIDC_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: oidc-client-secret
+                - name: CSS_DOMAIN_NAME_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: css-domain-name-url
+                - name: OIDC_GRANT_TYPE
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: oidc-grant-type
+                - name: OIDC_RESPONSE_TYPE
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: oidc-response-type
+                - name: OIDC_SCOPE
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: oidc-scope
+                - name: COOKIE_SESSION_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: cookie-session-name
+                - name: COOKIE_SESSION_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: cookie-session-secret
+                - name: DOMAIN_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: domain-name
+                - name: BCGEOCODER_API_KEY_PID
+                  valueFrom:
+                    secretKeyRef:
+                      name: bcgeocoder
+                      key: api-key-pid
+                - name: GEOCODER_API_PARCELS_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: bcgeocoder
+                      key: geocoder-parcels-endpoint-name
+                - name: GC_NOTIFY_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: base-url
+                - name: GC_NOTIFY_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: gc_notify_api_prod
+                - name: GC_NOTIFY_RETRY_LIMIT
+                  value: '3'
+                - name: JWT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: jwt_secret
+                - name: VHERS_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: vhers-api-key
+                      key: api-key
+                - name: GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: regenerate-email-template-id
+                - name: GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: regenerate-phone-template-id
+                - name: GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: create-email-template-id
+                - name: GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: create-phone-template-id
+                - name: GC_NOTIFY_ACCESS_REQUEST_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: access-request-email-template-id
+                - name: GC_NOTIFY_EXPIRE_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: expire-email-template-id
+                - name: GC_NOTIFY_EXPIRE_PHONE_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: expire-phone-template-id
+                - name: GC_NOTIFY_ACCESS_REJECT_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: access-reject-email-template-id
+                - name: GC_NOTIFY_ACCESS_APPROVE_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: access-approve-email-template-id
+                - name: GC_NOTIFY_USER_DEACTIVATION_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: user-deactivation-email-template-id
+                - name: PROPERATE_STAGING_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: PROPERATE_STAGING_URL
+                - name: PROPERATE_TEST_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: PROPERATE_TEST_URL
+                - name: GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: gc-notify
+                      key: update-user-email-template-id
+                - name: METABASE_SITE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: METABASE_SITE_URL
+                - name: METABASE_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: METABASE_SECRET_KEY
+                - name: METABASE_EXPIRY_MINUTES
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: METABASE_EXPIRY_MINUTES
+                - name: METABASE_DASHBOARD_NUMBER
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: METABASE_DASHBOARD_NUMBER
+                - name: GC_NOTIFY_VHERS_ADMIN_EMAIL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                    key: gc_notify_vhers_admin_email
               ports:
                 - containerPort: 3000
                   protocol: TCP
