@@ -377,14 +377,14 @@ The given response has been identified as containing a session management token.
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `4e3830f46ebfc2ad1c04bee83eb1bb94`
+  * Evidence: `25b7bf29186e6f249a2fe044c0d61fbc`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 * URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `4e3830f46ebfc2ad1c04bee83eb1bb94`
+  * Evidence: `25b7bf29186e6f249a2fe044c0d61fbc`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
