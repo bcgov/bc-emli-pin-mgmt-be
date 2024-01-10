@@ -125,4 +125,3 @@ jobs:
           overwrite: ${{ matrix.overwrite }}
           parameters: -p ZONE=prod
           repository: ${{ matrix.repository }}
-          verification_path: ${{ matrix.verification_path }}
