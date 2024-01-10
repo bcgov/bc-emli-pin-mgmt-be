@@ -24,7 +24,7 @@
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
 | Sec-Fetch-Site Header is Missing | Informational | 3 |
 | Sec-Fetch-User Header is Missing | Informational | 3 |
-| Session Management Response Identified | Informational | 1 |
+| Session Management Response Identified | Informational | 2 |
 | Storable and Cacheable Content | Informational | 2 |
 
 
@@ -380,8 +380,15 @@ The given response has been identified as containing a session management token.
   * Evidence: `94f900c03ac2f3990d7ac152e5c3bbe0`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
+  * Method: `GET`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
+  * Attack: ``
+  * Evidence: `94f900c03ac2f3990d7ac152e5c3bbe0`
+  * Other Info: `
+cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
-Instances: 1
+Instances: 2
 
 ### Solution
 
