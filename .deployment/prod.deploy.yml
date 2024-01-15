@@ -281,6 +281,11 @@ objects:
                     secretKeyRef:
                       name: gc-notify
                       key: update-user-email-template-id
+                - name: GC_NOTIFY_VHERS_ADMIN_EMAIL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: gc_notify_vhers_admin_email
                 - name: METABASE_SITE_URL
                   valueFrom:
                     secretKeyRef:
