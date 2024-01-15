@@ -61,6 +61,7 @@ const corsDomain = [
     process.env.BE_APP_URL,
     process.env.PROPERATE_STAGING_URL,
     process.env.PROPERATE_TEST_URL,
+    process.env.PROPERATE_PROD_URL,
 ];
 
 const origin = (origin: any, callback: any) => {
