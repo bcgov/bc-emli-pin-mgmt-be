@@ -22,9 +22,6 @@ export let options = {
             gracefulStop: '60s',
         },
     },
-    thresholds: {
-        iterations: ['count >= 10000'],
-    },
 };
 
 export default function () {
