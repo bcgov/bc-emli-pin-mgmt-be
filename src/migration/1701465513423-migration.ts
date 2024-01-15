@@ -8,7 +8,7 @@ export class Migration1701465513423 implements MigrationInterface {
 			response_time_ms REAL NOT NULL,
 			endpoint_name VARCHAR NOT NULL,
 			status_code INTEGER NOT NULL,
-			created_at TIMESTAMPZ NOT NULL DEFAULT now(),
+			created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 			request_body JSON,
 			response_body JSON
 		);`);

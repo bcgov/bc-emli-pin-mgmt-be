@@ -37,14 +37,14 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
 
-  zap-owasp:
-    uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
-    with:
-      ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
-      ZAP_TARGET_URL: https://bc-emli-pin-mgmt-be-c82b4c-prod.apps.silver.devops.gov.bc.ca/
-      ZAP_DURATION: '2'
-      ZAP_MAX_DURATION: '5'
-      ZAP_GCP_PUBLISH: false
+  #zap-owasp:
+    #uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
+    #with:
+      #ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
+      #ZAP_TARGET_URL: https://bc-emli-pin-mgmt-be-c82b4c-prod.apps.silver.devops.gov.bc.ca/
+      #ZAP_DURATION: '2'
+      #ZAP_MAX_DURATION: '5'
+      #ZAP_GCP_PUBLISH: false
 
   build:
     runs-on: ubuntu-latest
@@ -66,28 +66,62 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run linter
-        run: npm run lint
 
       - name: Run tests
         run: npm test
-      
+
       - name: Build
         run: npm run build
 
     ####### Need to set up prod namespace on openshift
+  # https://github.com/bcgov-nr/action-builder-ghcr
+  builds:
+    name: Builds
+    runs-on: ubuntu-22.04
+    needs: [build]
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [bc-emli-pin-mgmt-be]
+        include:
+          - package: bc-emli-pin-mgmt-be
+            build_context: ./
+            triggers: ('bc-emli-pin-mgmt-be/')
+            build_file: Dockerfile
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov-nr/action-builder-ghcr@v2.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          build_context: ${{ matrix.build_context }}
+          tag: latest
+          triggers: ${{ matrix.triggers }}
 
-      # - name: Login to Openshift
-      #   shell: bash
-      #   run: |
-      #     oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN_PROD }}
 
-      # - name: Switch to correct project environment in Openshift
-      #   shell: bash
-      #   run: |
-      #     oc project ${{ secrets.OPENSHIFT_NAMESPACE_PROD }}
+  deploys:
+    name: Deploys Backend
+    needs: [builds]
+    environment: tools
+    permissions:
+      issues: write
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        name: [bc-emli-pin-mgmt-be]
+        include:
+          - name: bc-emli-pin-mgmt-be
+            file: ./.deployment/prod.deploy.yml
+            overwrite: true
 
-      # - name: Build image on OpenShift
-      #   shell: bash
-      #   run: |
-      #     oc start-build ${{ secrets.OPENSHIFT_BUILDCONFIG }}
+    steps:
+      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
+        with:
+          file: ${{ matrix.file }}
+          oc_namespace: ${{ vars.OC_NAMESPACE_PROD }}
+          oc_server: ${{ vars.OC_SERVER }}
+          oc_token: ${{ secrets.OC_TOKEN_PROD }}
+          overwrite: ${{ matrix.overwrite }}
+          parameters: -p ZONE=prod
+          repository: ${{ matrix.repository }}

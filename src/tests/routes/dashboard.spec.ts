@@ -18,6 +18,7 @@ describe('Dashboard endpoints', () => {
         });
     });
     afterEach(() => {
+        process.env.METABASE_DASHBOARD_NUMBER = '3';
         process.env.METABASE_SECRET_KEY = 'abcd';
         process.env.METABASE_SITE_URL = 'http://www.google.com';
         process.env.METABASE_EXPIRY_MINUTES = '10';
@@ -54,7 +55,7 @@ describe('Dashboard endpoints', () => {
             .send();
         expect(res.statusCode).toBe(403);
         expect(res.body.message).toBe(
-            'Dashboards are not available for this user',
+            `Permission 'DASHBOARD' is not available for the user '${SampleBCEIDBUsinessAdminTokenPayload.username}'`,
         );
     });
 
@@ -74,6 +75,7 @@ describe('Dashboard endpoints', () => {
         delete process.env.METABASE_SECRET_KEY;
         delete process.env.METABASE_SITE_URL;
         process.env.METABASE_EXPIRY_MINUTES = 'hijk';
+        process.env.METABASE_DASHBOARD_NUMBER = 'hijk';
         const res = await request(app)
             .get('/dashboard')
             .set('Cookie', `token=${token}`)

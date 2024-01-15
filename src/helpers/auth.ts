@@ -36,6 +36,7 @@ export const decodingJWT = (token: string) => {
 };
 
 export const prepareTokenInfo = async (tokenPayload: any) => {
+    console.log(tokenPayload.email, '------>token:', tokenPayload);
     const tokenDetails: any = {};
     const identityType = tokenPayload.identity_provider;
     tokenDetails.sid = tokenPayload.sid;

@@ -1074,6 +1074,7 @@ export const SampleSuperAdminTokenPayload = {
         'VIEW_PIN',
         'PROPERTY_SEARCH',
         'ACCESS_REQUEST',
+        'DASHBOARD',
     ],
 };
 

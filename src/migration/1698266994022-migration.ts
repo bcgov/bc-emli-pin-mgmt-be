@@ -9,6 +9,7 @@ export class Migration1698266994022 implements MigrationInterface {
 		('VIEW_PIN','SuperAdmin'),
 		('PROPERTY_SEARCH','SuperAdmin'),
 		('ACCESS_REQUEST','SuperAdmin'),
+    ('DASHBOARD', 'SuperAdmin'),
 		('USER_ACCESS','Admin'),
 		('PROPERTY_SEARCH','Admin'),
 		('ACCESS_REQUEST','Admin'),
