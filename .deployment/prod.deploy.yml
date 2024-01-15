@@ -23,13 +23,13 @@ parameters:
   - name: DOMAIN
     value: apps.silver.devops.gov.bc.ca
   - name: CPU_REQUEST
-    value: "25m"
+    value: "500m"
   - name: MEMORY_REQUEST
-    value: "50Mi"
+    value: "1024Mi"
   - name: CPU_LIMIT
-    value: "75m"
+    value: "1000m"
   - name: MEMORY_LIMIT
-    value: "150Mi"
+    value: "2Gi"
   - name: MIN_REPLICAS
     description: The minimum amount of replicas for the horizontal pod autoscaler.
     value: "3"
@@ -276,11 +276,21 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-be
                       key: PROPERATE_TEST_URL
+                - name: PROPERATE_PROD_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: PROPERATE_PROD_URL
                 - name: GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID
                   valueFrom:
                     secretKeyRef:
                       name: gc-notify
                       key: update-user-email-template-id
+                - name: GC_NOTIFY_VHERS_ADMIN_EMAIL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: gc_notify_vhers_admin_email
                 - name: METABASE_SITE_URL
                   valueFrom:
                     secretKeyRef:
@@ -301,11 +311,6 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-be
                       key: METABASE_DASHBOARD_NUMBER
-                - name: GC_NOTIFY_VHERS_ADMIN_EMAIL
-                  valueFrom:
-                    secretKeyRef:
-                      name: bc-emli-pin-mgmt-be
-                    key: gc_notify_vhers_admin_email
               ports:
                 - containerPort: 3000
                   protocol: TCP
