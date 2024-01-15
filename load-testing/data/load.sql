@@ -1,7 +1,7 @@
 --- Inserting entries into each table to give us a timestamp of what to delete
 INSERT INTO public.active_pin
-(live_pin_id, pin, pids, title_number, land_title_district, title_status, last_name_1, created_at)
-VALUES('abcd0000-0000-0000-0000-000000000000', '!!!!!!!!', '000000000', '1234', 'ab', 'R', 'loadteststart', now());
+(live_pin_id, pin, pids, title_number, land_title_district, title_status, last_name_1, address_line_1, city, province_abbreviation, postal_code, created_at)
+VALUES('abcd0000-0000-0000-0000-000000000000', '!!!!!!!!', '000000000', '1234', 'ab', 'R', 'loadteststart', '123 MAIN ST', 'PENTICTON', 'BC', 'A1A1A1', now());
 --- This creates a pin_audit_log entry
 UPDATE public.active_pin
 SET pin='!!!!!!!!' 

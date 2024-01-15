@@ -4,8 +4,8 @@
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
 		k6 run -e URL='server url here' -e VERIFY_ENDPOINT='verify endpoint name here' -e API_KEY='key here' 
-		-e PIN='valid pin in db' -e PIDS='matching pid in db' -e VERIFY_SPIKE_TARGET=50 
-		-e VERIFY_SPIKE_VUS=100 -e VERIFY_SPIKE_MAX_DURATION='30' -e VERIFY_SPIKE_SLEEP=0.5 verify.js
+		-e VERIFY_SPIKE_TARGET=50 -e VERIFY_SPIKE_VUS=100 -e VERIFY_SPIKE_MAX_DURATION='30' 
+		-e VERIFY_SPIKE_SLEEP=0.5 verify.js
 */
 
 import http from 'k6/http';
@@ -29,7 +29,7 @@ export default function () {
         'Content-Type': 'application/json',
         'x-api-key': __ENV.API_KEY,
     };
-    let body = { pin: __ENV.PIN, pids: __ENV.VERIFY_PIDS };
+    let body = { pin: '!!!!!!!!', pids: '000000000' };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let res = http.post(
         __ENV.URL + __ENV.VERIFY_ENDPOINT,

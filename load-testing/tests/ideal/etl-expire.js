@@ -37,7 +37,7 @@ export default function () {
             parseFloat(__ENV.EXPIRE_IDEAL_SLEEP_FRACTION),
     );
     /* 
-	Sleep each iteration in a staggred fashion before beginning so that all iterations don't go at once.
+	Sleep each iteration in a staggered fashion before beginning so that all iterations don't go at once.
 	This is realistic because the etl job has to execute these calls consecutively anyway.
 	*/
 
