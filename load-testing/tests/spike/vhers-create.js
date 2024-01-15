@@ -3,12 +3,13 @@
 	You must install the k6 binary on your local machine for this to work (brew install k6)
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
-		k6 run -e URL='server url here' -e VHERS_CREATE_ENDPOINT='vhers-create endpoint name here' -e API_KEY='key here' -e OWNER_NUMBER=1
-		 -e CREATE_SPIKE_TARGET=120 -e CREATE_SPIKE_VUS=100 -e CREATE_SPIKE_MAX_DURATION='30' -e CREATE_SPIKE_SLEEP=2 vhers-create.js
+		k6 run -e URL='server url here' -e VHERS_CREATE_ENDPOINT='vhers-create endpoint name here' -e API_KEY='key here'
+		 -e CREATE_SPIKE_TARGET=120 -e CREATE_SPIKE_VUS=100 -e CREATE_SPIKE_MAX_DURATION='30' -e CREATE_SPIKE_SLEEP=2 
+		 -e dt='date time string' vhers-create.js
 */
 
 import http from 'k6/http';
-import { sleep } from 'k6';
+import { sleep, check } from 'k6';
 
 export let options = {
     discardResponseBodies: true,
@@ -23,13 +24,21 @@ export let options = {
     },
 };
 
+export function handleSummary(data) {
+    const summaryPath = `../results/summary/vhers-create-spike-${__ENV.dt}.html`;
+    return {
+        stdout: textSummary(data, { indent: '→', enableColors: true }),
+        [summaryPath]: htmlReport(data),
+    };
+}
+
 export default function () {
     let headers = {
         'Content-Type': 'application/json',
         'x-api-key': __ENV.API_KEY,
     };
     let body = {
-        numberOfOwners: parseInt(__ENV.OWNER_NUMBER),
+        numberOfOwners: 1,
         email: 'simulate-delivered@notification.canada.ca',
         pids: '000000000',
         lastName_1: 'loadteststart',

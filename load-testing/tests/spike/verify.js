@@ -4,12 +4,12 @@
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
 		k6 run -e URL='server url here' -e VERIFY_ENDPOINT='verify endpoint name here' -e API_KEY='key here' 
-		-e VERIFY_SPIKE_TARGET=50 -e VERIFY_SPIKE_VUS=100 -e VERIFY_SPIKE_MAX_DURATION='30' 
-		-e VERIFY_SPIKE_SLEEP=0.5 verify.js
+		-e VERIFY_SPIKE_TARGET=100 -e VERIFY_SPIKE_VUS=20 -e VERIFY_SPIKE_MAX_DURATION='30' 
+		-e VERIFY_SPIKE_SLEEP=0.5 -e dt='date time string' verify.js
 */
 
 import http from 'k6/http';
-import { sleep } from 'k6';
+import { sleep, check } from 'k6';
 
 export let options = {
     discardResponseBodies: true,
@@ -23,6 +23,14 @@ export let options = {
         },
     },
 };
+
+export function handleSummary(data) {
+    const summaryPath = `../results/summary/verify-spike-${__ENV.dt}.html`;
+    return {
+        stdout: textSummary(data, { indent: '→', enableColors: true }),
+        [summaryPath]: htmlReport(data),
+    };
+}
 
 export default function () {
     let headers = {

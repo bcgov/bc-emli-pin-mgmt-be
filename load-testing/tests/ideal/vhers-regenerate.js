@@ -3,13 +3,13 @@
 	You must install the k6 binary on your local machine for this to work (brew install k6)
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
-		k6 run -e URL='server url here' -e VHERS_REGENERATE_ENDPOINT='vhers-regenerate endpoint name here' -e API_KEY='key here' -e OWNER_NUMBER=1
+		k6 run -e URL='server url here' -e VHERS_REGENERATE_ENDPOINT='vhers-regenerate endpoint name here' -e API_KEY='key here'
 		 -e REGENERATE_IDEAL_TARGET=200 -e REGENERATE_IDEAL_VUS=100 -e REGENERATE_IDEAL_MAX_DURATION='120' -e REGENERATE_IDEAL_SLEEP=2
-		 vhers-regenerate.js
+		 -e dt='date time string' vhers-regenerate.js
 */
 
 import http from 'k6/http';
-import { sleep } from 'k6';
+import { sleep, check } from 'k6';
 
 export let options = {
     discardResponseBodies: true,
@@ -24,13 +24,21 @@ export let options = {
     },
 };
 
+export function handleSummary(data) {
+    const summaryPath = `../results/summary/vhers-regenerate-ideal-${__ENV.dt}.html`;
+    return {
+        stdout: textSummary(data, { indent: '→', enableColors: true }),
+        [summaryPath]: htmlReport(data),
+    };
+}
+
 export default function () {
     let headers = {
         'Content-Type': 'application/json',
         'x-api-key': __ENV.API_KEY,
     };
     let body = {
-        numberOfOwners: parseInt(__ENV.OWNER_NUMBER),
+        numberOfOwners: 1,
         email: 'simulate-delivered@notification.canada.ca',
         pids: '000000000',
         lastName_1: 'loadteststart',

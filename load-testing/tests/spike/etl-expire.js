@@ -4,7 +4,7 @@
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
 		k6 run -e URL='server url here' -e EXPIRE_ENDPOINT='expire endpoint name here' -e API_KEY='key here' 
-		-e EXPIRE_SPIKE_MAX_DURATION='360' -e EXPIRE_SPIKE_SLEEP_FRACTION=0.015 etl-expire.js
+		-e EXPIRE_SPIKE_MAX_DURATION='360' -e EXPIRE_SPIKE_SLEEP_FRACTION=0.015 -e dt='date time string' etl-expire.js
 */
 import exec from 'k6/execution';
 import { SharedArray } from 'k6/data';
@@ -30,6 +30,14 @@ export let options = {
         },
     },
 };
+
+export function handleSummary(data) {
+    const summaryPath = `../results/summary/etl-expire-spike-${__ENV.dt}.html`;
+    return {
+        stdout: textSummary(data, { indent: '→', enableColors: true }),
+        [summaryPath]: htmlReport(data),
+    };
+}
 
 export default function () {
     sleep(

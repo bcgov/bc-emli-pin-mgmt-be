@@ -4,7 +4,8 @@
 	You will also need to run the server and include all environment variables with the '-e' flag
 	Sample command (execute from this folder):
 		k6 run -e VIRUS_SCAN_URL='virus scan server url here' -e VIRUS_SCAN_ENDPOINT='virus scan endpoint name here' -e API_KEY='key here' 
-		-e VIRUS_SCAN_SPIKE_TARGET=5000 -e VIRUS_SCAN_SPIKE_VUS=100 -e VIRUS_SCAN_SPIKE_MAX_DURATION='60' -e VIRUS_SCAN_SLEEP=0.5 virus-scan.js
+		-e VIRUS_SCAN_SPIKE_TARGET=5000 -e VIRUS_SCAN_SPIKE_VUS=100 -e VIRUS_SCAN_SPIKE_MAX_DURATION='60' -e VIRUS_SCAN_SLEEP=0.5 
+		-e dt='date time string' virus-scan.js
 */
 
 import http from 'k6/http';
@@ -27,6 +28,14 @@ export let options = {
         },
     },
 };
+
+export function handleSummary(data) {
+    const summaryPath = `../results/summary/virus-scan-spike-${__ENV.dt}.html`;
+    return {
+        stdout: textSummary(data, { indent: '→', enableColors: true }),
+        [summaryPath]: htmlReport(data),
+    };
+}
 
 export default function () {
     let headers = {
