@@ -14,7 +14,8 @@ dist
 # Log files
 logs
 coverage
-
+load-testing/results/summary/*/
+load-testing/results/detailed/*/
 # Temporary files
 tmp
 temp

@@ -6,6 +6,7 @@ process.env.DB_USERNAME = 'postgres';
 process.env.DB_PASSWORD = '';
 process.env.DB_NAME = 'postgres';
 process.env.DB_PORT = '5432';
+process.env.POOL_SIZE = '500';
 process.env.TYPEORM_SYNCHRONIZE = 'false';
 process.env.TYPEORM_LOGGING = 'true';
 process.env.VHERS_API_KEY = 'abcd';
