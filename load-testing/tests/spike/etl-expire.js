@@ -10,11 +10,13 @@ import exec from 'k6/execution';
 import { SharedArray } from 'k6/data';
 import http from 'k6/http';
 import { sleep, check } from 'k6';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
 
 // Get the ids for the tests
 const livePinId = new SharedArray('pinIds', function () {
     const file = JSON.parse(open('../../data/ids.json'));
-    return file.livePinId.slice(20000, 95000); // we only want the entries after 20,000 here
+    return file.livePinId.slice(20000, 90000); // we only want the entries after 20,000 here
 });
 
 export let options = {
@@ -32,7 +34,7 @@ export let options = {
 };
 
 export function handleSummary(data) {
-    const summaryPath = `../results/summary/etl-expire-spike-${__ENV.dt}.html`;
+    const summaryPath = `../../results/summary/${__ENV.dt}/etl-expire-spike.html`;
     return {
         stdout: textSummary(data, { indent: '→', enableColors: true }),
         [summaryPath]: htmlReport(data),

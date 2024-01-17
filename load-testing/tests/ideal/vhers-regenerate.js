@@ -10,6 +10,8 @@
 
 import http from 'k6/http';
 import { sleep, check } from 'k6';
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
 
 export let options = {
     discardResponseBodies: true,
@@ -25,7 +27,7 @@ export let options = {
 };
 
 export function handleSummary(data) {
-    const summaryPath = `../results/summary/vhers-regenerate-ideal-${__ENV.dt}.html`;
+    const summaryPath = `../../results/summary/${__ENV.dt}/vhers-regenerate-ideal.html`;
     return {
         stdout: textSummary(data, { indent: '→', enableColors: true }),
         [summaryPath]: htmlReport(data),

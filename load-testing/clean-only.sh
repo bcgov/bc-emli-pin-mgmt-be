@@ -1,8 +1,9 @@
+################################# SHELL VARIABLES ##################################
 # Edit these variables with the correct information for your desired test environment
-# DB_NAME='your-db-name'
-# DB_USERNAME='username'
-# DB_PORT=11111
-# DB_PASSWORD='password'
+DB_NAME='your-db-name'
+DB_USERNAME='username'
+DB_PORT=11111
+DB_PASSWORD='password'
 
 # Remove the data
 cd data

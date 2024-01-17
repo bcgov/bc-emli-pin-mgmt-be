@@ -27,7 +27,7 @@ export let options = {
 };
 
 export function handleSummary(data) {
-    const summaryPath = `../results/summary/vhers-create-ideal-${__ENV.dt}.html`;
+    const summaryPath = `../../results/summary/${__ENV.dt}/vhers-create-ideal.html`;
     return {
         stdout: textSummary(data, { indent: '→', enableColors: true }),
         [summaryPath]: htmlReport(data),

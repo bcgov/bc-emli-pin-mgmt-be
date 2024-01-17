@@ -60,6 +60,7 @@ EXPIRE_SPIKE_MAX_DURATION='600'
 EXPIRE_SPIKE_SLEEP_FRACTION=0.007
 
 ########################### TESTS START HERE #########################################
+
 # Load the data
 cd data
 psql "postgresql://$DB_USERNAME:$DB_PASSWORD@localhost:$DB_PORT/$DB_NAME" -a -f load.sql
@@ -129,5 +130,9 @@ echo "Starting etl-expire spike test..."
 k6 run -e URL=$URL -e EXPIRE_ENDPOINT=$EXPIRE_ENDPOINT -e API_KEY=$API_KEY -e EXPIRE_SPIKE_MAX_DURATION=$EXPIRE_SPIKE_MAX_DURATION -e EXPIRE_SPIKE_SLEEP_FRACTION=$EXPIRE_SPIKE_SLEEP_FRACTION  -e dt=$dt --out csv=../../results/detailed/$dt/etl-expire-spike.csv etl-expire.js || true
 echo "Done etl-expire spike test!"
 
-echo "All done! DB data was not erased, so please delete it when done reviewing using clean-only.sh"
-echo "You can see the summary of each test in the results/summary/$dt folder, and the details of each particular request in the results/detailed/$dt folder"
+# Remove the test data
+echo "Done all tests! Deleting leftover db data..."
+cd ../../data
+psql "postgresql://$DB_USERNAME:$DB_PASSWORD@localhost:$DB_PORT/$DB_NAME" -a -f clean.sql
+
+echo "All done! You can see the summary of each test in the results/summary/$dt folder, and the details of each particular request in the results/detailed/$dt folder"
