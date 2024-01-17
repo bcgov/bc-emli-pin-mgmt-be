@@ -22,9 +22,9 @@
 | Non-Storable Content | Informational | 1 |
 | Sec-Fetch-Dest Header is Missing | Informational | 3 |
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
-| Sec-Fetch-Site Header is Missing | Informational | 2 |
+| Sec-Fetch-Site Header is Missing | Informational | 1 |
 | Sec-Fetch-User Header is Missing | Informational | 3 |
-| Session Management Response Identified | Informational | 2 |
+| Session Management Response Identified | Informational | 1 |
 | Storable and Cacheable Content | Informational | 2 |
 
 
@@ -277,12 +277,6 @@ Ensure that Sec-Fetch-Mode header is included in request headers.
 
 Specifies the relationship between request initiator's origin and target's origin.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-Site`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
 * URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: `Sec-Fetch-Site`
@@ -290,7 +284,7 @@ Specifies the relationship between request initiator's origin and target's origi
   * Evidence: ``
   * Other Info: ``
 
-Instances: 2
+Instances: 1
 
 ### Solution
 
@@ -374,15 +368,8 @@ The given response has been identified as containing a session management token.
   * Evidence: `a8894741baea75da9212bea47d18c73c`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `a8894741baea75da9212bea47d18c73c`
-  * Other Info: `
-cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
-Instances: 2
+Instances: 1
 
 ### Solution
 
