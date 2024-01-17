@@ -8,7 +8,7 @@
 | High | 0 |
 | Medium | 0 |
 | Low | 2 |
-| Informational | 6 |
+| Informational | 7 |
 
 
 
@@ -17,14 +17,15 @@
 
 | Name | Risk Level | Number of Instances |
 | --- | --- | --- |
-| Cookie with SameSite Attribute None | Low | 3 |
+| Cookie with SameSite Attribute None | Low | 1 |
 | Strict-Transport-Security Header Not Set | Low | 3 |
-| Non-Storable Content | Informational | 3 |
+| Non-Storable Content | Informational | 1 |
 | Sec-Fetch-Dest Header is Missing | Informational | 3 |
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
 | Sec-Fetch-Site Header is Missing | Informational | 2 |
 | Sec-Fetch-User Header is Missing | Informational | 3 |
-| Session Management Response Identified | Informational | 3 |
+| Session Management Response Identified | Informational | 2 |
+| Storable and Cacheable Content | Informational | 2 |
 
 
 
@@ -49,20 +50,8 @@ A cookie has been set with its SameSite attribute set to "none", which means tha
   * Attack: ``
   * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Other Info: ``
 
-Instances: 3
+Instances: 1
 
 ### Solution
 
@@ -149,20 +138,8 @@ The response contents are not storable by caching components such as proxy serve
   * Attack: ``
   * Evidence: `private`
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: ``
-  * Attack: ``
-  * Evidence: `private`
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
-  * Method: `GET`
-  * Parameter: ``
-  * Attack: ``
-  * Evidence: `private`
-  * Other Info: ``
 
-Instances: 3
+Instances: 1
 
 ### Solution
 
@@ -397,14 +374,7 @@ The given response has been identified as containing a session management token.
   * Evidence: `a8894741baea75da9212bea47d18c73c`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `a8894741baea75da9212bea47d18c73c`
-  * Other Info: `
-cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
@@ -412,7 +382,7 @@ cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
-Instances: 3
+Instances: 2
 
 ### Solution
 
@@ -424,6 +394,54 @@ This is an informational alert rather than a vulnerability and so there is nothi
 * [ https://www.zaproxy.org/docs/desktop/addons/authentication-helper/session-mgmt-id ](https://www.zaproxy.org/docs/desktop/addons/authentication-helper/session-mgmt-id)
 
 
+
+#### Source ID: 3
+
+### [ Storable and Cacheable Content ](https://www.zaproxy.org/docs/alerts/10049/)
+
+
+
+##### Informational (Medium)
+
+### Description
+
+The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users.  If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where "shared" caching servers such as "proxy" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.
+
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
+  * Method: `GET`
+  * Parameter: ``
+  * Attack: ``
+  * Evidence: ``
+  * Other Info: `In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234.`
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
+  * Method: `GET`
+  * Parameter: ``
+  * Attack: ``
+  * Evidence: ``
+  * Other Info: `In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234.`
+
+Instances: 2
+
+### Solution
+
+Validate that the response does not contain sensitive, personal or user-specific information.  If it does, consider the use of the following HTTP response headers, to limit, or prevent the content being stored and retrieved from the cache by another user:
+Cache-Control: no-cache, no-store, must-revalidate, private
+Pragma: no-cache
+Expires: 0
+This configuration directs both HTTP 1.0 and HTTP 1.1 compliant caching servers to not store the response, and to not retrieve the response (without validation) from the cache, in response to a similar request. 
+
+### Reference
+
+
+* [ https://datatracker.ietf.org/doc/html/rfc7234 ](https://datatracker.ietf.org/doc/html/rfc7234)
+* [ https://datatracker.ietf.org/doc/html/rfc7231 ](https://datatracker.ietf.org/doc/html/rfc7231)
+* [ https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html ](https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html)
+
+
+#### CWE Id: [ 524 ](https://cwe.mitre.org/data/definitions/524.html)
+
+
+#### WASC Id: 13
 
 #### Source ID: 3
 
