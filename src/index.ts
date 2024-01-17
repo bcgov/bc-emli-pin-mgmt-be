@@ -73,7 +73,7 @@ const origin = (origin: any, callback: any) => {
 };
 
 const corsOptions = {
-    origin,
+    origin: true, // origin,
     optionsSuccessStatus: 200,
     exposedHeaders: ['Set-Cookie'],
     credentials: true,
