@@ -2390,7 +2390,7 @@
 							}
 						}
 					},
-					"407": {
+					"408": {
 						"description": "",
 						"content": {
 							"application/json": {
@@ -2400,7 +2400,7 @@
 							}
 						}
 					},
-					"408": {
+					"410": {
 						"description": "",
 						"content": {
 							"application/json": {

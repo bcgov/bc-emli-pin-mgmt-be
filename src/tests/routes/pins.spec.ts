@@ -1704,7 +1704,7 @@ describe('Pin endpoints', () => {
         expect(res.body.reason.errorMessage).toBe('PIN and PID do not match');
     });
 
-    test('verify PIN on not found error returns 407', async () => {
+    test('verify PIN on not found error returns 410', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -1717,7 +1717,7 @@ describe('Pin endpoints', () => {
                 pids: '1234',
             })
             .set({ 'x-api-key': key });
-        expect(res.statusCode).toBe(407);
+        expect(res.statusCode).toBe(410);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
