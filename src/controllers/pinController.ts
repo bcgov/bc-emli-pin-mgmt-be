@@ -1558,7 +1558,7 @@ export class PINController extends Controller {
             UnauthorizedErrorResponse
         >,
         @Res() verificationErrorResponse: TsoaResponse<418, verifyPinResponse>,
-        @Res() notFoundErrorResponse: TsoaResponse<407, verifyPinResponse>,
+        @Res() notFoundErrorResponse: TsoaResponse<410, verifyPinResponse>,
         @Res() serverErrorResponse: TsoaResponse<408, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
@@ -1602,7 +1602,7 @@ export class PINController extends Controller {
             }
             if (err instanceof NotFoundError) {
                 logger.warn(`Encountered error in verifyPin: ${err.message}`);
-                return notFoundErrorResponse(407, {
+                return notFoundErrorResponse(410, {
                     verified: false,
                     reason: {
                         errorType: 'NotFoundError',

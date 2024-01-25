@@ -2390,7 +2390,7 @@
 							}
 						}
 					},
-					"407": {
+					"408": {
 						"description": "",
 						"content": {
 							"application/json": {
@@ -2400,7 +2400,7 @@
 							}
 						}
 					},
-					"408": {
+					"410": {
 						"description": "",
 						"content": {
 							"application/json": {
@@ -2421,7 +2421,7 @@
 						}
 					}
 				},
-				"description": "Verifies the user given a PIN and the pid(s) associated with the title.\nNote: some of the error return codes here are not semantically correct. \nThis is because of external vendor requirements and is unavoidable.",
+				"description": "Verifies the user given a PIN and the pid(s) associated with the title.\nNote: some of the error return codes here are not semantically correct.\nThis is because of external vendor requirements and is unavoidable.",
 				"security": [
 					{
 						"vhers_api_key": []
