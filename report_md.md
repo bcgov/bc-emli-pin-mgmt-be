@@ -22,9 +22,9 @@
 | Non-Storable Content | Informational | 1 |
 | Sec-Fetch-Dest Header is Missing | Informational | 3 |
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
-| Sec-Fetch-Site Header is Missing | Informational | 2 |
+| Sec-Fetch-Site Header is Missing | Informational | 1 |
 | Sec-Fetch-User Header is Missing | Informational | 3 |
-| Session Management Response Identified | Informational | 2 |
+| Session Management Response Identified | Informational | 3 |
 | Storable and Cacheable Content | Informational | 2 |
 
 
@@ -283,14 +283,8 @@ Specifies the relationship between request initiator's origin and target's origi
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-Site`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
 
-Instances: 2
+Instances: 1
 
 ### Solution
 
@@ -371,7 +365,7 @@ The given response has been identified as containing a session management token.
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `f3fa6cbaf6872becff48dad23f8b3afc`
+  * Evidence: `6340b3dc63fcea19967bc644fba92ab5`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 * URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
@@ -381,8 +375,15 @@ cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Evidence: `f3fa6cbaf6872becff48dad23f8b3afc`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
+  * Method: `GET`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
+  * Attack: ``
+  * Evidence: `6340b3dc63fcea19967bc644fba92ab5`
+  * Other Info: `
+cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
-Instances: 2
+Instances: 3
 
 ### Solution
 
