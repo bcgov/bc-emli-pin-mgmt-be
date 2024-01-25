@@ -377,7 +377,7 @@ The given response has been identified as containing a session management token.
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `2b940f1627b2e7db313fb71f6b0a94db`
+  * Evidence: `6340b3dc63fcea19967bc644fba92ab5`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
