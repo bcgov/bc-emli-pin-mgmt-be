@@ -9,6 +9,7 @@ import {
     invalidCreatePinBodyNoPhoneEmail,
     validCreatePinBodyInc,
     validCreatePinBodyName,
+    weightsThresholds,
 } from '../commonResponses';
 
 describe('pinController private function tests', () => {
@@ -50,6 +51,7 @@ describe('pinController private function tests', () => {
 
     // pinResultValidate tests
     test('pinResultValidate should return a perfect score on valid comparison with incorporation number', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyInc;
         body.addressLine_2 = 'Unit 100';
@@ -67,11 +69,13 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         expect(score.weightedAverage).toBe(1);
     });
 
     test('pinResultValidate should return a perfect score on valid comparison with name', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -89,12 +93,14 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         expect(score.weightedAverage).toBe(1);
         delete body.lastName_2;
     });
 
     test('pinResultValidate should return a less than perfect score with the street not matching', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -110,6 +116,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.streetAddressWeight > 0) {
@@ -121,6 +128,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return the appropriate score according to threshold with last name not matching', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -136,6 +144,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.lastNamesWeight > 0) {
@@ -145,6 +154,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return less than a perfect score with province not matching', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -160,6 +170,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.provinceAbbreviationWeight > 0) {
@@ -171,6 +182,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return less than a perfect score with postal code in pin but not body', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         body.postalCode = undefined;
@@ -187,6 +199,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.postalCodeWeight > 0) {
@@ -196,6 +209,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return less than a perfect score with postal code not matching', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         body.postalCode = 'ABCDEFG';
@@ -212,6 +226,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.postalCodeWeight > 0) {
@@ -223,6 +238,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should not score postal code when not present in pin', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         body.city = 'Vancouver';
@@ -240,12 +256,14 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         expect(score.postalCodeScore).toBeUndefined();
         expect(score.weightedAverage).toBe(1);
     });
 
     test('pinResultValidate should return lower score with non matching incorporation number', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyInc;
         pin.pids = '1234|5678';
@@ -260,6 +278,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.incorporationNumberWeight > 0) {
@@ -271,6 +290,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return lower score with incorporation number in pin but not body', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyInc;
         newbody.incorporationNumber = undefined;
@@ -286,6 +306,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.incorporationNumberWeight > 0) {
@@ -295,6 +316,7 @@ describe('pinController private function tests', () => {
     });
 
     test(`pinResultValidate should return lower score with city not matching`, async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -309,6 +331,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.cityWeight > 0) {
@@ -318,6 +341,7 @@ describe('pinController private function tests', () => {
     });
 
     test(`pinResultValidate should return lower score with city in pin but not body`, async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyName;
         newbody.city = undefined;
@@ -333,6 +357,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.cityWeight > 0) {
@@ -342,6 +367,7 @@ describe('pinController private function tests', () => {
     });
 
     test(`pinResultValidate should return lower score with province in pin but not body`, async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyName;
         newbody.provinceAbbreviation = undefined;
@@ -357,6 +383,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.provinceAbbreviationWeight > 0) {
@@ -380,6 +407,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.countryWeight > 0) {
@@ -389,6 +417,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return lower score with country in pin but not body', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = invalidCreatePinBodyNoCountry;
         newbody.country = undefined;
@@ -403,6 +432,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.countryWeight > 0) {
@@ -412,6 +442,7 @@ describe('pinController private function tests', () => {
     });
 
     test(`pinResultValidate should return lower score if given name doesn't match`, async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -426,6 +457,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.givenNameWeight > 0) {
@@ -435,6 +467,7 @@ describe('pinController private function tests', () => {
     });
 
     test(`pinResultValidate should return lower score with given name in pin but not body`, async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const newbody = validCreatePinBodyName;
         newbody.givenName = undefined;
@@ -450,6 +483,7 @@ describe('pinController private function tests', () => {
             newbody,
             pin,
             1,
+            weightsThresholds,
         );
         const weights = (await (proto as any).dynamicImportCaller()).weights;
         if (weights.givenNameWeight > 0) {
@@ -459,6 +493,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should return faults when lacking city, postal code, addressline_1 and lastName_1 in pin', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -471,6 +506,7 @@ describe('pinController private function tests', () => {
             body,
             pin,
             1,
+            weightsThresholds,
         );
         expect(faults.length).toBe(3);
         expect(faults[0]).toBe(
@@ -485,6 +521,7 @@ describe('pinController private function tests', () => {
     });
 
     test('pinResultValidate should throw an error when the number of owners in pin and parameters does not match', async () => {
+        const weightsThresholds = await (proto as any).dynamicImportCaller();
         const pin: ActivePin = new ActivePin();
         const body = validCreatePinBodyName;
         pin.pids = '1234|5678';
@@ -497,40 +534,49 @@ describe('pinController private function tests', () => {
         pin.postalCode = 'V1V1V1';
 
         await expect(
-            (proto as any).pinResultValidate(body, pin, 7),
+            (proto as any).pinResultValidate(body, pin, 7, weightsThresholds),
         ).rejects.toThrow('Number of owners does not match -- automatic fail.');
     });
 
     // dynamicImportCaller tests
-    test(`dynamicImportController throws error if a required field is of the wrong type`, async () => {
+    test(`dynamicImportCaller throws error if a required field is of the wrong type`, async () => {
         jest.spyOn(JSON, 'parse').mockImplementationOnce(() => {
             return {};
         });
-        await expect((proto as any).dynamicImportCaller()).rejects.toThrow(
-            'Missing required fields in import',
-        );
+        expect(() => {
+            (proto as any).dynamicImportCaller();
+        }).toThrow('Missing required fields in import');
     });
 
-    // score tests
-    test(`score should throw error when first parameter is null`, () => {
-        expect(() => {
-            (proto as any).score(null, 'a', 1);
-        }).toThrow('Base string cannot be null.');
+    test(`dynamicImportCaller throws error if a threshold is higher than allowed`, async () => {
+        jest.spyOn(JSON, 'parse').mockImplementationOnce(() => {
+            return {
+                weights: { a: 1 },
+                thresholds: { b: 20 },
+                fuzzinessCoefficients: { c: 5 },
+                streetAddressLooseMatchReductionCoefficient: 0.2,
+            };
+        });
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const result = (proto as any).dynamicImportCaller();
+        } catch (err) {
+            if (err instanceof AggregateError) {
+                expect(err.errors).toHaveLength(2);
+                expect(err.errors[0]).toBe(
+                    'Invalid scoring threshold "b". Please provide thresholds between 0 and 1 inclusive.',
+                );
+                expect(err.errors[1]).toBe(
+                    'Invalid fuzziness coefficient "c". Please provide fuzziness coeffiecients less than or equal to 1.',
+                );
+                return;
+            }
+        }
+        fail();
     });
 
-    test(`score should throw error when threshold is too high`, () => {
-        expect(() => {
-            (proto as any).score('a', 'a', 1000);
-        }).toThrow(
-            'Invalid scoring threshold. Please provide thresholds between 0 and 1 inclusive.',
-        );
-    });
-
-    test(`score should throw error when fuzziness is too high`, () => {
-        expect(() => {
-            (proto as any).score('a', 'a', 1, 1000);
-        }).toThrow(
-            'Invalid fuzziness coefficient. Please provide fuzziness coeffiecients less than or equal to 1.',
-        );
+    // score test
+    test(`score returns a value`, () => {
+        expect((proto as any).score('ab', 'ab', 0.9)).toBe(1);
     });
 });

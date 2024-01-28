@@ -201,6 +201,110 @@ describe('Active PIN db tests', () => {
         );
     });
 
+    // single update pin tests
+    test('singleUpdatePin returns updated pins with no requester name or username', async () => {
+        const logInfo = { affected: 1 } as UpdateResult;
+        const regenerateOrCreate = 'create' as string;
+        const returnValue = [logInfo, regenerateOrCreate];
+        const pins: ActivePin = new ActivePin();
+        pins.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+        const emailPhone = { email: 'email@example.com' };
+        const propertyAddress = '123 Example St';
+        /*
+         * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
+         * mock the whole thing and not the individual db calls within it.
+         */
+        jest.spyOn(DataSource.prototype, 'transaction').mockResolvedValueOnce(
+            returnValue,
+        );
+        const response = await ActivePIN.singleUpdatePin(
+            pins,
+            emailPhone,
+            propertyAddress,
+        );
+        expect(response[0].length).toBe(0);
+    });
+
+    test('singleUpdatePin returns updated pins with requester name and username', async () => {
+        const logInfo = { affected: 1 } as UpdateResult;
+        const regenerateOrCreate = 'create' as string;
+        const returnValue = [logInfo, regenerateOrCreate];
+        const pins: ActivePin = new ActivePin();
+        pins.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+        const emailPhone = { email: 'email@example.com' };
+        const requesterUsername = 'jsmith';
+        /*
+         * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
+         * mock the whole thing and not the individual db calls within it.
+         */
+        jest.spyOn(DataSource.prototype, 'transaction').mockResolvedValueOnce(
+            returnValue,
+        );
+        const response = await ActivePIN.singleUpdatePin(
+            pins,
+            emailPhone,
+            requesterUsername,
+        );
+        expect(response[0].length).toBe(0);
+    });
+
+    test(`singleUpdatePin returns error when there's an error in the transaction`, async () => {
+        const pins: ActivePin = new ActivePin();
+        pins.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+        const emailPhone = { email: 'email@example.com' };
+        const requesterUsername = 'jsmith';
+        /*
+         * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
+         * mock the whole thing and not the individual db calls within it.
+         */
+        jest.spyOn(DataSource.prototype, 'transaction').mockImplementationOnce(
+            async () => {
+                throw new Error('An unknown error occurred');
+            },
+        );
+        const response = await ActivePIN.singleUpdatePin(
+            pins,
+            emailPhone,
+            requesterUsername,
+        );
+        expect(response[0].length).toBe(2);
+        expect(response[0][0]).toBe(
+            'An error occured while updating updatedPin in singleUpdatePin: An unknown error occurred',
+        );
+        expect(response[0][1]).toBe(
+            'An error occured while updating updatedPin in singleUpdatePin: No rows were affected by the update',
+        );
+    });
+
+    test('singleUpdatePin returns error when no rows were affected', async () => {
+        const logInfo = { affected: 0 } as UpdateResult;
+        const returnValue = {
+            logInfo: logInfo,
+        };
+        const pins: ActivePin = new ActivePin();
+        pins.livePinId = 'cf430240-e5b6-4224-bd71-a02e098cc6e8';
+        const emailPhone = { email: 'email@example.com' };
+        const propertyAddress = '123 Example St';
+        /*
+         * Unfortunately, because the other typeORM calls are wrapped in a transaction, I have to
+         * mock the whole thing and not the individual db calls within it.
+         */
+        jest.spyOn(DataSource.prototype, 'transaction').mockResolvedValueOnce(
+            returnValue,
+        );
+        const response = await ActivePIN.singleUpdatePin(
+            pins,
+            emailPhone,
+            propertyAddress,
+            'Username',
+            'Name',
+        );
+        expect(response[0].length).toBe(1);
+        expect(response[0][0]).toBe(
+            'An error occured while updating updatedPin in singleUpdatePin: No rows were affected by the update',
+        );
+    });
+
     test('findPropertyDetails returns property details with pin for view pin permission', async () => {
         jest.spyOn(Repository.prototype, 'find').mockImplementationOnce(
             async () => {
