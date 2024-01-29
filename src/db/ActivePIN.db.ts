@@ -511,9 +511,9 @@ export async function singleUpdatePin(
         transactionReturn[0].affected &&
         transactionReturn[0].affected !== 0
     ) {
-        logger.debug(
-            `Successfully updated ActivePIN with live_pin_id '${updatedPins.livePinId}'`,
-        );
+        // logger.debug(
+        //     `Successfully updated ActivePIN with live_pin_id '${updatedPins.livePinId}'`,
+        // );
     } else {
         const message = `An error occured while updating updatedPin in singleUpdatePin: No rows were affected by the update`;
         logger.warn(message);
