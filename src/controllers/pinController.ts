@@ -37,7 +37,12 @@ import {
 } from '../helpers/types';
 import PINGenerator from '../helpers/PINGenerator';
 import logger from '../middleware/logger';
-import { batchUpdatePin, deletePin, findPin } from '../db/ActivePIN.db';
+import {
+    batchUpdatePin,
+    deletePin,
+    findPin,
+    singleUpdatePin,
+} from '../db/ActivePIN.db';
 import { EntityNotFoundError, Like, TypeORMError } from 'typeorm';
 import { ActivePin } from '../entity/ActivePin';
 import {
@@ -58,6 +63,11 @@ import { RequiredFieldError } from '../helpers/RequiredFieldError';
 
 @Route('pins')
 export class PINController extends Controller {
+    private weightsAndThresholds: any;
+    constructor() {
+        super();
+        this.weightsAndThresholds = this.dynamicImportCaller();
+    }
     /**
      * Used to validate that a create pin request body has all the required fields.
      * @returns An array of 'faults' (validation errors), or an empty array if there are no errors
@@ -93,7 +103,7 @@ export class PINController extends Controller {
     /**
      * Used to import the JSON with the weights dynamically
      */
-    private async dynamicImportCaller() {
+    private dynamicImportCaller() {
         const json = JSON.parse(
             readFileSync(
                 path.join(__dirname, '/../../matchWeightsThresholds.json'),
@@ -105,9 +115,46 @@ export class PINController extends Controller {
             (json.weights as { [key: string]: number }) &&
             (json.fuzzinessCoefficients as { [key: string]: number }) &&
             (json.streetAddressLooseMatchReductionCoefficient as number)
-        )
+        ) {
+            const errors = this.checkImportValueValidity(json);
+            if (errors.length > 0) {
+                throw new AggregateError(errors);
+            }
             return json;
-        else throw new Error(`Missing required fields in import`);
+        } else throw new Error(`Missing required fields in import`);
+    }
+
+    /**
+     * Used to do guard checks on input scoring parameters that should remain the same
+     * This reduces the load on the API
+     */
+    private checkImportValueValidity(
+        importThresholdsAndFuzziness: any,
+    ): string[] {
+        const thresholds: [string, number][] = Object.entries(
+            importThresholdsAndFuzziness.thresholds,
+        );
+        const fuzzy: [string, number][] = Object.entries(
+            importThresholdsAndFuzziness.fuzzinessCoefficients,
+        );
+        const errors: string[] = [];
+        for (const threshold of thresholds) {
+            if (threshold[1] > 1 || threshold[1] < 0)
+                errors.push(
+                    `Invalid scoring threshold "${threshold[0]}". Please provide thresholds between 0 and 1 inclusive.`,
+                );
+        }
+        for (const fuzziness of fuzzy) {
+            if (
+                fuzziness[1] &&
+                (!Number.isFinite(fuzziness[1]) || fuzziness[1] > 1)
+            )
+                // we don't check for negative numbers because these technically work, they just provide very low scores
+                errors.push(
+                    `Invalid fuzziness coefficient "${fuzziness[0]}". Please provide fuzziness coeffiecients less than or equal to 1.`,
+                );
+        }
+        return errors;
     }
 
     /**
@@ -115,22 +162,11 @@ export class PINController extends Controller {
      * either with an exact match if threshold === 1 or fuzzy match otherwise
      */
     private score(
-        base: string | null,
+        base: string,
         compare: string,
         threshold: number,
         fuzziness = 1,
     ): number {
-        if (base === null) throw new Error(`Base string cannot be null.`);
-        if (threshold > 1 || threshold < 0)
-            throw new Error(
-                'Invalid scoring threshold. Please provide thresholds between 0 and 1 inclusive.',
-            );
-        if (fuzziness && (!Number.isFinite(fuzziness) || fuzziness > 1))
-            // we don't check for negative numbers because these technically work, they just provide very low scores
-            throw new Error(
-                'Invalid fuzziness coefficient. Please provide fuzziness coeffiecients less than or equal to 1.',
-            );
-
         if (threshold === 1)
             // exact match
             return base.trim().toLowerCase() === compare.trim().toLowerCase()
@@ -148,12 +184,12 @@ export class PINController extends Controller {
      * Used to validate that the result from the db matches the create request so that a pin can be created
      * @param requestBody The request body to validate against
      * @param pinResult The individual ActivePin result to validate against
-     * @returns a
      */
     private async pinResultValidate(
         requestBody: createPinRequestBody,
         pinResult: ActivePin,
         ownerNumber: number,
+        weightsAndThresholds: any,
     ): Promise<addressMatchScore | string[]> {
         // Fail if owner number doesn't match. This isn't a fuzzy match: it's exact
         if (requestBody.numberOfOwners !== ownerNumber) {
@@ -201,8 +237,20 @@ export class PINController extends Controller {
         }
 
         // Do fuzzy matching on each field to determine a score
-        const weightsAndThresholds = await this.dynamicImportCaller();
-        const weights: { [key: string]: number } = weightsAndThresholds.weights;
+        const weights: { [key: string]: number } = {
+            givenNameWeight: weightsAndThresholds.weights.givenNameWeight,
+            lastNamesWeight: weightsAndThresholds.weights.lastNamesWeight,
+            incorporationNumberWeight:
+                weightsAndThresholds.weights.incorporationNumberWeight,
+            ownerNumberWeight: weightsAndThresholds.weights.ownerNumberWeight,
+            streetAddressWeight:
+                weightsAndThresholds.weights.streetAddressWeight,
+            cityWeight: weightsAndThresholds.weights.cityWeight,
+            provinceAbbreviationWeight:
+                weightsAndThresholds.weights.provinceAbbreviationWeight,
+            countryWeight: weightsAndThresholds.weights.countryWeight,
+            postalCodeWeight: weightsAndThresholds.weights.postalCodeWeight,
+        };
         const thresholds: { [key: string]: number } =
             weightsAndThresholds.thresholds;
         const coefficients: { [key: string]: number } =
@@ -283,7 +331,7 @@ export class PINController extends Controller {
         )
             combinedResultLastNames += ' ' + pinResult.lastName_2.trim();
         lastNamesScore = this.score(
-            combinedResultLastNames,
+            combinedResultLastNames as string,
             combinedRequestLastNames,
             thresholds.lastNamesThreshold,
             coefficients.lastNamesFuzzyCoefficient,
@@ -311,7 +359,7 @@ export class PINController extends Controller {
         )
             combinedResultAddress += ' ' + pinResult.addressLine_2.trim();
         streetAddressScore = this.score(
-            combinedResultAddress,
+            combinedResultAddress as string,
             combinedRequestAddress,
             thresholds.streetAddressThreshold,
             coefficients.streetAddressFuzzyCoefficient,
@@ -410,13 +458,13 @@ export class PINController extends Controller {
 
         // Adjust weights if required
         let totalWeight =
-            weights.lastNamesWeight +
-            weights.ownerNumberWeight +
-            weights.streetAddressWeight +
-            weights.cityWeight +
-            weights.provinceAbbreviationWeight +
-            weights.countryWeight +
-            weights.postalCodeWeight;
+            weightsAndThresholds.weights.lastNamesWeight +
+            weightsAndThresholds.weights.ownerNumberWeight +
+            weightsAndThresholds.weights.streetAddressWeight +
+            weightsAndThresholds.weights.cityWeight +
+            weightsAndThresholds.weights.provinceAbbreviationWeight +
+            weightsAndThresholds.weights.countryWeight +
+            weightsAndThresholds.weights.postalCodeWeight;
 
         // For single owners
         if (!Number.isNaN(givenNameScore)) {
@@ -531,8 +579,8 @@ export class PINController extends Controller {
         for (const entry of resultEntries) weightedAverage += entry;
         weightedAverage = weightedAverage / denominator;
         result = { ...result, weightedAverage };
-        logger.info(`Result score info below:`);
-        logger.info(result);
+        // logger.info(`Result score info below:`);
+        // logger.info(result);
         return result as addressMatchScore;
     }
 
@@ -592,7 +640,6 @@ export class PINController extends Controller {
 
         const updateResults = [];
         const borderlineResults = [];
-        const weightsThresholds = await this.dynamicImportCaller();
         const pinResultKeys = Object.keys(pinResults);
         const contactMessages = new Set<string>();
 
@@ -606,6 +653,7 @@ export class PINController extends Controller {
                             requestBody,
                             pinResults[key][i],
                             titleOwners,
+                            this.weightsAndThresholds,
                         );
                         if (!('weightedAverage' in matchScore)) {
                             // it's a string array
@@ -625,7 +673,8 @@ export class PINController extends Controller {
                         });
                     } else if (
                         matchScore.weightedAverage >=
-                        weightsThresholds.thresholds.overallThreshold
+                        (this.weightsAndThresholds as any).thresholds
+                            .overallThreshold
                     ) {
                         updateResults.push({
                             ActivePin: pinResults[key][i],
@@ -633,7 +682,8 @@ export class PINController extends Controller {
                         });
                     } else if (
                         matchScore.weightedAverage >=
-                        weightsThresholds.thresholds.borderlineThreshold
+                        (this.weightsAndThresholds as any).thresholds
+                            .borderlineThreshold
                     ) {
                         borderlineResults.push({
                             ActivePin: pinResults[key][i],
@@ -655,12 +705,12 @@ export class PINController extends Controller {
             updateResults,
             borderlineResults,
             contactMessages,
-            weightsThresholds,
+            weightsThresholds: this.weightsAndThresholds,
         };
     }
 
     /**
-     * Helper function dealing with the error messages for the adress score
+     * Helper function dealing with the error messages for the address score
      */
     private noAddressResultErrMessage(
         @Body() requestBody: createPinRequestBody,
@@ -727,10 +777,11 @@ export class PINController extends Controller {
         const gen: PINGenerator = new PINGenerator();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result: any[] = [];
-
         const score = await this.addressScoreRank(requestBody);
 
-        if (
+        if (score.updateResults.length > 0) {
+            // skip the next checks
+        } else if (
             score.updateResults.length <= 0 &&
             score.borderlineResults.length <= 0
         ) {
@@ -789,18 +840,18 @@ export class PINController extends Controller {
         };
 
         // Insert into DB
-        const batchUpdatePinResponse = await batchUpdatePin(
-            [resultToUpdate],
+        const updatePinResponse = await singleUpdatePin(
+            resultToUpdate,
             emailPhone,
             requestBody.propertyAddress,
         );
 
-        const errors = batchUpdatePinResponse[0];
+        const errors = updatePinResponse[0];
 
         if (errors.length >= 1) {
             throw new AggregateError(
                 errors,
-                `Error(s) occured in batchUpdatePin: `,
+                `Error(s) occured in singleUpdatePin: `,
             );
         }
 
@@ -1003,7 +1054,7 @@ export class PINController extends Controller {
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
     ) {
         try {
-            const values = await this.dynamicImportCaller();
+            const values = this.dynamicImportCaller();
             return values;
         } catch (err) {
             if (err instanceof Error) {
@@ -1027,7 +1078,7 @@ export class PINController extends Controller {
      * - `422`
      * -- `PIN must be of length 1 or greater`
      * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
-     * -- `Error(s) occured in batchUpdatePin: []`
+     * -- `Error(s) occured in singleUpdatePin: []`
      * - `500`
      *  -- `Internal Server Error`
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
@@ -1103,7 +1154,7 @@ export class PINController extends Controller {
      * - `422`
      * -- `PIN must be of length 1 or greater`
      * -- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`
-     * -- `Error(s) occured in batchUpdatePin: []`
+     * -- `Error(s) occured in singleUpdatePin: []`
      * - `500`
      *  -- `Internal Server Error`
      * @param The request body. See 'createRequestPinBody' in schemas for more details.
@@ -1558,7 +1609,7 @@ export class PINController extends Controller {
             UnauthorizedErrorResponse
         >,
         @Res() verificationErrorResponse: TsoaResponse<418, verifyPinResponse>,
-        @Res() notFoundErrorResponse: TsoaResponse<407, verifyPinResponse>,
+        @Res() notFoundErrorResponse: TsoaResponse<410, verifyPinResponse>,
         @Res() serverErrorResponse: TsoaResponse<408, verifyPinResponse>,
         @Body() requestBody: verifyPinRequestBody,
     ): Promise<verifyPinResponse> {
@@ -1602,7 +1653,7 @@ export class PINController extends Controller {
             }
             if (err instanceof NotFoundError) {
                 logger.warn(`Encountered error in verifyPin: ${err.message}`);
-                return notFoundErrorResponse(407, {
+                return notFoundErrorResponse(410, {
                     verified: false,
                     reason: {
                         errorType: 'NotFoundError',

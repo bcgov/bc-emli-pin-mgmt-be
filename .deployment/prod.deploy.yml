@@ -276,6 +276,11 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-be
                       key: PROPERATE_TEST_URL
+                - name: PROPERATE_PROD_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: PROPERATE_PROD_URL
                 - name: GC_NOTIFY_UPDATE_USER_EMAIL_TEMPLATE_ID
                   valueFrom:
                     secretKeyRef:
@@ -306,6 +311,11 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-be
                       key: METABASE_DASHBOARD_NUMBER
+                - name: POOL_SIZE
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: POOL_SIZE
               ports:
                 - containerPort: 3000
                   protocol: TCP

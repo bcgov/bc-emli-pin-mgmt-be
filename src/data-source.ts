@@ -44,4 +44,9 @@ export const AppDataSource = new DataSource({
     logging:
         process.env.TYPEORM_LOGGING?.toLowerCase() === 'true' ? true : false,
     dropSchema: false,
+    poolSize:
+        typeof process.env.POOL_SIZE === 'undefined' ||
+        process.env.POOL_SIZE === '500'
+            ? 500
+            : parseInt(process.env.POOL_SIZE),
 });

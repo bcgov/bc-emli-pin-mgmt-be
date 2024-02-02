@@ -1,0 +1,3 @@
+DELETE FROM active_pin WHERE created_at >= (SELECT created_at FROM active_pin WHERE live_pin_id='abcd0000-0000-0000-0000-000000000000' ORDER BY created_at ASC LIMIT 1);
+DELETE FROM vhers_audit_log WHERE created_at >= (SELECT created_at FROM vhers_audit_log WHERE endpoint_name='loadteststart' ORDER BY created_at ASC LIMIT 1);
+DELETE FROM pin_audit_log WHERE log_created_at >= (SELECT log_created_at FROM pin_audit_log WHERE live_pin_id='abcd0000-0000-0000-0000-000000000000' ORDER BY log_created_at ASC LIMIT 1);

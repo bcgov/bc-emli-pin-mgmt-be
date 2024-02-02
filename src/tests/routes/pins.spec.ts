@@ -104,9 +104,9 @@ describe('Pin endpoints', () => {
                 return { pin: 'ABCD1234' };
             },
         );
-        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+        jest.spyOn(ActivePIN, 'singleUpdatePin').mockImplementationOnce(
             async (
-                updatedPins: ActivePin[],
+                updatedPins: ActivePin,
                 sendToInfo: emailPhone,
                 propertyAddress: string,
                 requesterUsername?: string,
@@ -168,16 +168,16 @@ describe('Pin endpoints', () => {
                 return { pin: 'ABCD1234' };
             },
         );
-        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+        jest.spyOn(ActivePIN, 'singleUpdatePin').mockImplementationOnce(
             async (
-                updatedPins: ActivePin[],
+                updatedPins: ActivePin,
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [[], 'recreate'];
+                if (updatedPins.pin === 'ABCD1234') return [[], 'recreate'];
                 return [
                     [
-                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                        `An error occured while updating updatedPin in singleUpdatePin: unknown error`,
                     ],
                     `create`,
                 ];
@@ -613,7 +613,7 @@ describe('Pin endpoints', () => {
         );
     });
 
-    test('vhers-create on no batch update returns 422', async () => {
+    test('vhers-create on no update returns 422', async () => {
         jest.spyOn(ActivePIN, 'findPin').mockImplementationOnce(
             async (select?: object | undefined, where?: object | undefined) => {
                 const pin1 = new ActivePin();
@@ -643,9 +643,9 @@ describe('Pin endpoints', () => {
                 return { pin: 'ABCD1234' };
             },
         );
-        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+        jest.spyOn(ActivePIN, 'singleUpdatePin').mockImplementationOnce(
             async (
-                updatedPins: ActivePin[],
+                updatedPins: ActivePin,
                 sendToInfo: emailPhone,
                 propertyAddress: string,
                 requesterUsername?: string,
@@ -653,7 +653,7 @@ describe('Pin endpoints', () => {
             ) => {
                 return [
                     [
-                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                        `An error occured while updating updatedPin in singleUpdatePin: unknown error`,
                     ],
                     `create`,
                 ];
@@ -666,10 +666,10 @@ describe('Pin endpoints', () => {
             .send(reqBody)
             .set({ 'x-api-key': key });
         expect(res.statusCode).toBe(422);
-        expect(res.body.message).toBe('Error(s) occured in batchUpdatePin: ');
+        expect(res.body.message).toBe('Error(s) occured in singleUpdatePin: ');
         expect(res.body.faults.length).toBe(1);
         expect(res.body.faults[0]).toBe(
-            'An error occured while updating updatedPins[0] in batchUpdatePin: unknown error',
+            'An error occured while updating updatedPin in singleUpdatePin: unknown error',
         );
     });
 
@@ -1023,16 +1023,16 @@ describe('Pin endpoints', () => {
                 return { pin: 'ABCD1234' };
             },
         );
-        jest.spyOn(ActivePIN, 'batchUpdatePin').mockImplementationOnce(
+        jest.spyOn(ActivePIN, 'singleUpdatePin').mockImplementationOnce(
             async (
-                updatedPins: ActivePin[],
+                updatedPins: ActivePin,
                 sendToInfo: emailPhone,
                 requesterUsername?: string,
             ) => {
-                if (updatedPins[0].pin === 'ABCD1234') return [[], ''];
+                if (updatedPins.pin === 'ABCD1234') return [[], ''];
                 return [
                     [
-                        `An error occured while updating updatedPins[0] in batchUpdatePin: unknown error`,
+                        `An error occured while updating updatedPin in singleUpdatePin: unknown error`,
                     ],
                     `create`,
                 ];
@@ -1704,7 +1704,7 @@ describe('Pin endpoints', () => {
         expect(res.body.reason.errorMessage).toBe('PIN and PID do not match');
     });
 
-    test('verify PIN on not found error returns 407', async () => {
+    test('verify PIN on not found error returns 410', async () => {
         const spy = jest
             .spyOn(ActivePIN, 'findPin')
             .mockImplementationOnce(async () => {
@@ -1717,7 +1717,7 @@ describe('Pin endpoints', () => {
                 pids: '1234',
             })
             .set({ 'x-api-key': key });
-        expect(res.statusCode).toBe(407);
+        expect(res.statusCode).toBe(410);
         expect(res.body.verified).toBeFalsy;
         expect(res.body.reason).toBeDefined();
         expect(res.body.reason.errorType).toBe('NotFoundError');
@@ -1758,12 +1758,11 @@ describe('Pin endpoints', () => {
     });
 
     test('thresholds on any error returns 500', async () => {
-        jest.spyOn(
-            PINController.prototype as any,
-            'dynamicImportCaller',
-        ).mockImplementationOnce(async () => {
-            throw new Error('Unknown error');
-        });
+        jest.spyOn(PINController.prototype as any, 'dynamicImportCaller')
+            .mockImplementationOnce(() => {})
+            .mockImplementationOnce(() => {
+                throw new Error('Missing required fields in import');
+            });
         const res = await request(app)
             .get('/pins/thresholds')
             .set({ 'x-api-key': key });

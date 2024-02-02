@@ -171,7 +171,7 @@ export async function deletePin(
 }
 
 /**
- * Batch save pins that need an update, while also properly up[dating the logs
+ * Batch save pins that need an update, while also properly updating the logs
  * @param updatedPins The Array of pins with changes to save
  * @param sendToInfo The email and/or phone number of who the new pin should be sent to
  * @param requesterName The person requesting the (re)creation. Can be blank if it's the person themselves
@@ -345,6 +345,179 @@ export async function batchUpdatePin(
             logger.warn(message);
             errors.push(message);
         }
+    }
+    return [errors, regenerateOrCreate];
+}
+
+/**
+ * Single save pins that need an update, while also properly updating the logs
+ * @param updatedPins The Array of pins with changes to save
+ * @param sendToInfo The email and/or phone number of who the new pin should be sent to
+ * @param requesterName The person requesting the (re)creation. Can be blank if it's the person themselves
+ * @param requesterUsername The username of the person requesting the (re)creation. Can be blank if it's the person themselves
+ * @returns An array of errors that occured / entries that were not processed, or an empty array upon total success.
+ */
+export async function singleUpdatePin(
+    updatedPins: ActivePin,
+    sendToInfo: emailPhone,
+    propertyAddress: string,
+    requesterUsername?: string,
+    requesterName?: string,
+): Promise<[string[], string]> {
+    const errors = [];
+    const regenerateOrCreate = '';
+    let expireUsername: string,
+        expireName: string,
+        reason: expirationReason,
+        logInfo: UpdateResult;
+    if (!requesterUsername || !requesterName) {
+        expireUsername = 'Self';
+        expireName = 'Self Requested';
+        reason = expirationReason.OnlineReset;
+    } else {
+        expireUsername = requesterUsername;
+        expireName = requesterName;
+        reason = expirationReason.CallCenterPinReset;
+    }
+    let emailTemplateId: string;
+    let phoneTemplateId: string;
+    let transactionReturn;
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const pin = await manager.findOne(ActivePin, {
+                    where: {
+                        livePinId: updatedPins.livePinId,
+                        pin: Not(IsNull()),
+                    },
+                });
+                let regenerateOrCreate: string;
+                if (pin?.pin) {
+                    regenerateOrCreate = 'regenerate';
+                } else {
+                    regenerateOrCreate = 'create';
+                }
+                await manager.save(updatedPins); // this fires the trigger to create an audit log
+                // Update the log with the correct info
+                let log,
+                    updateInfo = {};
+                if (regenerateOrCreate === 'create') {
+                    log = await manager.findOneOrFail(PinAuditLog, {
+                        order: {
+                            logCreatedAt: 'DESC', // looking for most recent log
+                        },
+                        where: { livePinId: updatedPins.livePinId },
+                    });
+                    updateInfo = {
+                        alteredByUsername: expireUsername,
+                        alteredByName: expireName,
+                        sentToEmail: sendToInfo.email,
+                        sentToPhone: sendToInfo.phoneNumber,
+                    };
+                    logInfo = await manager.update(
+                        PinAuditLog,
+                        { logId: log.logId },
+                        updateInfo,
+                    );
+                } else {
+                    log = await manager.find(PinAuditLog, {
+                        order: {
+                            logCreatedAt: 'DESC', // looking for most recent log first
+                        },
+                        where: { livePinId: updatedPins.livePinId },
+                        take: 2,
+                    });
+                    if (log.length === 2) {
+                        // put expiration on old pin
+                        updateInfo = {
+                            expirationReason: reason,
+                            expiredAt: new Date(),
+                        };
+                        logInfo = await manager.update(
+                            PinAuditLog,
+                            { logId: log[1].logId },
+                            updateInfo,
+                        );
+                        // put alteration info on the recreation
+                        updateInfo = {
+                            alteredByUsername: expireUsername,
+                            alteredByName: expireName,
+                            sentToEmail: sendToInfo.email,
+                            sentToPhone: sendToInfo.phoneNumber,
+                        };
+                        logInfo = await manager.update(
+                            PinAuditLog,
+                            { logId: log[0].logId },
+                            updateInfo,
+                        );
+                    } else {
+                        // this case shouldn't happen, but in case something weird happens, just update the most recent log
+                        updateInfo = {
+                            alteredByUsername: expireUsername,
+                            alteredByName: expireName,
+                            sentToEmail: sendToInfo.email,
+                            sentToPhone: sendToInfo.phoneNumber,
+                        };
+                        logInfo = await manager.update(
+                            PinAuditLog,
+                            { logId: log[0].logId },
+                            updateInfo,
+                        );
+                    }
+                }
+                const gcNotifyBody = {
+                    email: sendToInfo.email,
+                    phoneNumber: sendToInfo.phoneNumber,
+                    propertyAddress: propertyAddress,
+                };
+                regenerateOrCreate === 'create'
+                    ? (emailTemplateId =
+                          process.env.GC_NOTIFY_CREATE_EMAIL_TEMPLATE_ID!) &&
+                      (phoneTemplateId =
+                          process.env.GC_NOTIFY_CREATE_PHONE_TEMPLATE_ID!)
+                    : (emailTemplateId =
+                          process.env
+                              .GC_NOTIFY_REGENERATE_EMAIL_TEMPLATE_ID!) &&
+                      (phoneTemplateId =
+                          process.env.GC_NOTIFY_REGENERATE_PHONE_TEMPLATE_ID!);
+                const notificationResponse =
+                    await sendCreateRegenerateOrExpireNotification(
+                        gcNotifyBody,
+                        emailTemplateId,
+                        phoneTemplateId,
+                        updatedPins,
+                    );
+                if (notificationResponse) {
+                    return [logInfo, regenerateOrCreate];
+                } else {
+                    throw new Error(
+                        `Error calling sendCreateRegenerateOrExpireNotification`,
+                    );
+                }
+            },
+        )) as [logInfo: UpdateResult, regenerateOrCreate: string];
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occured while updating updatedPin in singleUpdatePin: ${err.message}`;
+            logger.warn(message);
+            errors.push(message);
+        }
+    }
+
+    if (
+        typeof transactionReturn != 'undefined' &&
+        typeof transactionReturn[0] != 'undefined' &&
+        transactionReturn[0] &&
+        transactionReturn[0].affected &&
+        transactionReturn[0].affected !== 0
+    ) {
+        // logger.debug(
+        //     `Successfully updated ActivePIN with live_pin_id '${updatedPins.livePinId}'`,
+        // );
+    } else {
+        const message = `An error occured while updating updatedPin in singleUpdatePin: No rows were affected by the update`;
+        logger.warn(message);
+        errors.push(message);
     }
     return [errors, regenerateOrCreate];
 }
