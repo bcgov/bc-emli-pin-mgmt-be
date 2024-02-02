@@ -19,11 +19,11 @@
 | --- | --- | --- |
 | Cookie with SameSite Attribute None | Low | 1 |
 | Strict-Transport-Security Header Not Set | Low | 3 |
-| Non-Storable Content | Informational | 1 |
-| Sec-Fetch-Dest Header is Missing | Informational | 3 |
-| Sec-Fetch-Mode Header is Missing | Informational | 3 |
-| Sec-Fetch-Site Header is Missing | Informational | 3 |
-| Sec-Fetch-User Header is Missing | Informational | 3 |
+| Non-Storable Content | Informational | 2 |
+| Sec-Fetch-Dest Header is Missing | Informational | 2 |
+| Sec-Fetch-Mode Header is Missing | Informational | 2 |
+| Sec-Fetch-Site Header is Missing | Informational | 2 |
+| Sec-Fetch-User Header is Missing | Informational | 2 |
 | Session Management Response Identified | Informational | 2 |
 | Storable and Cacheable Content | Informational | 2 |
 
@@ -44,11 +44,11 @@
 
 A cookie has been set with its SameSite attribute set to "none", which means that the cookie can be sent as a result of a 'cross-site' request. The SameSite attribute is an effective counter measure to cross-site request forgery, cross-site script inclusion, and timing attacks.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
-  * Parameter: `96124a11f0da25122780a7380b12fff6`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `set-cookie: 96124a11f0da25122780a7380b12fff6`
+  * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Other Info: ``
 
 Instances: 1
@@ -80,19 +80,19 @@ Ensure that the SameSite attribute is set to either 'lax' or ideally 'strict' fo
 
 HTTP Strict Transport Security (HSTS) is a web security policy mechanism whereby a web server declares that complying user agents (such as a web browser) are to interact with it using only secure HTTPS connections (i.e. HTTP layered over TLS/SSL). HSTS is an IETF standards track protocol and is specified in RFC 6797.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
@@ -132,14 +132,20 @@ Ensure that your web server, application server, load balancer, etc. is configur
 
 The response contents are not storable by caching components such as proxy servers. If the response does not contain sensitive, personal or user-specific information, it may benefit from being stored and cached, to improve performance.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
+  * Method: `GET`
+  * Parameter: ``
+  * Attack: ``
+  * Evidence: `private`
+  * Other Info: ``
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
   * Evidence: `private`
   * Other Info: ``
 
-Instances: 1
+Instances: 2
 
 ### Solution
 
@@ -181,26 +187,20 @@ It must have a status code that is defined as cacheable by default (200, 203, 20
 
 Specifies how and where the data would be used. For instance, if the value is audio, then the requested resource must be audio data and not any other type of resource.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `Sec-Fetch-Dest`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-Dest`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: `Sec-Fetch-Dest`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
 
-Instances: 3
+Instances: 2
 
 ### Solution
 
@@ -229,26 +229,20 @@ Ensure that Sec-Fetch-Dest header is included in request headers.
 
 Allows to differentiate between requests for navigating between HTML pages and requests for loading resources like images, audio etc.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `Sec-Fetch-Mode`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-Mode`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: `Sec-Fetch-Mode`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
 
-Instances: 3
+Instances: 2
 
 ### Solution
 
@@ -277,26 +271,20 @@ Ensure that Sec-Fetch-Mode header is included in request headers.
 
 Specifies the relationship between request initiator's origin and target's origin.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `Sec-Fetch-Site`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-Site`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: `Sec-Fetch-Site`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
 
-Instances: 3
+Instances: 2
 
 ### Solution
 
@@ -325,26 +313,20 @@ Ensure that Sec-Fetch-Site header is included in request headers.
 
 Specifies if a navigation request was initiated by a user.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `Sec-Fetch-User`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `Sec-Fetch-User`
-  * Attack: ``
-  * Evidence: ``
-  * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: `Sec-Fetch-User`
   * Attack: ``
   * Evidence: ``
   * Other Info: ``
 
-Instances: 3
+Instances: 2
 
 ### Solution
 
@@ -373,20 +355,20 @@ Ensure that Sec-Fetch-User header is included in user initiated requests.
 
 The given response has been identified as containing a session management token. The 'Other Info' field contains a set of header tokens that can be used in the Header Based Session Management Method. If the request is in a context which has a Session Management Method set to "Auto-Detect" then this rule will change the session management to use the tokens identified.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
-  * Parameter: `96124a11f0da25122780a7380b12fff6`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `cac28173c43c92fe8b69494edd520360`
+  * Evidence: `7543755a0234499e1111fd4231b2a22c`
   * Other Info: `
-cookie:96124a11f0da25122780a7380b12fff6`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
-  * Parameter: `96124a11f0da25122780a7380b12fff6`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `cac28173c43c92fe8b69494edd520360`
+  * Evidence: `91e101b3d8920efaef3be536f96e9b5e`
   * Other Info: `
-cookie:96124a11f0da25122780a7380b12fff6`
+cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
 Instances: 2
 
@@ -413,13 +395,13 @@ This is an informational alert rather than a vulnerability and so there is nothi
 
 The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users.  If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where "shared" caching servers such as "proxy" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/robots.txt
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
   * Evidence: ``
   * Other Info: `In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234.`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/sitemap.xml
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
