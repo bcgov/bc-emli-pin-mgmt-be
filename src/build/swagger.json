@@ -1936,7 +1936,7 @@
 						}
 					}
 				},
-				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to create a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `400`\n-- `Invalid Token`\n- `401`\n-- `Access Denied`\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in singleUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
@@ -2013,7 +2013,7 @@
 						}
 					}
 				},
-				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in batchUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
+				"description": "Used to recreate a single, unique PIN, checking against the DB to do so.\nNote that the address line, province, country and postal code information is that of the\nmailing address used for identity verfication. The property address could differ, and will be used\nin the GCNotify email / text message that is sent.\nExpected error codes and messages:\n- `422`\n-- `PIN must be of length 1 or greater`\n-- `Too many PIN creation attempts: consider expanding your pin length or character set to allow more unique PINs.`\n-- `Error(s) occured in singleUpdatePin: []`\n- `500`\n -- `Internal Server Error`",
 				"security": [
 					{
 						"vhers_api_key": []
