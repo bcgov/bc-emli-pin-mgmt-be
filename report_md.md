@@ -26,7 +26,7 @@ ZAP is supported by the [Crash Override Open Source Fellowship](https://crashove
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
 | Sec-Fetch-Site Header is Missing | Informational | 3 |
 | Sec-Fetch-User Header is Missing | Informational | 3 |
-| Session Management Response Identified | Informational | 3 |
+| Session Management Response Identified | Informational | 1 |
 | Storable and Cacheable Content | Informational | 2 |
 
 
@@ -379,25 +379,11 @@ The given response has been identified as containing a session management token.
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `0b01d964f7dccb9dfecbbe11a384fbc3`
-  * Other Info: `
-cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `8f213bdf946f8fcffc48304e591b9bff`
-  * Other Info: `
-cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `0b01d964f7dccb9dfecbbe11a384fbc3`
+  * Evidence: `4b0fd2e6b3e5f5b6592c4147a3a9d1a5`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
-Instances: 3
+Instances: 1
 
 ### Solution
 
