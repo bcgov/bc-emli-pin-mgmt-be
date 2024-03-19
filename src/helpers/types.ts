@@ -707,7 +707,8 @@ export interface noActiveUserFound {
     "lastName": "Doe",
     "isActive": true,
     "deactivationReason": "To get access to site",
-	"updatedAt": "2023-08-25T15:12:59.764Z"
+	  "updatedAt": "2023-08-25T15:12:59.764Z",
+    "updatedBy": "John Doe",
   }
  */
 export interface userList {
@@ -723,6 +724,7 @@ export interface userList {
     isActive: boolean;
     deactivationReason: string;
     updatedAt: string | null;
+    updatedBy: string | null;
 }
 
 /**
