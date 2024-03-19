@@ -481,6 +481,8 @@ export interface accessRequestResponseBody {
     "firstName": "John",
     "lastName": "Doe",
     "createdAt": ""2023-08-24T15:06:27.269Z",
+    "updatedAt": "2023-10-30T03:40:41.166Z",
+    "updatedBy": null,
     "requestReason": "To get access to site",
     "rejectionReason": "Information needed"
   }
@@ -498,6 +500,8 @@ export interface accessRequest {
     requestReason: string;
     rejectionReason: string;
     createdAt: string;
+    updatedAt: string;
+    updatedBy: string;
 }
 
 /**
@@ -515,6 +519,8 @@ export interface accessRequest {
     "lastName": "Doe",
     "requestStatus": "NotGranted",
     "createdAt": ""2023-08-24T15:06:27.269Z",
+    "updatedAt": "2023-10-30T03:40:41.166Z",
+    "updatedBy": null,
     "requestReason": "To get access to site",
     "rejectionReason": "Information needed"
   }
@@ -533,6 +539,8 @@ export interface accessRequestList {
     requestStatus: requestStatusType;
     rejectionReason: string;
     createdAt: string;
+    updatedAt: string;
+    updatedBy: string;
 }
 
 /**
