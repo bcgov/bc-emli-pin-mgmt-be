@@ -133,6 +133,8 @@ const models: TsoaRoute.Models = {
             "requestStatus": {"ref":"requestStatusType","required":true},
             "rejectionReason": {"dataType":"string","required":true},
             "createdAt": {"dataType":"string","required":true},
+            "updatedAt": {"dataType":"string","required":true},
+            "updatedBy": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },

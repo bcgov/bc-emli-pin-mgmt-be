@@ -177,6 +177,8 @@ export async function getRequestList(
             requestReason: true,
             rejectionReason: true,
             createdAt: true,
+            updatedBy: true,
+            updatedAt: true,
         },
         where: where ? where : undefined,
         order: { createdAt: 'ASC' as FindOptionsOrderValue },
