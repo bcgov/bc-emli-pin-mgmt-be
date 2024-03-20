@@ -19,9 +19,9 @@ ZAP is supported by the [Crash Override Open Source Fellowship](https://crashove
 
 | Name | Risk Level | Number of Instances |
 | --- | --- | --- |
-| Cookie with SameSite Attribute None | Low | 2 |
+| Cookie with SameSite Attribute None | Low | 1 |
 | Strict-Transport-Security Header Not Set | Low | 3 |
-| Non-Storable Content | Informational | 2 |
+| Non-Storable Content | Informational | 1 |
 | Sec-Fetch-Dest Header is Missing | Informational | 3 |
 | Sec-Fetch-Mode Header is Missing | Informational | 3 |
 | Sec-Fetch-Site Header is Missing | Informational | 3 |
@@ -52,14 +52,8 @@ A cookie has been set with its SameSite attribute set to "none", which means tha
   * Attack: ``
   * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `set-cookie: 9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Other Info: ``
 
-Instances: 2
+Instances: 1
 
 ### Solution
 
@@ -146,14 +140,8 @@ The response contents are not storable by caching components such as proxy serve
   * Attack: ``
   * Evidence: `private`
   * Other Info: ``
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: ``
-  * Attack: ``
-  * Evidence: `private`
-  * Other Info: ``
 
-Instances: 2
+Instances: 1
 
 ### Solution
 
@@ -391,21 +379,21 @@ The given response has been identified as containing a session management token.
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `7e05a5cdc1f7e27373bd96c1192d45a0`
-  * Other Info: `
-cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
-  * Method: `GET`
-  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
-  * Attack: ``
-  * Evidence: `4b36b3b0c5d5d1442da51d0f4086d055`
+  * Evidence: `27adec1687eaf7378faa62b97d2863bf`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 * URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
   * Method: `GET`
   * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
   * Attack: ``
-  * Evidence: `4b36b3b0c5d5d1442da51d0f4086d055`
+  * Evidence: `5cbcfd17ff8d683b3c08458fd1c4966b`
+  * Other Info: `
+cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/sitemap.xml
+  * Method: `GET`
+  * Parameter: `9e815ea4eebc0b344dc0a7bbd4154bc5`
+  * Attack: ``
+  * Evidence: `27adec1687eaf7378faa62b97d2863bf`
   * Other Info: `
 cookie:9e815ea4eebc0b344dc0a7bbd4154bc5`
 
@@ -434,7 +422,7 @@ This is an informational alert rather than a vulnerability and so there is nothi
 
 The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users.  If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where "shared" caching servers such as "proxy" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.
 
-* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
+* URL: https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/robots.txt
   * Method: `GET`
   * Parameter: ``
   * Attack: ``
