@@ -90,7 +90,10 @@ export async function updateRequestStatus(
         idList.push(where);
     }
     if (action === requestStatusType.Granted) {
-        updateFields = { requestStatus: requestStatusType.Granted };
+        updateFields = {
+            requestStatus: requestStatusType.Granted,
+            updatedBy: username,
+        };
         templateId = process.env.GC_NOTIFY_ACCESS_APPROVE_EMAIL_TEMPLATE_ID!;
     }
 

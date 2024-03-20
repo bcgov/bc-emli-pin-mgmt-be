@@ -751,6 +751,7 @@ export interface userList {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
+    "updatedBy": "ABC123"
  }
  */
 export interface userUpdateRequestBody {
@@ -761,6 +762,7 @@ export interface userUpdateRequestBody {
     userName: string;
     givenName: string;
     lastName: string;
+    updatedBy: string;
 }
 
 /**

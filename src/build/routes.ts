@@ -485,6 +485,7 @@ const models: TsoaRoute.Models = {
             "userName": {"dataType":"string","required":true},
             "givenName": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
+            "updatedBy": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },

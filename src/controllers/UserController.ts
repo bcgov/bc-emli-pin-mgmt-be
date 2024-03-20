@@ -226,6 +226,9 @@ export class UserController extends Controller {
                 ...(existingUser[0].lastName !== requestBody.lastName && {
                     lastName: requestBody.lastName,
                 }),
+                ...(existingUser[0].updatedBy !== requestBody.updatedBy && {
+                    updatedBy: requestBody.updatedBy,
+                }),
             };
             await updateUser(userId, updateFields, requestBody);
         } catch (err) {
