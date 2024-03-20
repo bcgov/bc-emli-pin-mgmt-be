@@ -1256,6 +1256,9 @@
 					},
 					"lastName": {
 						"type": "string"
+					},
+					"updatedBy": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -1265,10 +1268,23 @@
 					"email",
 					"userName",
 					"givenName",
-					"lastName"
+					"lastName",
+					"updatedBy"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": false,
+				"example": {
+					"userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"userGuid": "A84D1AB221334298956C47A7B623E983",
+					"identityType": "idir",
+					"role": "Admin",
+					"organization": "Bc Service",
+					"email": "abc@gov.ca",
+					"userName": "johndoe",
+					"givenName": "John",
+					"lastName": "Doe",
+					"updatedBy": "ABC123"
+				}
 			},
 			"userDeactivateRequestBody": {
 				"description": "Request body for deactivation of one or multiple users",

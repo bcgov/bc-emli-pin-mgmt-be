@@ -1026,6 +1026,7 @@ export const UserUpdateRequestBody: userUpdateRequestBody = {
     userId: '123',
     userName: 'JohnDoe',
     organization: 'BC Government',
+    updatedBy: 'ABC123',
 };
 
 export const UsersMultiResponse = [
