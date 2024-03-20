@@ -1404,6 +1404,7 @@ export const updateUserRequestBody = {
     userName: 'username',
     givenName: 'givenName',
     lastName: 'string',
+    updatedBy: 'USERID',
 };
 
 export const updateUserExistingUser = [
