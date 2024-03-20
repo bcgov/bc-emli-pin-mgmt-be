@@ -1373,6 +1373,7 @@ export const UserListSuccess = [
         lastName: 'Doe',
         isActive: true,
         updatedAt: '2023-08-25T15:12:59.764Z',
+        updatedBy: 'John Doe',
     },
 ];
 
@@ -1390,6 +1391,7 @@ export const UserListSuccessDeactivated = [
         isActive: false,
         deactivationReason: 'Invalid user',
         updatedAt: '2023-08-25T15:12:59.764Z',
+        updatedBy: 'John doe',
     },
 ];
 

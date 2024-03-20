@@ -1179,6 +1179,10 @@
 					"updatedAt": {
 						"type": "string",
 						"nullable": true
+					},
+					"updatedBy": {
+						"type": "string",
+						"nullable": true
 					}
 				},
 				"required": [
@@ -1193,24 +1197,11 @@
 					"lastName",
 					"isActive",
 					"deactivationReason",
-					"updatedAt"
+					"updatedAt",
+					"updatedBy"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"userId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-					"userGuid": "A84D1AB221334298956C47A7B623E983",
-					"identityType": "idir",
-					"role": "Admin",
-					"organization": "Bc Service",
-					"email": "abc@gov.ca",
-					"userName": "johndoe",
-					"givenName": "John",
-					"lastName": "Doe",
-					"isActive": true,
-					"deactivationReason": "To get access to site",
-					"updatedAt": "2023-08-25T15:12:59.764Z"
-				}
+				"additionalProperties": false
 			},
 			"noActiveUserFound": {
 				"description": "No active user found",
