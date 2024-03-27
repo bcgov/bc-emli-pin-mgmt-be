@@ -68,6 +68,7 @@ export async function getUserList(where?: object): Promise<Users[] | any> {
             isActive: true,
             deactivationReason: true,
             updatedAt: true,
+            updatedBy: true,
         },
         where: where ? where : undefined,
         order: { createdAt: 'ASC' as FindOptionsOrderValue },

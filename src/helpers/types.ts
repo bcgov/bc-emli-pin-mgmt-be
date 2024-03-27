@@ -481,6 +481,8 @@ export interface accessRequestResponseBody {
     "firstName": "John",
     "lastName": "Doe",
     "createdAt": ""2023-08-24T15:06:27.269Z",
+    "updatedAt": "2023-10-30T03:40:41.166Z",
+    "updatedBy": null,
     "requestReason": "To get access to site",
     "rejectionReason": "Information needed"
   }
@@ -498,6 +500,8 @@ export interface accessRequest {
     requestReason: string;
     rejectionReason: string;
     createdAt: string;
+    updatedAt: string;
+    updatedBy: string;
 }
 
 /**
@@ -515,6 +519,8 @@ export interface accessRequest {
     "lastName": "Doe",
     "requestStatus": "NotGranted",
     "createdAt": ""2023-08-24T15:06:27.269Z",
+    "updatedAt": "2023-10-30T03:40:41.166Z",
+    "updatedBy": null,
     "requestReason": "To get access to site",
     "rejectionReason": "Information needed"
   }
@@ -533,6 +539,8 @@ export interface accessRequestList {
     requestStatus: requestStatusType;
     rejectionReason: string;
     createdAt: string;
+    updatedAt: string;
+    updatedBy: string;
 }
 
 /**
@@ -707,7 +715,8 @@ export interface noActiveUserFound {
     "lastName": "Doe",
     "isActive": true,
     "deactivationReason": "To get access to site",
-	"updatedAt": "2023-08-25T15:12:59.764Z"
+	  "updatedAt": "2023-08-25T15:12:59.764Z",
+    "updatedBy": "John Doe",
   }
  */
 export interface userList {
@@ -723,6 +732,7 @@ export interface userList {
     isActive: boolean;
     deactivationReason: string;
     updatedAt: string | null;
+    updatedBy: string | null;
 }
 
 /**
@@ -741,6 +751,7 @@ export interface userList {
     "userName": "johndoe",
     "givenName": "John",
     "lastName": "Doe",
+    "updatedBy": "ABC123"
  }
  */
 export interface userUpdateRequestBody {
@@ -751,6 +762,7 @@ export interface userUpdateRequestBody {
     userName: string;
     givenName: string;
     lastName: string;
+    updatedBy: string;
 }
 
 /**

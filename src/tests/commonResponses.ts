@@ -1026,6 +1026,7 @@ export const UserUpdateRequestBody: userUpdateRequestBody = {
     userId: '123',
     userName: 'JohnDoe',
     organization: 'BC Government',
+    updatedBy: 'ABC123',
 };
 
 export const UsersMultiResponse = [
@@ -1373,6 +1374,7 @@ export const UserListSuccess = [
         lastName: 'Doe',
         isActive: true,
         updatedAt: '2023-08-25T15:12:59.764Z',
+        updatedBy: 'John Doe',
     },
 ];
 
@@ -1390,6 +1392,7 @@ export const UserListSuccessDeactivated = [
         isActive: false,
         deactivationReason: 'Invalid user',
         updatedAt: '2023-08-25T15:12:59.764Z',
+        updatedBy: 'John doe',
     },
 ];
 
@@ -1401,6 +1404,7 @@ export const updateUserRequestBody = {
     userName: 'username',
     givenName: 'givenName',
     lastName: 'string',
+    updatedBy: 'USERID',
 };
 
 export const updateUserExistingUser = [

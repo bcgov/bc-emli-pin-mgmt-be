@@ -90,7 +90,10 @@ export async function updateRequestStatus(
         idList.push(where);
     }
     if (action === requestStatusType.Granted) {
-        updateFields = { requestStatus: requestStatusType.Granted };
+        updateFields = {
+            requestStatus: requestStatusType.Granted,
+            updatedBy: username,
+        };
         templateId = process.env.GC_NOTIFY_ACCESS_APPROVE_EMAIL_TEMPLATE_ID!;
     }
 
@@ -177,6 +180,8 @@ export async function getRequestList(
             requestReason: true,
             rejectionReason: true,
             createdAt: true,
+            updatedBy: true,
+            updatedAt: true,
         },
         where: where ? where : undefined,
         order: { createdAt: 'ASC' as FindOptionsOrderValue },
