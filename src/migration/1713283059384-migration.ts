@@ -7,7 +7,7 @@ export class Migration1713283059384 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE IF NOT EXISTS ${schemaName}."valid_pid" (
         id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
         pid INT NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         );`);
     }
 
