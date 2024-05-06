@@ -19,12 +19,12 @@ const gCNotifyCaller = new GCNotifyCaller();
 export function standardizeRole(role: string) {
     let formattedRole: string = '';
 
-    if (role === 'Admin') {
-        formattedRole = 'Administrator';
-    } else if (role === 'SuperAdmin') {
+    if (role.toLowerCase() === 'Admin'.toLowerCase()) {
+        formattedRole = 'Supervisor';
+    } else if (role.toLowerCase() === 'SuperAdmin'.toLowerCase()) {
         formattedRole = 'System administrator';
-    } else if (role === 'Standard') {
-        formattedRole = 'Client support';
+    } else if (role.toLowerCase() === 'Standard'.toLowerCase()) {
+        formattedRole = 'Customer support agent';
     }
 
     return formattedRole;
