@@ -17,7 +17,7 @@ router.get('/helloworld', async (req: Request, res: Response) => {
 });
 
 // Auth handling
-const ONE_DAY = 30 * 60 * 1000; // 5 minutes
+const ONE_DAY = 120 * 60 * 1000; // 5 minutes
 
 router.get('/login', async (req, res) => {
     try {
