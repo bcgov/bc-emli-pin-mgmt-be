@@ -1,7 +1,7 @@
 {
 	"thresholds": {
-		"overallThreshold": 0.9,
-		"borderlineThreshold": 0.85,
+		"overallThreshold": 0.8,
+		"borderlineThreshold": 0.75,
 		"givenNameThreshold": 0.95,
 		"lastNamesThreshold": 0.95,
 		"incorporationNumberThreshold": 1,
