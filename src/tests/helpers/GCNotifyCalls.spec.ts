@@ -37,7 +37,7 @@ describe('GCNotify Calls tests', () => {
 
     test('standardizeRole returns Standard', () => {
         const formattedRole = standardizeRole('Standard');
-        expect(formattedRole).toBe('Client support');
+        expect(formattedRole).toBe('Customer support agent');
     });
 
     test('testing successful sendAccessRequestNotifications() call', async () => {
