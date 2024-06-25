@@ -277,6 +277,7 @@ export class PINController extends Controller {
             )
                 givenNameScore = 0; // nothing to match
             else {
+                requestBody.givenName = requestBody.givenName.replace("'", '`');
                 givenNameScore = this.score(
                     pinResult.givenName,
                     requestBody.givenName,
@@ -330,6 +331,8 @@ export class PINController extends Controller {
             pinResult.lastName_2 !== ''
         )
             combinedResultLastNames += ' ' + pinResult.lastName_2.trim();
+
+        combinedRequestLastNames = combinedRequestLastNames.replace("'", '`');
         lastNamesScore = this.score(
             combinedResultLastNames as string,
             combinedRequestLastNames,
@@ -358,6 +361,8 @@ export class PINController extends Controller {
             pinResult.addressLine_2 !== ''
         )
             combinedResultAddress += ' ' + pinResult.addressLine_2.trim();
+
+        combinedRequestAddress = combinedRequestAddress.replace("'", '`');
         streetAddressScore = this.score(
             combinedResultAddress as string,
             combinedRequestAddress,
@@ -374,6 +379,7 @@ export class PINController extends Controller {
             if (requestBody.city === null || requestBody.city === undefined)
                 cityScore = 0;
             else {
+                requestBody.city = requestBody.city.replace("'", '`');
                 cityScore = this.score(
                     pinResult.city,
                     requestBody.city,
@@ -422,6 +428,7 @@ export class PINController extends Controller {
             )
                 countryScore = 0;
             else {
+                requestBody.country = requestBody.country.replace("'", '`');
                 countryScore = this.score(
                     pinResult.country,
                     requestBody.country,
