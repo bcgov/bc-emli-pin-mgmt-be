@@ -50,7 +50,7 @@
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "cookie": "^0.5.0",
+    "cookie": "^1.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto-random-string": "3.3.1",
@@ -66,7 +66,7 @@
     "string_score": "^0.1.22",
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^5.1.1",
-    "typeorm": "^0.3.17",
+    "typeorm": "^0.3.6",
     "winston": "^3.10.0"
   },
   "devDependencies": {
