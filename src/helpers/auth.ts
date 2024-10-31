@@ -9,6 +9,7 @@ const OIDC_AUTHORIZATION_URL = `${process.env.CSS_DOMAIN_NAME_URL}/auth`;
 const OIDC_TOKEN_URL = `${process.env.CSS_DOMAIN_NAME_URL}/token`;
 const OIDC_LOGOUT_URL = `${process.env.CSS_DOMAIN_NAME_URL}/logout`;
 const OIDC_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth`;
+const OIDC_BCSC_REDIRECT_URL = `${process.env.BE_APP_URL}/bcsc/userinfo`;
 const OIDC_LOGOUT_REDIRECT_URL = `${process.env.BE_APP_URL}/oauth/logout`;
 
 const btoa = (input: string) => Buffer.from(input).toString('base64');
@@ -84,7 +85,17 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
 export const getAuthorizationUrl = async ({
     identity_provider,
 }: { identity_provider?: any } = {}) => {
-    let params;
+    // Define params with an optional kc_idp_hint property
+    let params: {
+        client_id: string | undefined;
+        response_type: string | undefined;
+        scope: string | undefined;
+        redirect_uri: string;
+        identity_provider?: any;
+        kc_idp_hint?: string; // kc_idp_hint is for BCSC only at this time
+        siteID?: string; // Include siteID as a parameter
+    };
+
     // Give an option to select an identity provider.
     if (identity_provider) {
         params = {
@@ -94,6 +105,13 @@ export const getAuthorizationUrl = async ({
             redirect_uri: OIDC_REDIRECT_URL,
             identity_provider: identity_provider,
         };
+
+        // Add kc_idp_hint when identity provider type is 'bcsc'
+        if (identity_provider === 'bcsc') {
+            params.redirect_uri = OIDC_BCSC_REDIRECT_URL; // redirect to a different user to get the userinfo
+            params.client_id = process.env.BCSC_OIDC_CLIENT_ID;
+            params.kc_idp_hint = process.env.BCSC_OIDC_CLIENT_ID; // kc_idp_hint is our CLIENT_ID
+        }
     } else {
         params = {
             client_id: process.env.OIDC_CLIENT_ID,

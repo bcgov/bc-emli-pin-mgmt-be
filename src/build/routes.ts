@@ -5,6 +5,8 @@ import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, H
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AccessRequestController } from './../controllers/AccessRequestController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { BscsController } from './../controllers/bcscController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { DashboardController } from './../controllers/DashboardController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { HelloWorldController } from './../controllers/helloworld';
@@ -197,6 +199,17 @@ const models: TsoaRoute.Models = {
             "givenNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "lastNames": {"dataType":"array","array":{"dataType":"string"},"required":true},
             "requestedRoles": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserInfoResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "success": {"dataType":"boolean","required":true},
+            "token": {"dataType":"string"},
+            "refreshToken": {"dataType":"string"},
+            "userInfo": {"dataType":"nestedObjectLiteral","nestedProperties":{"family_name":{"dataType":"string","required":true},"given_names":{"dataType":"string","required":true},"preferred_username":{"dataType":"string","required":true},"email_verified":{"dataType":"boolean","required":true},"address":{"dataType":"nestedObjectLiteral","nestedProperties":{"postal_code":{"dataType":"string","required":true},"region":{"dataType":"string","required":true},"locality":{"dataType":"string","required":true},"street_address":{"dataType":"string","required":true}},"required":true},"identity_provider":{"dataType":"string","required":true},"sub":{"dataType":"string","required":true}}},
         },
         "additionalProperties": false,
     },
@@ -605,6 +618,60 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.updateAccessRequest.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 204, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/bcsc',
+            ...(fetchMiddlewares<RequestHandler>(BscsController)),
+            ...(fetchMiddlewares<RequestHandler>(BscsController.prototype.initiateLogin)),
+
+            function BscsController_initiateLogin(request: any, response: any, next: any) {
+            const args = {
+                    redirectResponse: {"in":"res","name":"307","required":true,"dataType":"void"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new BscsController();
+
+
+              const promise = controller.initiateLogin.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/bcsc/userinfo',
+            ...(fetchMiddlewares<RequestHandler>(BscsController)),
+            ...(fetchMiddlewares<RequestHandler>(BscsController.prototype.handleCallback)),
+
+            function BscsController_handleCallback(request: any, response: any, next: any) {
+            const args = {
+                    successResponse: {"in":"res","name":"200","required":true,"ref":"UserInfoResponse"},
+                    invalidTokenErrorResponse: {"in":"res","name":"400","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
+                    code: {"in":"query","name":"code","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new BscsController();
+
+
+              const promise = controller.handleCallback.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
             }

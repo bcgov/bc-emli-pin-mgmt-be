@@ -458,6 +458,79 @@
 					]
 				}
 			},
+			"UserInfoResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"token": {
+						"type": "string"
+					},
+					"refreshToken": {
+						"type": "string"
+					},
+					"userInfo": {
+						"properties": {
+							"family_name": {
+								"type": "string"
+							},
+							"given_names": {
+								"type": "string"
+							},
+							"preferred_username": {
+								"type": "string"
+							},
+							"email_verified": {
+								"type": "boolean"
+							},
+							"address": {
+								"properties": {
+									"postal_code": {
+										"type": "string"
+									},
+									"region": {
+										"type": "string"
+									},
+									"locality": {
+										"type": "string"
+									},
+									"street_address": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"postal_code",
+									"region",
+									"locality",
+									"street_address"
+								],
+								"type": "object"
+							},
+							"identity_provider": {
+								"type": "string"
+							},
+							"sub": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"family_name",
+							"given_names",
+							"preferred_username",
+							"email_verified",
+							"address",
+							"identity_provider",
+							"sub"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"dashboardURLResponse": {
 				"description": "URL for metabase dashborad iframe",
 				"properties": {
@@ -1628,6 +1701,127 @@
 						}
 					}
 				}
+			}
+		},
+		"/bcsc": {
+			"get": {
+				"operationId": "InitiateLogin",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"307": {
+						"description": "- TSOA response object for redirection (307)."
+					},
+					"500": {
+						"description": "- TSOA response object for handling server errors (500).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"error",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Initiates the BCSC login by redirecting the user to the authorization URL.",
+				"tags": [
+					"BCSC"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/bcsc/userinfo": {
+			"get": {
+				"operationId": "HandleCallback",
+				"responses": {
+					"200": {
+						"description": "- TSOA response object for successful user info retrieval (200).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserInfoResponse"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "- TSOA response object for handling invalid token errors (400).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"error",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "- TSOA response object for handling server errors (500).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"error",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Handles the callback after the user authenticates with BCSC.",
+				"tags": [
+					"BCSC"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The authorization code returned by the BCSC login.",
+						"in": "query",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/dashboard": {
