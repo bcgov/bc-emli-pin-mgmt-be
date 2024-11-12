@@ -150,7 +150,7 @@ export class BscsController extends Controller {
                     'VIEW_PIN',
                 ]);
 
-                // we can shortcut here if the user info bcsc id is already added to the database
+                // we can shortcut here if the user info bcsc id is already added to the database, then we know the owner matches
                 matchingOwner = ownerResults.find(
                     (f: any) => f.bcscId === bcscId,
                 );
