@@ -20,6 +20,7 @@ import { Column, Entity, Index } from 'typeorm';
         'provinceLong',
         'titleNumber',
         'titleStatus',
+        'bcscId',
     ],
     { unique: true },
 )
@@ -35,6 +36,13 @@ export class ActivePin {
 
     @Column('character varying', { name: 'pin', nullable: true, length: 8 })
     pin: string | null;
+
+    @Column('character varying', {
+        name: 'bcsc_id',
+        nullable: true,
+        length: 50,
+    })
+    bcscId: string | null;
 
     @Column('character varying', { name: 'pids', unique: true, length: 500 })
     pids: string;

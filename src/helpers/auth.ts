@@ -84,7 +84,8 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
 // see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1
 export const getAuthorizationUrl = async ({
     identity_provider,
-}: { identity_provider?: any } = {}) => {
+    siteId,
+}: { identity_provider?: any; siteId?: string } = {}) => {
     // Define params with an optional kc_idp_hint property
     let params: {
         client_id: string | undefined;
@@ -93,7 +94,7 @@ export const getAuthorizationUrl = async ({
         redirect_uri: string;
         identity_provider?: any;
         kc_idp_hint?: string; // kc_idp_hint is for BCSC only at this time
-        siteID?: string; // Include siteID as a parameter
+        state?: string; // Include siteID as a parameter
     };
 
     // Give an option to select an identity provider.
@@ -111,6 +112,7 @@ export const getAuthorizationUrl = async ({
             params.redirect_uri = OIDC_BCSC_REDIRECT_URL; // redirect to a different user to get the userinfo
             params.client_id = process.env.BCSC_OIDC_CLIENT_ID;
             params.kc_idp_hint = process.env.BCSC_OIDC_CLIENT_ID; // kc_idp_hint is our CLIENT_ID
+            params.state = encodeURIComponent(JSON.stringify({ siteId }));
         }
     } else {
         params = {
