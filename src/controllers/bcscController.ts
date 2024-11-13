@@ -7,8 +7,9 @@ import {
     getAddressResults,
     badRequestError,
     serverErrorType,
-    pidNotFound,
+    userInfoSuccessResponse,
     GenericTypeORMErrorType,
+    ApiError,
 } from '../helpers/types';
 import GeocodeAPICaller from '../helpers/geocodeAPICaller';
 import { compareNames } from '../helpers/nameMatching';
@@ -17,12 +18,6 @@ import logger from '../middleware/logger';
 
 import { findPropertyDetails, updateActivePin } from '../db/ActivePIN.db';
 import { TypeORMError } from 'typeorm';
-
-interface UserInfoResponse {
-    success: boolean;
-    pids: string;
-    livePinId: string;
-}
 
 @Route('bcsc')
 @Tags('BCSC')
@@ -77,10 +72,10 @@ export class BscsController extends Controller {
     @Get('/userinfo')
     public async handleCallback(
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
-        @Res() successResponse: TsoaResponse<200, UserInfoResponse>,
+        @Res() successResponse: TsoaResponse<200, userInfoSuccessResponse>,
         @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
-        @Res() pidOwnerNotFoundResponse: TsoaResponse<204, pidNotFound>,
+        // @Res() failureResponse: TsoaResponse<204, ApiError>,
         @Query() code: string,
         @Query() state: string,
     ): Promise<void> {
@@ -195,16 +190,16 @@ export class BscsController extends Controller {
                         livePinId: matchingOwner.livePinId,
                     });
                 } else {
-                    const exception: pidNotFound = {
+                    const exception: ApiError = {
                         message: `Unable to match owner name of property`,
-                        code: 204,
+                        code: 400,
                     };
                     throw exception;
                 }
             } else {
-                const exception: pidNotFound = {
+                const exception: ApiError = {
                     message: `BCSC User Address does not match SiteID Address`,
-                    code: 204,
+                    code: 400,
                 };
                 throw exception;
             }
@@ -217,14 +212,9 @@ export class BscsController extends Controller {
             }
             if (err.code === 400) {
                 logger.warn(
-                    `Encountered 400 bad request error in getPropertyDetails: ${err.message}`,
+                    `Encountered 400 bad request error in BCSC login handleCallback: ${err.message}`,
                 );
                 return badRequestErrorResponse(400, {
-                    message: err.message,
-                    code: err.code,
-                });
-            } else if (err.code === 204) {
-                return pidOwnerNotFoundResponse(204, {
                     message: err.message,
                     code: err.code,
                 });

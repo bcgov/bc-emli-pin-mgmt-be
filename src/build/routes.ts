@@ -345,21 +345,12 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "UserInfoResponse": {
+    "userInfoSuccessResponse": {
         "dataType": "refObject",
         "properties": {
             "success": {"dataType":"boolean","required":true},
             "pids": {"dataType":"string","required":true},
             "livePinId": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "pidNotFound": {
-        "dataType": "refObject",
-        "properties": {
-            "message": {"dataType":"string","required":true},
-            "code": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -452,6 +443,15 @@ const models: TsoaRoute.Models = {
         "properties": {
         },
         "additionalProperties": {"dataType":"string"},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "pidNotFound": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "userList": {
@@ -964,10 +964,9 @@ export function RegisterRoutes(app: Router) {
             function BscsController_handleCallback(request: any, response: any, next: any) {
             const args = {
                     typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
-                    successResponse: {"in":"res","name":"200","required":true,"ref":"UserInfoResponse"},
+                    successResponse: {"in":"res","name":"200","required":true,"ref":"userInfoSuccessResponse"},
                     badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
-                    pidOwnerNotFoundResponse: {"in":"res","name":"204","required":true,"ref":"pidNotFound"},
                     code: {"in":"query","name":"code","required":true,"dataType":"string"},
                     state: {"in":"query","name":"state","required":true,"dataType":"string"},
             };

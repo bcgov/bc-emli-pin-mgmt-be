@@ -31,7 +31,7 @@ bcscRouter.get('/userinfo', async (req: Request, res: Response) => {
         () => {},
         () => {},
         () => {},
-        () => {},
+        // () => {},
         code as string,
         state as string,
     );
