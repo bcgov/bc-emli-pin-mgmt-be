@@ -8,8 +8,8 @@ on:
     - .github/**
     - .husky/**
     - load-testing/**
-    - *.md
-    - *.yaml
+    - "*.md"
+    - "*.yaml"
     - /.*
   workflow_dispatch:
 
