@@ -5,12 +5,12 @@ on:
     branches:
       - "dev" # Switch this to environment variable ${{ vars.environemnt }}
     paths-ignore:
-    - .github/**  #ignore github configuration/pipeline changes
-    - .husky/**   #ignore husky precommit changes
-    - load-testing/** #ignore load-testing changes
-    - *.md  #ignore all changes to markdown files
-    - *.yaml  #ignore changes to yaml files, usually Openshift or Actions
-    - /.* #ignore hidden files used for configuration
+    - .github/**
+    - .husky/**
+    - load-testing/**
+    - *.md
+    - *.yaml
+    - /.*
   workflow_dispatch:
 
 jobs:
