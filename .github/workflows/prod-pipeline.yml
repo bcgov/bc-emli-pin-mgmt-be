@@ -3,7 +3,7 @@ name: Prod Env - Test + Build Pipeline
 on:
   push:
     branches:
-      - "main"
+      - "prod"
   workflow_dispatch:
 
 jobs:
