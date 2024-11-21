@@ -196,64 +196,24 @@ export interface GeocoderAddress {
 }
 
 /**
- * Unauthorized Error
+ * Generic API Error Interface to keep things clean
  * @example {
- * 	 "message": "Unauthorized error",
- *   "code": 401
+ *   "message": "Error message",
+ *   "code": 400
  * }
  */
-export interface unauthorizedError {
+export interface ApiError {
     message: string;
     code: number;
 }
 
-/**
- * Bad Request Error
- * @example {
-  	 "message": "Bad request error",
-    "code": 400
-  }
- */
-export interface badRequestError {
-    message: string;
-    code: number;
-}
+// Keep the old interfaces, extending ApiError for compatibility
+export interface unauthorizedError extends ApiError {}
+export interface badRequestError extends ApiError {}
+export interface forbiddenError extends ApiError {}
+export interface notFoundError extends ApiError {}
+export interface pidNotFound extends ApiError {}
 
-/**
- * Forbidden Error
- * @example {
-  	 "message": "Forbidden error",
-    "code": 403
-  }
- */
-export interface forbiddenError {
-    message: string;
-    code: number;
-}
-
-/**
- * Not Found Error
- * @example {
- * 	 "message": "Not found error",
- *   "code": 404
- * }
- */
-export interface notFoundError {
-    message: string;
-    code: number;
-}
-
-/**
- * PID Not Found
- * @example {
- * 	 "message": "PID not found in database",
- *   "code": 204
- * }
- */
-export interface pidNotFound {
-    message: string;
-    code: number;
-}
 /**
  * The reason for expiring a PIN.
  * - OptOut = 'OP'
@@ -840,4 +800,15 @@ export enum AuditedURLMethods {
  */
 export interface dashboardURLResponse {
     url: string;
+}
+
+export interface userInfoSuccessResponse {
+    success: boolean;
+    pids: string;
+    livePinId: string;
+}
+
+export interface userInfoFailureResponse {
+    success: boolean;
+    message: string;
 }

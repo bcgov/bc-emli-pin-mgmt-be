@@ -521,3 +521,39 @@ export async function singleUpdatePin(
     }
     return [errors, regenerateOrCreate];
 }
+
+/**
+ * Update ActivePin object with the provided fields
+ */
+export async function updateActivePin(
+    whereCondition: object,
+    updateFields: Partial<ActivePin>,
+): Promise<number | undefined> {
+    let transactionReturn;
+
+    try {
+        transactionReturn = (await AppDataSource.transaction(
+            async (manager) => {
+                const updateResult = await manager.update(
+                    ActivePin,
+                    whereCondition,
+                    updateFields,
+                );
+
+                return { updateResult };
+            },
+        )) as { updateResult: UpdateResult };
+    } catch (err) {
+        if (err instanceof Error) {
+            const message = `An error occurred while calling updatePin: ${err.message}`;
+            logger.warn(message);
+            throw new Error(message);
+        }
+    }
+
+    if (transactionReturn?.updateResult) {
+        const affectedRows = transactionReturn.updateResult.affected ?? 0;
+        logger.debug(`Successfully updated ${affectedRows} record(s)`);
+        return affectedRows;
+    }
+}

@@ -139,6 +139,16 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-fe
                       key: be-app-url
+                - name: BCSC_OIDC_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: bcsc-oidc-client-id
+                - name: BCSC_OIDC_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: bcsc-oidc-client-secret
                 - name: OIDC_CLIENT_ID
                   valueFrom:
                     secretKeyRef:
