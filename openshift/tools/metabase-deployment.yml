@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabase
+  namespace: c82b4c-tools
+  labels:
+    app: metabase
+    app.kubernetes.io/component: metabase
+    app.kubernetes.io/instance: metabase
+    app.kubernetes.io/managed-by: template
+    app.kubernetes.io/name: java
+    app.kubernetes.io/part-of: metabase
+    template: metabase-dc-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metabase
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: metabase
+    spec:
+      containers:
+      - name: metabase
+        image: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/metabase@sha256:20872f1178bd03bdf7aff90e742b6e524467cd9bf95d834a2fa944c7ebc21eae
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: MB_DB_FILE
+          value: /app/data/metabase.db
+        - name: MB_DB_TYPE
+          value: h2
+        - name: MB_ENCRYPTION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: metabase-secret
+        - name: MB_JETTY_HOST
+          value: 0.0.0.0
+        - name: MB_PASSWORD_COMPLEXITY
+          value: strong
+        livenessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          tcpSocket:
+            port: 3000
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 12
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1536Mi
+          requests:
+            cpu: 50m
+            memory: 768Mi
+        volumeMounts:
+        - mountPath: /app/data
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: metabase
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

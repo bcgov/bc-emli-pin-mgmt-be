@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vhers-virus-scan
+  namespace: c82b4c-tools
+  labels:
+    app: vhers-virus-scan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vhers-virus-scan
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: vhers-virus-scan
+    spec:
+      containers:
+      - name: vhers-virus-scan
+        image: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/vhers-virus-scan-tools@sha256:c86f55ecec7ec9f78c87235aac35b23fcae41ab240004ba0fda9ab44a9382f2e
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3500
+          protocol: TCP
+        env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: app-db-hostname-prod
+              name: patroni-ha-postgres-instance
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              key: app-db-port-prod
+              name: patroni-ha-postgres-instance
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              key: app-db-name-prod
+              name: patroni-ha-postgres-instance
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: app-db-username-prod
+              name: patroni-ha-postgres-instance
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: app-db-password-prod
+              name: patroni-ha-postgres-instance
+        envFrom:
+        - secretRef:
+            name: vhers-virus-scan
+        livenessProbe:
+          tcpSocket:
+            port: 3500
+          initialDelaySeconds: 240
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 3500
+          initialDelaySeconds: 240
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
