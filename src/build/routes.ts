@@ -345,12 +345,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "userInfoSuccessResponse": {
+    "validateUserResponse": {
         "dataType": "refObject",
         "properties": {
             "success": {"dataType":"boolean","required":true},
-            "pids": {"dataType":"string","required":true},
-            "livePinId": {"dataType":"string","required":true},
+            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -939,6 +938,7 @@ export function RegisterRoutes(app: Router) {
                     redirectResponse: {"in":"res","name":"307","required":true,"dataType":"void"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
                     siteid: {"in":"query","name":"siteid","required":true,"dataType":"string"},
+                    redirect: {"in":"query","name":"redirect","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -957,6 +957,35 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/bcsc/validate',
+            ...(fetchMiddlewares<RequestHandler>(BscsController)),
+            ...(fetchMiddlewares<RequestHandler>(BscsController.prototype.validateUserData)),
+
+            function BscsController_validateUserData(request: any, response: any, next: any) {
+            const args = {
+                    successResponse: {"in":"res","name":"200","required":true,"ref":"validateUserResponse"},
+                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"validateUserResponse"},
+                    serverErrorResponse: {"in":"res","name":"500","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
+                    livePinId: {"in":"query","name":"livePinId","required":true,"dataType":"string"},
+                    pids: {"in":"query","name":"pids","required":true,"dataType":"array","array":{"dataType":"string"}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new BscsController();
+
+
+              const promise = controller.validateUserData.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/bcsc/userinfo',
             ...(fetchMiddlewares<RequestHandler>(BscsController)),
             ...(fetchMiddlewares<RequestHandler>(BscsController.prototype.handleCallback)),
@@ -964,7 +993,7 @@ export function RegisterRoutes(app: Router) {
             function BscsController_handleCallback(request: any, response: any, next: any) {
             const args = {
                     typeORMErrorResponse: {"in":"res","name":"422","required":true,"ref":"GenericTypeORMErrorType"},
-                    successResponse: {"in":"res","name":"200","required":true,"ref":"userInfoSuccessResponse"},
+                    redirectResponse: {"in":"res","name":"302","required":true,"dataType":"any"},
                     badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"badRequestError"},
                     serverErrorResponse: {"in":"res","name":"500","required":true,"ref":"serverErrorType"},
                     code: {"in":"query","name":"code","required":true,"dataType":"string"},

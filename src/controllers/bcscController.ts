@@ -7,9 +7,9 @@ import {
     getAddressResults,
     badRequestError,
     serverErrorType,
-    userInfoSuccessResponse,
+    validateUserResponse,
     GenericTypeORMErrorType,
-    ApiError,
+    // ApiError,
 } from '../helpers/types';
 import GeocodeAPICaller from '../helpers/geocodeAPICaller';
 import { compareNames } from '../helpers/nameMatching';
@@ -37,12 +37,14 @@ export class BscsController extends Controller {
             { success: boolean; error: string }
         >,
         @Query() siteid: string,
+        @Query() redirect: string,
     ): Promise<void> {
         try {
             // Get the authorization URL with the 'bcsc' identity provider
             const authUrl = await getAuthorizationUrl({
                 identity_provider: 'bcsc',
                 siteId: siteid,
+                redirect: redirect,
             });
 
             // Redirect with TsoaResponse
@@ -59,6 +61,37 @@ export class BscsController extends Controller {
         }
     }
 
+    @Get('/validate')
+    public async validateUserData(
+        @Res() successResponse: TsoaResponse<200, validateUserResponse>,
+        @Res() badRequestErrorResponse: TsoaResponse<400, validateUserResponse>,
+        @Res()
+        serverErrorResponse: TsoaResponse<
+            500,
+            { success: boolean; error: string }
+        >,
+        @Query() livePinId: string,
+        @Query() pids: string[],
+    ): Promise<void> {
+        const ownerResults = await findPropertyDetails(pids, ['VIEW_PIN']);
+
+        const matchingOwner = ownerResults.find(
+            (f: any) => f.livePinId === livePinId,
+        );
+
+        if (matchingOwner) {
+            return successResponse(200, {
+                success: true,
+                message: 'successful',
+            });
+        } else {
+            return badRequestErrorResponse(400, {
+                success: false,
+                message: 'failure',
+            });
+        }
+    }
+
     /**
      * Handles the callback after the user authenticates with BCSC.
      * @param typeORMErrorResponse - TSOA response for handling TypeORM errors (422).
@@ -72,7 +105,7 @@ export class BscsController extends Controller {
     @Get('/userinfo')
     public async handleCallback(
         @Res() typeORMErrorResponse: TsoaResponse<422, GenericTypeORMErrorType>,
-        @Res() successResponse: TsoaResponse<200, userInfoSuccessResponse>,
+        @Res() redirectResponse: TsoaResponse<302, any>,
         @Res() badRequestErrorResponse: TsoaResponse<400, badRequestError>,
         @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
         // @Res() failureResponse: TsoaResponse<204, ApiError>,
@@ -86,7 +119,8 @@ export class BscsController extends Controller {
                 throw new Error('Authorization code is missing or invalid'); // Check for a valid authorization code
 
             const parsedState = JSON.parse(decodeURIComponent(state));
-            console.log(parsedState);
+            // console.log(parsedState);
+            let redirectURI = `${parsedState.redirect}`;
 
             // Step 1: Exchange the authorization code for a token
             const tokenResponse = await fetch(
@@ -184,24 +218,28 @@ export class BscsController extends Controller {
                     );
 
                     // Respond with success, including relevant user information
-                    return successResponse(200, {
-                        success: true,
-                        pids: matchingOwner.pids,
-                        livePinId: matchingOwner.livePinId,
-                    });
+                    // return successResponse(200, userInfo);
+                    redirectURI = `${redirectURI}?status=0&livePinId=${matchingOwner.livePinId}&pids=${matchingOwner.pids}`;
+                    redirectResponse(302, undefined, { Location: redirectURI });
                 } else {
-                    const exception: ApiError = {
-                        message: `Unable to match owner name of property`,
-                        code: 400,
-                    };
-                    throw exception;
+                    redirectURI = `${redirectURI}?status=1`;
+                    redirectResponse(302, undefined, { Location: redirectURI });
+
+                    // const exception: ApiError = {
+                    //     message: `Unable to match owner name of property`,
+                    //     code: 400,
+                    // };
+                    // throw exception;
                 }
             } else {
-                const exception: ApiError = {
-                    message: `BCSC User Address does not match SiteID Address`,
-                    code: 400,
-                };
-                throw exception;
+                redirectURI = `${redirectURI}?status=2`;
+                redirectResponse(302, undefined, { Location: redirectURI });
+
+                // const exception: ApiError = {
+                //     message: `BCSC User Address does not match SiteID Address`,
+                //     code: 400,
+                // };
+                // throw exception;
             }
         } catch (err: any) {
             if (err instanceof TypeORMError) {
@@ -220,7 +258,7 @@ export class BscsController extends Controller {
                 });
             } else {
                 logger.warn(
-                    `Encountered 500 unknown Internal Server Error in getPropertyDetails: ${err.message}`,
+                    `Encountered 500 unknown Internal Server Error in BCSC login: ${err.message}`,
                 );
                 return serverErrorResponse(500, { message: err.message });
             }

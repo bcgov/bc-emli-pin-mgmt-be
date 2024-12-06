@@ -7,9 +7,9 @@ const bcscRouter = express.Router();
 const controller = new BscsController();
 
 bcscRouter.get('/', async (req: Request, res: Response) => {
-    const { siteId } = req.query;
+    const { siteId, redirect } = req.query;
 
-    // Set a secure, HTTP-only cookie with the `siteID`
+    // // Set a secure, HTTP-only cookie with the `siteID`
     res.cookie('siteId', siteId, {
         httpOnly: true, // The cookie cannot be accessed via client-side JavaScript
         secure: process.env.NODE_ENV === 'production', // Ensures the cookie is only sent over HTTPS
@@ -20,13 +20,26 @@ bcscRouter.get('/', async (req: Request, res: Response) => {
         () => {},
         () => {},
         siteId as string,
+        redirect as string,
     );
 });
 
-bcscRouter.get('/userinfo', async (req: Request, res: Response) => {
+bcscRouter.get('/validate', async (req: Request) => {
+    const { livePinId, pid } = req.query;
+
+    await controller.validateUserData(
+        () => {},
+        () => {},
+        () => {},
+        livePinId as string,
+        pid as string[],
+    );
+});
+
+bcscRouter.get('/userinfo', async (req: Request) => {
     const { code, state } = req.query;
 
-    const response = await controller.handleCallback(
+    await controller.handleCallback(
         () => {},
         () => {},
         () => {},
@@ -36,7 +49,11 @@ bcscRouter.get('/userinfo', async (req: Request, res: Response) => {
         state as string,
     );
 
-    return res.send(response);
+    // req.session.user = response;
+
+    // const redirection = `${response.redirect}?livePinId=${response.livePinId}&pids=${response.pids}`
+
+    // return res.redirect(redirection);
 });
 
 export default bcscRouter;

@@ -808,7 +808,7 @@ export interface userInfoSuccessResponse {
     livePinId: string;
 }
 
-export interface userInfoFailureResponse {
+export interface validateUserResponse {
     success: boolean;
     message: string;
 }
