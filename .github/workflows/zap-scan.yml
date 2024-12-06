@@ -8,7 +8,8 @@ on:
         description: The Target URL
         options:
             - https://bc-emli-pin-mgmt-be-c82b4c-dev.apps.silver.devops.gov.bc.ca/
-            - https://bc-emli-pin-mgmt-fe-c82b4c-dev.apps.silver.devops.gov.bc.ca/home
+            - https://bc-emli-pin-mgmt-be-c82b4c-test.apps.silver.devops.gov.bc.ca/
+            - https://bc-emli-pin-mgmt-prod-be.apps.silver.devops.gov.bc.ca/
 
 jobs:
   zap-scan:

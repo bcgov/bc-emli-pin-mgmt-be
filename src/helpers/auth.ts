@@ -85,7 +85,8 @@ export const prepareTokenInfo = async (tokenPayload: any) => {
 export const getAuthorizationUrl = async ({
     identity_provider,
     siteId,
-}: { identity_provider?: any; siteId?: string } = {}) => {
+    redirect,
+}: { identity_provider?: any; siteId?: string; redirect?: string } = {}) => {
     // Define params with an optional kc_idp_hint property
     let params: {
         client_id: string | undefined;
@@ -112,7 +113,9 @@ export const getAuthorizationUrl = async ({
             params.redirect_uri = OIDC_BCSC_REDIRECT_URL; // redirect to a different user to get the userinfo
             params.client_id = process.env.BCSC_OIDC_CLIENT_ID;
             params.kc_idp_hint = process.env.BCSC_OIDC_CLIENT_ID; // kc_idp_hint is our CLIENT_ID
-            params.state = encodeURIComponent(JSON.stringify({ siteId }));
+            params.state = encodeURIComponent(
+                JSON.stringify({ siteId, redirect }),
+            );
         }
     } else {
         params = {

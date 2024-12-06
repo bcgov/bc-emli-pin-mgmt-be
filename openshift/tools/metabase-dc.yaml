@@ -1,0 +1,147 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{},"labels":{"app":"metabase","app.kubernetes.io/component":"metabase","app.kubernetes.io/instance":"metabase","app.kubernetes.io/managed-by":"template","app.kubernetes.io/name":"java","app.kubernetes.io/part-of":"metabase","template":"metabase-dc-template"},"name":"metabase","namespace":"c82b4c-tools"},"spec":{"replicas":1,"revisionHistoryLimit":10,"selector":{"app":"metabase","deploymentconfig":"metabase"},"strategy":{"resources":{},"type":"Recreate"},"template":{"metadata":{"labels":{"app":"metabase","deploymentconfig":"metabase"},"name":"metabase"},"spec":{"containers":[{"env":[{"name":"MB_DB_FILE","value":"/app/data/metabase.db"},{"name":"MB_DB_TYPE","value":"h2"},{"name":"MB_ENCRYPTION_SECRET_KEY","valueFrom":{"secretKeyRef":{"key":"database-password","name":"metabase-secret"}}},{"name":"MB_JETTY_HOST","value":"0.0.0.0"},{"name":"MB_PASSWORD_COMPLEXITY","value":"strong"}],"image":"image-registry.openshift-image-registry.svc:5000/c82b4c-tools/metabase:latest","imagePullPolicy":"IfNotPresent","livenessProbe":{"failureThreshold":3,"initialDelaySeconds":10,"tcpSocket":{"port":3000},"timeoutSeconds":1},"name":"metabase","ports":[{"containerPort":3000,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"httpGet":{"path":"/","port":3000},"initialDelaySeconds":10,"timeoutSeconds":1},"resources":{"limits":{"cpu":"500m","memory":"1.5Gi"},"requests":{"cpu":"50m","memory":"768Mi"}},"startupProbe":{"failureThreshold":12,"tcpSocket":{"port":3000},"timeoutSeconds":1},"volumeMounts":[{"mountPath":"/app/data","name":"data"}]}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"metabase"}}]}},"test":false,"triggers":[{"type":"ConfigChange"},{"imageChangeParams":{"automatic":true,"containerNames":["metabase"],"from":{"kind":"ImageStreamTag","name":"metabase:latest","namespace":"c82b4c-tools"}},"type":"ImageChange"}]}}
+  creationTimestamp: "2023-12-01T17:09:26Z"
+  generation: 6
+  labels:
+    app: metabase
+    app.kubernetes.io/component: metabase
+    app.kubernetes.io/instance: metabase
+    app.kubernetes.io/managed-by: template
+    app.kubernetes.io/name: java
+    app.kubernetes.io/part-of: metabase
+    template: metabase-dc-template
+  name: metabase
+  namespace: c82b4c-tools
+  resourceVersion: "12455589376"
+  uid: 431b4be1-fe05-404c-8ef6-baa4ac41c5cd
+spec:
+  replicas: 0
+  revisionHistoryLimit: 10
+  selector:
+    app: metabase
+    deploymentconfig: metabase
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: metabase
+        deploymentconfig: metabase
+      name: metabase
+    spec:
+      containers:
+      - env:
+        - name: MB_DB_FILE
+          value: /app/data/metabase.db
+        - name: MB_DB_TYPE
+          value: h2
+        - name: MB_ENCRYPTION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: metabase-secret
+        - name: MB_JETTY_HOST
+          value: 0.0.0.0
+        - name: MB_PASSWORD_COMPLEXITY
+          value: strong
+        image: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/metabase@sha256:20872f1178bd03bdf7aff90e742b6e524467cd9bf95d834a2fa944c7ebc21eae
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 3000
+          timeoutSeconds: 1
+        name: metabase
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1536Mi
+          requests:
+            cpu: 50m
+            memory: 768Mi
+        startupProbe:
+          failureThreshold: 12
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 3000
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: metabase
+  test: false
+  triggers:
+  - type: ConfigChange
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - metabase
+      from:
+        kind: ImageStreamTag
+        name: metabase:latest
+        namespace: c82b4c-tools
+      lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/metabase@sha256:20872f1178bd03bdf7aff90e742b6e524467cd9bf95d834a2fa944c7ebc21eae
+    type: ImageChange
+status:
+  availableReplicas: 0
+  conditions:
+  - lastTransitionTime: "2023-12-01T22:05:24Z"
+    lastUpdateTime: "2023-12-01T22:06:31Z"
+    message: replication controller "metabase-2" successfully rolled out
+    reason: NewReplicationControllerAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2024-12-04T18:22:08Z"
+    lastUpdateTime: "2024-12-04T18:22:08Z"
+    message: Deployment config does not have minimum availability.
+    status: "False"
+    type: Available
+  details:
+    causes:
+    - imageTrigger:
+        from:
+          kind: DockerImage
+          name: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/metabase@sha256:20872f1178bd03bdf7aff90e742b6e524467cd9bf95d834a2fa944c7ebc21eae
+      type: ImageChange
+    message: image change
+  latestVersion: 2
+  observedGeneration: 6
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
