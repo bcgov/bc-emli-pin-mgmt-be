@@ -81,7 +81,12 @@ jobs:
       
       - name: Build
         run: npm run build
-
+    
+      - name: Install OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+        with:
+          oc_version: 'latest' 
+      
       - name: Login to Openshift
         shell: bash
         run: |
