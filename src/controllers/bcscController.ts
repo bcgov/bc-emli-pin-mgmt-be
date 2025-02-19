@@ -165,15 +165,19 @@ export class BscsController extends Controller {
                 `${userInfo.address.street_address} ${userInfo.address.locality} ${userInfo.address.region}`,
             );
 
-            // Check if any address result matches the site ID in the parsed state
+            // validate the BCSC address result matches the site ID in the parsed state
             const matchedResult = res.results.find(
                 (p: any) => p.siteID === parsedState.siteId,
             );
 
-            if (matchedResult) {
-                const pidsData: any = await getPIDs(parsedState.siteId);
-                const pids = pidStringSplitAndSort(pidsData.data.pids);
+            const pidsData: any = await getPIDs(parsedState.siteId);
+            const pids = pidStringSplitAndSort(pidsData.data.pids);
 
+            // address matches
+            if (matchedResult) {
+                redirectURI = `${redirectURI}?status=0&bcscId=${bcscId}&pids=${pids}`;
+                redirectResponse(302, undefined, { Location: redirectURI });
+            } else {
                 // Fetch property details emulating VIEW_PIN permission
                 let ownerResults = await findPropertyDetails(pids, [
                     'VIEW_PIN',
@@ -231,9 +235,9 @@ export class BscsController extends Controller {
                     // };
                     // throw exception;
                 }
-            } else {
-                redirectURI = `${redirectURI}?status=2`;
-                redirectResponse(302, undefined, { Location: redirectURI });
+                // } else {
+                //     redirectURI = `${redirectURI}?status=2`;
+                //     redirectResponse(302, undefined, { Location: redirectURI });
 
                 // const exception: ApiError = {
                 //     message: `BCSC User Address does not match SiteID Address`,
