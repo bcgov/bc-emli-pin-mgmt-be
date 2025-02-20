@@ -1,127 +1,130 @@
 name: Prod Env - Test + Build Pipeline
 
 on:
-  push:
-    branches:
-      - "prod"
-  workflow_dispatch:
+    push:
+        branches:
+            - 'prod'
+    workflow_dispatch:
 
 jobs:
-  codeql-scan:
-      name: codeql-scan
-      runs-on: ubuntu-latest
-      permissions:
-        actions: read
-        contents: read
-        security-events: write
+    codeql-scan:
+        name: codeql-scan
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
+            security-events: write
 
-      strategy:
-        fail-fast: false
-        matrix:
-          language: [ 'javascript' ]
+        strategy:
+            fail-fast: false
+            matrix:
+                language: ['javascript']
 
-      steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
+            # Initializes the CodeQL tools for scanning.
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  languages: ${{ matrix.language }}
 
-      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+            # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+            - name: Autobuild
+              uses: github/codeql-action/autobuild@v3
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v3
 
-  #zap-owasp:
+    #zap-owasp:
     #uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
     #with:
-      #ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
-      #ZAP_TARGET_URL: https://bc-emli-pin-mgmt-be-c82b4c-prod.apps.silver.devops.gov.bc.ca/
-      #ZAP_DURATION: '2'
-      #ZAP_MAX_DURATION: '5'
-      #ZAP_GCP_PUBLISH: false
+    #ZAP_SCAN_TYPE: 'base' # Accepted values are base and full.
+    #ZAP_TARGET_URL: https://bc-emli-pin-mgmt-be-c82b4c-prod.apps.silver.devops.gov.bc.ca/
+    #ZAP_DURATION: '2'
+    #ZAP_MAX_DURATION: '5'
+    #ZAP_GCP_PUBLISH: false
 
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.20.4]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        strategy:
+            matrix:
+                node-version: [18.20.4]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+            - name: Install dependencies
+              run: npm install
 
+            - name: Run tests
+              run: npm test
 
-      - name: Run tests
-        run: npm test
+            - name: Build
+              run: npm run build
 
-      - name: Build
-        run: npm run build
+            - name: Install OpenShift CLI
+              uses: redhat-actions/oc-installer@v1
+              with:
+                  oc_version: 'latest'
 
-    ####### Need to set up prod namespace on openshift
-  # https://github.com/bcgov-nr/action-builder-ghcr
-  builds:
-    name: Builds
-    runs-on: ubuntu-22.04
-    needs: [build]
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [bc-emli-pin-mgmt-be]
-        include:
-          - package: bc-emli-pin-mgmt-be
-            build_context: ./
-            triggers: ('bc-emli-pin-mgmt-be/')
-            build_file: Dockerfile
-    timeout-minutes: 10
-    steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.0.0
-        with:
-          keep_versions: 50
-          package: ${{ matrix.package }}
-          build_context: ${{ matrix.build_context }}
-          tag: latest
-          triggers: ${{ matrix.triggers }}
+        ####### Need to set up prod namespace on openshift
+    # https://github.com/bcgov-nr/action-builder-ghcr
+    builds:
+        name: Builds
+        runs-on: ubuntu-22.04
+        needs: [build]
+        permissions:
+            packages: write
+        strategy:
+            matrix:
+                package: [bc-emli-pin-mgmt-be]
+                include:
+                    - package: bc-emli-pin-mgmt-be
+                      build_context: ./
+                      triggers: ('bc-emli-pin-mgmt-be/')
+                      build_file: Dockerfile
+        timeout-minutes: 10
+        steps:
+            - uses: bcgov-nr/action-builder-ghcr@v2.0.0
+              with:
+                  keep_versions: 50
+                  package: ${{ matrix.package }}
+                  build_context: ${{ matrix.build_context }}
+                  tag: latest
+                  triggers: ${{ matrix.triggers }}
 
+    deploys:
+        name: Deploys Backend
+        needs: [builds]
+        environment: tools
+        permissions:
+            issues: write
+        runs-on: ubuntu-22.04
+        strategy:
+            matrix:
+                name: [bc-emli-pin-mgmt-be]
+                include:
+                    - name: bc-emli-pin-mgmt-be
+                      file: ./.deployment/prod.deploy.yml
+                      overwrite: true
 
-  deploys:
-    name: Deploys Backend
-    needs: [builds]
-    environment: tools
-    permissions:
-      issues: write
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        name: [bc-emli-pin-mgmt-be]
-        include:
-          - name: bc-emli-pin-mgmt-be
-            file: ./.deployment/prod.deploy.yml
-            overwrite: true
-
-    steps:
-      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
-        with:
-          file: ${{ matrix.file }}
-          oc_namespace: ${{ vars.OC_NAMESPACE_PROD }}
-          oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN_PROD }}
-          overwrite: ${{ matrix.overwrite }}
-          parameters: -p ZONE=prod
-          repository: ${{ matrix.repository }}
+        steps:
+            - uses: bcgov-nr/action-deployer-openshift@v2.0.0
+              with:
+                  file: ${{ matrix.file }}
+                  oc_namespace: ${{ vars.OC_NAMESPACE_PROD }}
+                  oc_server: ${{ vars.OC_SERVER }}
+                  oc_token: ${{ secrets.OC_TOKEN_PROD }}
+                  overwrite: ${{ matrix.overwrite }}
+                  parameters: -p ZONE=prod
+                  repository: ${{ matrix.repository }}
