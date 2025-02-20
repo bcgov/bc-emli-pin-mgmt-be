@@ -119,6 +119,8 @@ export class BscsController extends Controller {
                 throw new Error('Authorization code is missing or invalid'); // Check for a valid authorization code
 
             const parsedState = JSON.parse(decodeURIComponent(state));
+            const siteId = parsedState.siteId;
+
             // console.log(parsedState);
             let redirectURI = `${parsedState.redirect}`;
 
@@ -165,15 +167,14 @@ export class BscsController extends Controller {
                 `${userInfo.address.street_address} ${userInfo.address.locality} ${userInfo.address.region}`,
             );
 
-            // validate the BCSC address result matches the site ID in the parsed state
+            // Check if any address result matches the site ID in the parsed state
             const matchedResult = res.results.find(
-                (p: any) => p.siteID === parsedState.siteId,
+                (p: any) => p.siteID === siteId,
             );
 
-            const pidsData: any = await getPIDs(parsedState.siteId);
+            const pidsData: any = await getPIDs(siteId);
             const pids = pidStringSplitAndSort(pidsData.data.pids);
 
-            // address matches
             if (matchedResult) {
                 redirectURI = `${redirectURI}?status=0&bcscId=${bcscId}&pids=${pids}`;
                 redirectResponse(302, undefined, { Location: redirectURI });
@@ -222,29 +223,16 @@ export class BscsController extends Controller {
                     );
 
                     // Respond with success, including relevant user information
-                    // return successResponse(200, userInfo);
                     redirectURI = `${redirectURI}?status=0&livePinId=${matchingOwner.livePinId}&pids=${matchingOwner.pids}`;
                     redirectResponse(302, undefined, { Location: redirectURI });
-                } else {
-                    redirectURI = `${redirectURI}?status=1`;
-                    redirectResponse(302, undefined, { Location: redirectURI });
-
-                    // const exception: ApiError = {
-                    //     message: `Unable to match owner name of property`,
-                    //     code: 400,
-                    // };
-                    // throw exception;
                 }
-                // } else {
-                //     redirectURI = `${redirectURI}?status=2`;
-                //     redirectResponse(302, undefined, { Location: redirectURI });
 
-                // const exception: ApiError = {
-                //     message: `BCSC User Address does not match SiteID Address`,
-                //     code: 400,
-                // };
-                // throw exception;
+                redirectURI = `${redirectURI}?status=1`;
+                redirectResponse(302, undefined, { Location: redirectURI });
             }
+
+            redirectURI = `${redirectURI}?status=2`;
+            redirectResponse(302, undefined, { Location: redirectURI });
         } catch (err: any) {
             if (err instanceof TypeORMError) {
                 logger.warn(
