@@ -1,0 +1,113 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","metadata":{"annotations":{},"generation":1,"labels":{"app":"clamav"},"name":"clamav","namespace":"c82b4c-tools"},"spec":{"replicas":1,"selector":{"app":"clamav","deploymentconfig":"clamav"},"strategy":{"activeDeadlineSeconds":21600,"type":"Rolling"},"template":{"metadata":{"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"},"labels":{"app":"clamav","deploymentconfig":"clamav"}},"spec":{"containers":[{"image":"clamav-prod:dev","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":3,"initialDelaySeconds":240,"periodSeconds":10,"successThreshold":1,"tcpSocket":{"port":3310},"timeoutSeconds":3},"name":"clamav","ports":[{"containerPort":3310,"protocol":"TCP"}],"readinessProbe":{"failureThreshold":3,"initialDelaySeconds":240,"periodSeconds":10,"successThreshold":1,"tcpSocket":{"port":3310},"timeoutSeconds":3},"resources":{"limits":{"cpu":"1100m","memory":"2G"},"requests":{"cpu":"100m","memory":"500M"}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File"}],"dnsPolicy":"ClusterFirst","restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30}},"test":false,"triggers":[{"imageChangeParams":{"automatic":true,"containerNames":["clamav"],"from":{"kind":"ImageStreamTag","name":"clamav-prod:dev"}},"type":"ImageChange"},{"type":"ConfigChange"}]}}
+  creationTimestamp: "2023-12-05T03:58:20Z"
+  generation: 5
+  labels:
+    app: clamav
+  name: clamav
+  namespace: c82b4c-tools
+  resourceVersion: "12445541918"
+  uid: 00cb6ab0-9418-4292-9e2d-0f8ab0633de0
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: clamav
+    deploymentconfig: clamav
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+      creationTimestamp: null
+      labels:
+        app: clamav
+        deploymentconfig: clamav
+    spec:
+      containers:
+      - image: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/clamav-prod@sha256:d6bf226eb34f7095c022e66d2882229f2eada38d515bc4c12a218253a2af920c
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 240
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 3310
+          timeoutSeconds: 3
+        name: clamav
+        ports:
+        - containerPort: 3310
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 240
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 3310
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: 1100m
+            memory: 2G
+          requests:
+            cpu: 100m
+            memory: 500M
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - clamav
+      from:
+        kind: ImageStreamTag
+        name: clamav-prod:dev
+        namespace: c82b4c-tools
+      lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/c82b4c-tools/clamav-prod@sha256:d6bf226eb34f7095c022e66d2882229f2eada38d515bc4c12a218253a2af920c
+    type: ImageChange
+  - type: ConfigChange
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2023-12-05T23:48:19Z"
+    lastUpdateTime: "2023-12-05T23:48:19Z"
+    message: replication controller "clamav-1" successfully rolled out
+    reason: NewReplicationControllerAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2024-12-03T21:03:04Z"
+    lastUpdateTime: "2024-12-03T21:03:04Z"
+    message: Deployment config has minimum availability.
+    status: "True"
+    type: Available
+  details:
+    causes:
+    - type: ConfigChange
+    message: config change
+  latestVersion: 1
+  observedGeneration: 5
+  readyReplicas: 1
+  replicas: 1
+  unavailableReplicas: 0
+  updatedReplicas: 1

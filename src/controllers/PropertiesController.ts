@@ -26,8 +26,8 @@ import {
     unauthorizedError,
 } from '../helpers/types';
 import { findPropertyDetails } from '../db/ActivePIN.db';
-import axios from 'axios';
-import { pidStringSplitAndSort } from '../helpers/pidHelpers';
+
+import { pidStringSplitAndSort, getPIDs } from '../helpers/pidHelpers';
 import { authenticate } from '../middleware/authentication';
 import { decodingJWT } from '../helpers/auth';
 import { Request as req } from 'express';
@@ -171,49 +171,9 @@ export class PropertiesController extends Controller {
                 });
             }
         }
-        try {
-            const parcelsApiUrl = `${process.env.GEOCODER_API_BASE_URL}${process.env.GEOCODER_API_PARCELS_ENDPOINT}`;
-            const jsonFormat = '.json';
-            const getPIDs = async () => {
-                try {
-                    return await axios.get(
-                        `${parcelsApiUrl}${siteID}${jsonFormat}`,
-                        {
-                            headers: {
-                                apikey: `${process.env.BCGEOCODER_API_KEY_PID}`,
-                            },
-                        },
-                    );
-                } catch (err: any) {
-                    if (err.response.status === 401) {
-                        const error: unauthorizedError = {
-                            message: 'unauthorized error',
-                            code: 401,
-                        };
-                        throw error;
-                    } else if (err.response.status === 400) {
-                        const error: badRequestError = {
-                            message: 'bad request error',
-                            code: 400,
-                        };
-                        throw error;
-                    } else if (err.response.status === 403) {
-                        const error: forbiddenError = {
-                            message: 'forbidden error',
-                            code: 403,
-                        };
-                        throw error;
-                    } else if (err.response.status === 404) {
-                        const error: notFoundError = {
-                            message: 'not found error',
-                            code: 404,
-                        };
-                        throw error;
-                    }
-                }
-            };
 
-            const pidsData: any = await getPIDs();
+        try {
+            const pidsData: any = await getPIDs(siteID);
             const pids = pidStringSplitAndSort(pidsData.data.pids);
             const result = await findPropertyDetails(pids, permissions);
             if (result[0] === undefined) {
@@ -272,7 +232,7 @@ export class PropertiesController extends Controller {
                 return serverErrorResponse(500, { message: err.message });
             }
         }
-        // Sort results
+
         results = this.sortDetailsResults(results);
         return results;
     }

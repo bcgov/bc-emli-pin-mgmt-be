@@ -1,6 +1,14 @@
 import { ActivePin } from '../entity/ActivePin';
 import logger from '../middleware/logger';
 
+import axios from 'axios';
+import {
+    unauthorizedError,
+    badRequestError,
+    forbiddenError,
+    notFoundError,
+} from './types'; // Adjust import paths as needed
+
 /**
  * A helper function for converting pid strings to arrays
  * @param pids A vertical bar "|" seperated list of pids in string form
@@ -77,3 +85,43 @@ export function sortActivePinResults(input: ActivePin[]) {
     }
     return output;
 }
+
+export const getPIDs = async (siteID: string): Promise<any> => {
+    const parcelsApiUrl = `${process.env.GEOCODER_API_BASE_URL}${process.env.GEOCODER_API_PARCELS_ENDPOINT}`;
+    const jsonFormat = '.json';
+
+    try {
+        return await axios.get(`${parcelsApiUrl}${siteID}${jsonFormat}`, {
+            headers: {
+                apikey: `${process.env.BCGEOCODER_API_KEY_PID}`,
+            },
+        });
+    } catch (err: any) {
+        if (err.response.status === 401) {
+            const error: unauthorizedError = {
+                message: 'unauthorized error',
+                code: 401,
+            };
+            throw error;
+        } else if (err.response.status === 400) {
+            const error: badRequestError = {
+                message: 'bad request error',
+                code: 400,
+            };
+            throw error;
+        } else if (err.response.status === 403) {
+            const error: forbiddenError = {
+                message: 'forbidden error',
+                code: 403,
+            };
+            throw error;
+        } else if (err.response.status === 404) {
+            const error: notFoundError = {
+                message: 'not found error',
+                code: 404,
+            };
+            throw error;
+        }
+        throw err; // Rethrow any other errors
+    }
+};

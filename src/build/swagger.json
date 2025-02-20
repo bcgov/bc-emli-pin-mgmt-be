@@ -286,7 +286,6 @@
 				"additionalProperties": false
 			},
 			"unauthorizedError": {
-				"description": "Unauthorized Error",
 				"properties": {
 					"message": {
 						"type": "string"
@@ -301,14 +300,9 @@
 					"code"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Unauthorized error",
-					"code": 401
-				}
+				"additionalProperties": false
 			},
 			"badRequestError": {
-				"description": "Bad Request Error",
 				"properties": {
 					"message": {
 						"type": "string"
@@ -323,14 +317,9 @@
 					"code"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Bad request error",
-					"code": 400
-				}
+				"additionalProperties": false
 			},
 			"forbiddenError": {
-				"description": "Forbidden Error",
 				"properties": {
 					"message": {
 						"type": "string"
@@ -345,14 +334,9 @@
 					"code"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Forbidden error",
-					"code": 403
-				}
+				"additionalProperties": false
 			},
 			"notFoundError": {
-				"description": "Not Found Error",
 				"properties": {
 					"message": {
 						"type": "string"
@@ -367,11 +351,7 @@
 					"code"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "Not found error",
-					"code": 404
-				}
+				"additionalProperties": false
 			},
 			"noPendingRequestFound": {
 				"description": "No Pending Request Found",
@@ -457,156 +437,6 @@
 						"example@test.com"
 					]
 				}
-			},
-			"dashboardURLResponse": {
-				"description": "URL for metabase dashborad iframe",
-				"properties": {
-					"url": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"url"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"url": "https://www.google.com/dashboardEndpoint"
-				}
-			},
-			"HelloWorldResponse": {
-				"properties": {
-					"message": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"message"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"expirationReason": {
-				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
-				"enum": [
-					"OP",
-					"CC",
-					"OR",
-					"CO"
-				],
-				"type": "string"
-			},
-			"pinAuditAction": {
-				"description": "The reason for adding an entry to the pin audit log.\n- Deleted PIN  = 'D',\n- (Initially) Created PIN = 'C',\n- Recreated (expire and create) PIN = 'R'",
-				"enum": [
-					"D",
-					"C",
-					"R"
-				],
-				"type": "string"
-			},
-			"auditLogInfo": {
-				"description": "The info returned in an audit log",
-				"properties": {
-					"logId": {
-						"type": "string"
-					},
-					"pin": {
-						"type": "string",
-						"nullable": true
-					},
-					"expiredAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"expirationReason": {
-						"allOf": [
-							{
-								"$ref": "#/components/schemas/expirationReason"
-							}
-						],
-						"nullable": true
-					},
-					"sentToEmail": {
-						"type": "string",
-						"nullable": true
-					},
-					"sentToPhone": {
-						"type": "string",
-						"nullable": true
-					},
-					"pinCreatedAt": {
-						"type": "string"
-					},
-					"updatedAt": {
-						"type": "string",
-						"nullable": true
-					},
-					"alteredByName": {
-						"type": "string",
-						"nullable": true
-					},
-					"alteredByUsername": {
-						"type": "string",
-						"nullable": true
-					},
-					"livePinId": {
-						"type": "string"
-					},
-					"action": {
-						"$ref": "#/components/schemas/pinAuditAction"
-					},
-					"logCreatedAt": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"logId",
-					"pin",
-					"expiredAt",
-					"expirationReason",
-					"sentToEmail",
-					"sentToPhone",
-					"pinCreatedAt",
-					"updatedAt",
-					"alteredByName",
-					"alteredByUsername",
-					"livePinId",
-					"action",
-					"logCreatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"logId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
-					"expiredAt": null,
-					"expirationReason": null,
-					"sentToEmail": null,
-					"sentToPhone": "19021234567",
-					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
-					"updatedAt": "2023-08-24T15:06:27.269Z",
-					"alteredByName": "Self",
-					"alteredByUsername": "self",
-					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
-					"action": "C",
-					"logCreatedAt": "2023-08-24T15:06:27.269Z"
-				}
-			},
-			"auditLogReturn": {
-				"description": "The information returned in an audit log request for a given pin, sorted descending",
-				"properties": {
-					"logs": {
-						"items": {
-							"$ref": "#/components/schemas/auditLogInfo"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"logs"
-				],
-				"type": "object",
-				"additionalProperties": false
 			},
 			"pinRangeErrorType": {
 				"description": "Generic range error that may occur when you give a value out of bounds to a pin function",
@@ -849,6 +679,10 @@
 						"type": "string",
 						"nullable": true
 					},
+					"bcscId": {
+						"type": "string",
+						"nullable": true
+					},
 					"pids": {
 						"type": "string"
 					},
@@ -926,6 +760,7 @@
 				"required": [
 					"livePinId",
 					"pin",
+					"bcscId",
 					"pids",
 					"titleNumber",
 					"landTitleDistrict",
@@ -948,6 +783,16 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"expirationReason": {
+				"description": "The reason for expiring a PIN.\n- OptOut = 'OP'\n- CallCenterPinReset = 'CC'\n- OnlineReset = 'OR'\n- ChangeOfOwnership = 'CO'",
+				"enum": [
+					"OP",
+					"CC",
+					"OR",
+					"CO"
+				],
+				"type": "string"
 			},
 			"expireRequestBody": {
 				"description": "The request body for a pin expiration request.\nNote that expiredByUsername, propertyAddress, email and phone\nnumber are only required for reasons other\nthan \"CO\" (change of ownership).",
@@ -1005,6 +850,162 @@
 					"pin": "ABCD1234",
 					"pids": "12345678|11234567"
 				}
+			},
+			"validateUserResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"dashboardURLResponse": {
+				"description": "URL for metabase dashborad iframe",
+				"properties": {
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"url": "https://www.google.com/dashboardEndpoint"
+				}
+			},
+			"HelloWorldResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"pinAuditAction": {
+				"description": "The reason for adding an entry to the pin audit log.\n- Deleted PIN  = 'D',\n- (Initially) Created PIN = 'C',\n- Recreated (expire and create) PIN = 'R'",
+				"enum": [
+					"D",
+					"C",
+					"R"
+				],
+				"type": "string"
+			},
+			"auditLogInfo": {
+				"description": "The info returned in an audit log",
+				"properties": {
+					"logId": {
+						"type": "string"
+					},
+					"pin": {
+						"type": "string",
+						"nullable": true
+					},
+					"expiredAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"expirationReason": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/expirationReason"
+							}
+						],
+						"nullable": true
+					},
+					"sentToEmail": {
+						"type": "string",
+						"nullable": true
+					},
+					"sentToPhone": {
+						"type": "string",
+						"nullable": true
+					},
+					"pinCreatedAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"nullable": true
+					},
+					"alteredByName": {
+						"type": "string",
+						"nullable": true
+					},
+					"alteredByUsername": {
+						"type": "string",
+						"nullable": true
+					},
+					"livePinId": {
+						"type": "string"
+					},
+					"action": {
+						"$ref": "#/components/schemas/pinAuditAction"
+					},
+					"logCreatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"logId",
+					"pin",
+					"expiredAt",
+					"expirationReason",
+					"sentToEmail",
+					"sentToPhone",
+					"pinCreatedAt",
+					"updatedAt",
+					"alteredByName",
+					"alteredByUsername",
+					"livePinId",
+					"action",
+					"logCreatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false,
+				"example": {
+					"logId": "82dc08e5-cbca-40c2-9d35-a4d1407d5f8d",
+					"expiredAt": null,
+					"expirationReason": null,
+					"sentToEmail": null,
+					"sentToPhone": "19021234567",
+					"pinCreatedAt": "2023-08-24T15:01:49.628Z",
+					"updatedAt": "2023-08-24T15:06:27.269Z",
+					"alteredByName": "Self",
+					"alteredByUsername": "self",
+					"livePinId": "31be8df8-3284-4b05-bb2b-f11b7e77cba0",
+					"action": "C",
+					"logCreatedAt": "2023-08-24T15:06:27.269Z"
+				}
+			},
+			"auditLogReturn": {
+				"description": "The information returned in an audit log request for a given pin, sorted descending",
+				"properties": {
+					"logs": {
+						"items": {
+							"$ref": "#/components/schemas/auditLogInfo"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"logs"
+				],
+				"type": "object",
+				"additionalProperties": false
 			},
 			"GeocoderAddress": {
 				"description": "BC Geocoder address search result, including score, full address and site ID",
@@ -1119,7 +1120,6 @@
 				}
 			},
 			"pidNotFound": {
-				"description": "PID Not Found",
 				"properties": {
 					"message": {
 						"type": "string"
@@ -1134,11 +1134,7 @@
 					"code"
 				],
 				"type": "object",
-				"additionalProperties": false,
-				"example": {
-					"message": "PID not found in database",
-					"code": 204
-				}
+				"additionalProperties": false
 			},
 			"userList": {
 				"description": "Response for user list",
@@ -1628,145 +1624,6 @@
 						}
 					}
 				}
-			}
-		},
-		"/dashboard": {
-			"get": {
-				"operationId": "GetDashboardURL",
-				"responses": {
-					"200": {
-						"description": "The iframe URL for embedding if SuperAdmin and signing is successful, and an error otherwise",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/dashboardURLResponse"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
-								}
-							}
-						}
-					},
-					"403": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/forbiddenError"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/notFoundError"
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/serverErrorType"
-								}
-							}
-						}
-					}
-				},
-				"description": "Endpoint for getting the Metabase dashboard URL.",
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/helloworld": {
-			"get": {
-				"operationId": "GetMessage",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HelloWorldResponse"
-								}
-							}
-						}
-					}
-				},
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/audit-trails": {
-			"get": {
-				"operationId": "GetAuditLogs",
-				"responses": {
-					"200": {
-						"description": "The audit logs for a particular pin",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/auditLogReturn"
-								}
-							}
-						}
-					},
-					"422": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/requiredFieldErrorType"
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/serverErrorType"
-								}
-							}
-						}
-					}
-				},
-				"description": "Gets the audit logs for a vertical bar seperated (|) string of livePinIds. Limited to 500 logs.\nExpected error codes and messages:\n- `422`\n\t-- `invalid input syntax for type uuid: 'your query here'`\n- `500`\n\t-- `Internal Server Error`",
-				"security": [],
-				"parameters": [
-					{
-						"description": "The list of ids for the pins, seperated by a vertical bar (|)",
-						"in": "query",
-						"name": "livePinIds",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
 			}
 		},
 		"/pins/score": {
@@ -2455,6 +2312,354 @@
 						}
 					}
 				}
+			}
+		},
+		"/bcsc": {
+			"get": {
+				"operationId": "InitiateLogin",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"307": {
+						"description": "- TSOA response object for redirection (307)."
+					},
+					"500": {
+						"description": "- TSOA response object for handling server errors (500).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"error",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Initiates the BCSC login by redirecting the user to the authorization URL.",
+				"tags": [
+					"BCSC"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The site identifier passed as a query parameter.",
+						"in": "query",
+						"name": "siteid",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "redirect",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/bcsc/validate": {
+			"get": {
+				"operationId": "ValidateUserData",
+				"responses": {
+					"200": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/validateUserResponse"
+								}
+							}
+						}
+					},
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/validateUserResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"error",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BCSC"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "livePinId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "pids",
+						"required": true,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				]
+			}
+		},
+		"/bcsc/userinfo": {
+			"get": {
+				"operationId": "HandleCallback",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"302": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "- TSOA response for handling bad requests (400).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/badRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "- TSOA response for handling TypeORM errors (422).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericTypeORMErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "- TSOA response for handling server errors (500).",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Handles the callback after the user authenticates with BCSC.",
+				"tags": [
+					"BCSC"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- The authorization code returned by the BCSC login.",
+						"in": "query",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- The state parameter, parsed to find the site ID for the user.",
+						"in": "query",
+						"name": "state",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/dashboard": {
+			"get": {
+				"operationId": "GetDashboardURL",
+				"responses": {
+					"200": {
+						"description": "The iframe URL for embedding if SuperAdmin and signing is successful, and an error otherwise",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/dashboardURLResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/forbiddenError"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/notFoundError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Endpoint for getting the Metabase dashboard URL.",
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/helloworld": {
+			"get": {
+				"operationId": "GetMessage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HelloWorldResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/audit-trails": {
+			"get": {
+				"operationId": "GetAuditLogs",
+				"responses": {
+					"200": {
+						"description": "The audit logs for a particular pin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/auditLogReturn"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/requiredFieldErrorType"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the audit logs for a vertical bar seperated (|) string of livePinIds. Limited to 500 logs.\nExpected error codes and messages:\n- `422`\n\t-- `invalid input syntax for type uuid: 'your query here'`\n- `500`\n\t-- `Internal Server Error`",
+				"security": [],
+				"parameters": [
+					{
+						"description": "The list of ids for the pins, seperated by a vertical bar (|)",
+						"in": "query",
+						"name": "livePinIds",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/properties/address/{address}": {

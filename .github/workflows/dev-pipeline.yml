@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - "dev" # Switch this to environment variable ${{ vars.environemnt }}
+    paths-ignore:
+    - .github/**
+    - .husky/**
+    - load-testing/**
+    - "*.md"
+    - "*.yaml"
+    - /.*
   workflow_dispatch:
 
 jobs:
@@ -22,20 +29,20 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
   zap-owasp:
     uses: bcgov/pipeline-templates/.github/workflows/owasp-scan.yaml@main
@@ -51,14 +58,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.20.4]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
@@ -74,7 +81,12 @@ jobs:
       
       - name: Build
         run: npm run build
-
+    
+      - name: Install OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+        with:
+          oc_version: 'latest' 
+      
       - name: Login to Openshift
         shell: bash
         run: |

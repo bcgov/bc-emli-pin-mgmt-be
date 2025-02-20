@@ -123,7 +123,7 @@ objects:
                   valueFrom:
                     secretKeyRef:
                       name: bcgeocoder
-                      key: geocoder-test-api-url
+                      key: geocoder-prod-api-url
                 - name: GEOCODER_API_ADDRESSES_ENDPOINT
                   valueFrom:
                     secretKeyRef:
@@ -139,6 +139,16 @@ objects:
                     secretKeyRef:
                       name: bc-emli-pin-mgmt-fe
                       key: be-app-url
+                - name: BCSC_OIDC_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: bcsc-oidc-client-id
+                - name: BCSC_OIDC_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: bc-emli-pin-mgmt-be
+                      key: bcsc-oidc-client-secret
                 - name: OIDC_CLIENT_ID
                   valueFrom:
                     secretKeyRef:
