@@ -18,7 +18,6 @@ import {
     getAddressResults,
     badRequestError,
     serverErrorType,
-    validateUserResponse,
     GenericTypeORMErrorType,
     InvalidTokenErrorResponse,
     UnauthorizedErrorResponse,
@@ -106,40 +105,40 @@ export class BscsController extends Controller {
         }
     }
 
-    @Get('/validate')
-    public async validateUserData(
-        @Res() successResponse: TsoaResponse<200, validateUserResponse>,
-        @Res() badRequestErrorResponse: TsoaResponse<400, validateUserResponse>,
-        @Res()
-        serverErrorResponse: TsoaResponse<
-            500,
-            { success: boolean; error: string }
-        >,
-        @Query() livePinId: string,
-        @Query() bcscId: string,
-        @Query() pids: string[],
-    ): Promise<void> {
-        const ownerResults = await findPropertyDetails(pids, ['VIEW_PIN']);
-        let matchingOwner;
+    // @Get('/validate')
+    // public async validateUserData(
+    //     @Res() successResponse: TsoaResponse<200, validateUserResponse>,
+    //     @Res() badRequestErrorResponse: TsoaResponse<400, validateUserResponse>,
+    //     @Res()
+    //     serverErrorResponse: TsoaResponse<
+    //         500,
+    //         { success: boolean; error: string }
+    //     >,
+    //     @Query() livePinId: string,
+    //     @Query() bcscId: string,
+    //     @Query() pids: string[],
+    // ): Promise<void> {
+    //     const ownerResults = await findPropertyDetails(pids, ['VIEW_PIN']);
+    //     let matchingOwner;
 
-        if (livePinId) {
-            matchingOwner = ownerResults.find(
-                (f: any) => f.livePinId === livePinId,
-            );
-        }
+    //     if (livePinId) {
+    //         matchingOwner = ownerResults.find(
+    //             (f: any) => f.livePinId === livePinId,
+    //         );
+    //     }
 
-        if (matchingOwner) {
-            return successResponse(200, {
-                success: true,
-                message: 'successful',
-            });
-        } else {
-            return badRequestErrorResponse(400, {
-                success: false,
-                message: 'failure',
-            });
-        }
-    }
+    //     if (matchingOwner) {
+    //         return successResponse(200, {
+    //             success: true,
+    //             message: 'successful',
+    //         });
+    //     } else {
+    //         return badRequestErrorResponse(400, {
+    //             success: false,
+    //             message: 'failure',
+    //         });
+    //     }
+    // }
 
     /**
      * Handles the callback after the user authenticates with BCSC.

@@ -24,17 +24,17 @@ bcscRouter.get('/', async (req: Request, res: Response) => {
     );
 });
 
-bcscRouter.get('/validate', async (req: Request) => {
-    const { livePinId, pid } = req.query;
+// bcscRouter.get('/validate', async (req: Request) => {
+//     const { livePinId, pid } = req.query;
 
-    await controller.validateUserData(
-        () => {},
-        () => {},
-        () => {},
-        livePinId as string,
-        pid as string[],
-    );
-});
+//     await controller.validateUserData(
+//         () => {},
+//         () => {},
+//         () => {},
+//         livePinId as string,
+//         pid as string[],
+//     );
+// });
 
 bcscRouter.get('/userinfo', async (req: Request) => {
     const { code, state } = req.query;
