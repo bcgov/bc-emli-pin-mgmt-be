@@ -345,15 +345,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "validateUserResponse": {
-        "dataType": "refObject",
-        "properties": {
-            "success": {"dataType":"boolean","required":true},
-            "message": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "dashboardURLResponse": {
         "dataType": "refObject",
         "properties": {
@@ -979,36 +970,6 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.initiateLogin.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/bcsc/validate',
-            ...(fetchMiddlewares<RequestHandler>(BscsController)),
-            ...(fetchMiddlewares<RequestHandler>(BscsController.prototype.validateUserData)),
-
-            function BscsController_validateUserData(request: any, response: any, next: any) {
-            const args = {
-                    successResponse: {"in":"res","name":"200","required":true,"ref":"validateUserResponse"},
-                    badRequestErrorResponse: {"in":"res","name":"400","required":true,"ref":"validateUserResponse"},
-                    serverErrorResponse: {"in":"res","name":"500","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"dataType":"string","required":true},"success":{"dataType":"boolean","required":true}}},
-                    livePinId: {"in":"query","name":"livePinId","required":true,"dataType":"string"},
-                    bcscId: {"in":"query","name":"bcscId","required":true,"dataType":"string"},
-                    pids: {"in":"query","name":"pids","required":true,"dataType":"array","array":{"dataType":"string"}},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new BscsController();
-
-
-              const promise = controller.validateUserData.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
