@@ -1,5 +1,16 @@
 // controllers/bscsController.ts
-import { Controller, Get, Query, Res, Route, Tags, TsoaResponse } from 'tsoa';
+import {
+    Controller,
+    Get,
+    Query,
+    Res,
+    Route,
+    Tags,
+    TsoaResponse,
+    Security,
+} from 'tsoa';
+
+require('dotenv/config');
 
 import { getAuthorizationUrl } from '../helpers/auth';
 import { pidStringSplitAndSort, getPIDs } from '../helpers/pidHelpers';
@@ -9,6 +20,8 @@ import {
     serverErrorType,
     validateUserResponse,
     GenericTypeORMErrorType,
+    InvalidTokenErrorResponse,
+    UnauthorizedErrorResponse,
     // ApiError,
 } from '../helpers/types';
 import GeocodeAPICaller from '../helpers/geocodeAPICaller';
@@ -18,10 +31,42 @@ import logger from '../middleware/logger';
 
 import { findPropertyDetails, updateActivePin } from '../db/ActivePIN.db';
 import { TypeORMError } from 'typeorm';
+import { encryptJson } from '../helpers/crypto';
+
+const validationKey = process.env.VALIDATION_KEY;
 
 @Route('bcsc')
 @Tags('BCSC')
 export class BscsController extends Controller {
+    /**
+     *
+     */
+    @Security('vhers_api_key')
+    @Get('/key')
+    public async getValidationKey(
+        @Res()
+        _invalidTokenErrorResponse: TsoaResponse<
+            400,
+            InvalidTokenErrorResponse
+        >,
+        @Res()
+        _unauthorizedErrorResponse: TsoaResponse<
+            401,
+            UnauthorizedErrorResponse
+        >,
+        @Res() serverErrorResponse: TsoaResponse<500, serverErrorType>,
+    ) {
+        try {
+            return validationKey;
+        } catch (err) {
+            if (err instanceof Error) {
+                const message = `Error in getValidationKey: failed to get key`;
+                logger.warn(message);
+                return serverErrorResponse(500, { message });
+            }
+        }
+    }
+
     /**
      * Initiates the BCSC login by redirecting the user to the authorization URL.
      * @param redirectResponse - TSOA response object for redirection (307).
@@ -71,13 +116,17 @@ export class BscsController extends Controller {
             { success: boolean; error: string }
         >,
         @Query() livePinId: string,
+        @Query() bcscId: string,
         @Query() pids: string[],
     ): Promise<void> {
         const ownerResults = await findPropertyDetails(pids, ['VIEW_PIN']);
+        let matchingOwner;
 
-        const matchingOwner = ownerResults.find(
-            (f: any) => f.livePinId === livePinId,
-        );
+        if (livePinId) {
+            matchingOwner = ownerResults.find(
+                (f: any) => f.livePinId === livePinId,
+            );
+        }
 
         if (matchingOwner) {
             return successResponse(200, {
@@ -115,6 +164,12 @@ export class BscsController extends Controller {
         try {
             let matchingOwner: any;
 
+            const jsonReturn = {
+                bcscId: null,
+                livePinId: null,
+                pids: [],
+            };
+
             if (!code)
                 throw new Error('Authorization code is missing or invalid'); // Check for a valid authorization code
 
@@ -144,6 +199,7 @@ export class BscsController extends Controller {
             );
 
             const tokenData = await tokenResponse.json();
+
             if (!tokenData.access_token)
                 throw new Error('Token exchange failed'); // Ensure the token exchange was successful
 
@@ -173,14 +229,18 @@ export class BscsController extends Controller {
             );
 
             const pidsData: any = await getPIDs(siteId);
-            const pids = pidStringSplitAndSort(pidsData.data.pids);
+            const pids = pidsData.data.pids;
 
             if (matchedResult) {
-                redirectURI = `${redirectURI}?status=0&bcscId=${bcscId}&pids=${pids}`;
+                jsonReturn.bcscId = bcscId;
+                jsonReturn.pids = pids;
+                const encryptedReturn = encryptJson(jsonReturn);
+                redirectURI = `${redirectURI}?status=0&value=${encryptedReturn}`;
                 redirectResponse(302, undefined, { Location: redirectURI });
             } else {
+                const pidArray = pidStringSplitAndSort(pidsData.data.pids);
                 // Fetch property details emulating VIEW_PIN permission
-                let ownerResults = await findPropertyDetails(pids, [
+                let ownerResults = await findPropertyDetails(pidArray, [
                     'VIEW_PIN',
                 ]);
 
@@ -221,9 +281,13 @@ export class BscsController extends Controller {
                         { livePinId: matchingOwner.livePinId },
                         { bcscId: bcscId },
                     );
+                    jsonReturn.livePinId = matchingOwner.livePinId;
+                    jsonReturn.bcscId = bcscId;
+                    jsonReturn.pids = matchingOwner.pids;
 
+                    const encryptedReturn = encryptJson(jsonReturn);
                     // Respond with success, including relevant user information
-                    redirectURI = `${redirectURI}?status=0&livePinId=${matchingOwner.livePinId}&pids=${matchingOwner.pids}`;
+                    redirectURI = `${redirectURI}?status=0&value=${encryptedReturn}`;
                     redirectResponse(302, undefined, { Location: redirectURI });
                 }
 
