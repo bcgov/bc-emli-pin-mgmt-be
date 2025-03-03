@@ -2314,6 +2314,60 @@
 				}
 			}
 		},
+		"/bcsc/key": {
+			"get": {
+				"operationId": "GetValidationKey",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidTokenErrorResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UnauthorizedErrorResponse"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/serverErrorType"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"BCSC"
+				],
+				"security": [
+					{
+						"vhers_api_key": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/bcsc": {
 			"get": {
 				"operationId": "InitiateLogin",
@@ -2431,6 +2485,14 @@
 					{
 						"in": "query",
 						"name": "livePinId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "bcscId",
 						"required": true,
 						"schema": {
 							"type": "string"
