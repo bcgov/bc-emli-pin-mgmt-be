@@ -202,6 +202,7 @@ export class BscsController extends Controller {
             if (!tokenData.access_token)
                 throw new Error('Token exchange failed'); // Ensure the token exchange was successful
 
+            console.log('token recieved', tokenData.access_token);
             // Step 2: Use the access token to request the users info
             const userInfoResponse = await fetch(
                 `${process.env.CSS_DOMAIN_NAME_URL}/userinfo`,
@@ -212,16 +213,19 @@ export class BscsController extends Controller {
                 },
             );
 
+            console.log('userInfoResponse', userInfoResponse);
             const userInfo = await userInfoResponse.json();
             // BCSC has a unique id but it's in the form of <id>@<bcsc_client_id>
             const bcscId = userInfo.sub.split('@')[0];
 
+            console.log('bcscId', bcscId);
             // Call the geocode API to get the user's address details
             let res: getAddressResults = { results: [] };
             res = await new GeocodeAPICaller().getAddress(
                 `${userInfo.address.street_address} ${userInfo.address.locality} ${userInfo.address.region}`,
             );
 
+            console.log('geocode response', res);
             // Check if any address result matches the site ID in the parsed state
             const matchedResult = res.results.find(
                 (p: any) => p.siteID === siteId,
@@ -231,24 +235,28 @@ export class BscsController extends Controller {
             const pids = pidsData.data.pids;
 
             if (matchedResult) {
+                console.log('matched result');
                 jsonReturn.bcscId = bcscId;
                 jsonReturn.pids = pids;
                 const encryptedReturn = encryptJson(jsonReturn);
+                console.log('returning json', jsonReturn);
                 redirectURI = `${redirectURI}?status=0&value=${encryptedReturn}`;
                 redirectResponse(302, undefined, { Location: redirectURI });
             } else {
+                console.log('unmatched result');
                 const pidArray = pidStringSplitAndSort(pidsData.data.pids);
                 // Fetch property details emulating VIEW_PIN permission
                 let ownerResults = await findPropertyDetails(pidArray, [
                     'VIEW_PIN',
                 ]);
-
+                console.log('finding owner');
                 // we can shortcut here if the user info bcsc id is already added to the database, then we know the owner matches
                 matchingOwner = ownerResults.find(
                     (f: any) => f.bcscId === bcscId,
                 );
 
                 if (!matchingOwner) {
+                    console.log('no owner match');
                     // Iterate through owner results to calculate name matching weights
                     ownerResults = ownerResults.map((m: any) => {
                         return {
@@ -275,6 +283,7 @@ export class BscsController extends Controller {
                 }
 
                 if (matchingOwner) {
+                    console.log('owner match');
                     // Update the active pin record with the user's BCSC ID
                     await updateActivePin(
                         { livePinId: matchingOwner.livePinId },
@@ -285,6 +294,8 @@ export class BscsController extends Controller {
                     jsonReturn.pids = matchingOwner.pids;
 
                     const encryptedReturn = encryptJson(jsonReturn);
+
+                    console.log('returning json', jsonReturn);
                     // Respond with success, including relevant user information
                     redirectURI = `${redirectURI}?status=0&value=${encryptedReturn}`;
                     redirectResponse(302, undefined, { Location: redirectURI });
